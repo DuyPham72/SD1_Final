@@ -1,0 +1,22 @@
+{
+  "name": "hospital_gui",
+  "version": "1.0.0",
+  "main": "main.js",
+  "type": "module",
+  "scripts": {
+    "start": "electron .",
+    "react-start": "cd frontend && npm start",
+    "dev": "concurrently \"npm run react-start\" \"wait-on http://localhost:3000 && electron .\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "electron": "^34.0.1",
+    "electron-is-dev": "^3.0.1",
+    "wait-on": "^8.0.2"
+  }
+}
