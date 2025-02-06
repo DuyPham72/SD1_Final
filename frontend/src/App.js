@@ -5,7 +5,7 @@ import Entertainment from './pages/Entertainment';
 import PatientInfo from './pages/PatientInfo';
 import CallNurse from './pages/CallNurse';
 import Settings from './pages/Settings';
-import './App.css';
+
 import './styles/TVStyles.css';  // Add this import
 
 function App() {

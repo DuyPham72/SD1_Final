@@ -1,0 +1,223 @@
+/* Base styles */
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #f0f5ff;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Main container */
+.dashboard {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header with time */
+.dashboard-header {
+    background-color: #1e3a8a;
+    color: white;
+    padding: 2rem;
+}
+
+.datetime-display h1 {
+    margin: 0;
+    font-size: 4rem;
+    font-weight: bold;
+}
+
+/* Main content */
+.dashboard-content {
+    flex: 1;
+    padding: 0 2rem;
+}
+
+.content-title {
+    text-align: center;
+    color: #1e3a8a;
+    font-size: 2.5rem;
+    margin: 1.5rem 0;
+}
+
+/* Patient cards grid */
+.patient-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.patient-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.patient-name {
+    color: #1e3a8a;
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    text-align: center;
+    border-bottom: 2px solid #1e3a8a;
+    padding-bottom: 0.5rem;
+}
+
+.patient-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.2rem;
+}
+
+.detail-row strong {
+    color: #1e3a8a;
+    font-weight: normal;
+}
+
+/* Navigation buttons */
+.navigation {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.nav-button {
+    background-color: #1e3a8a;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.8rem 1.5rem;
+    font-size: 1.2rem;
+    cursor: pointer;
+    min-width: 120px;
+}
+
+.nav-button:hover {
+    background-color: #2851c9;
+}
+
+/* Loading and Error states */
+.loading, .error {
+    text-align: center;
+    font-size: 1.5rem;
+    padding: 2rem;
+}
+
+.error {
+    color: #dc2626;
+}
+
+/* Patient Info Page Styles */
+.patient-info-page {
+    min-height: 100vh;
+    background-color: #f0f5ff;
+    padding: 2rem;
+}
+
+/* Header Section */
+.page-header {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.back-button {
+    padding: 0.8rem 1.5rem;
+    font-size: 1.2rem;
+    background-color: #1e3a8a;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.edit-button, .save-button {
+    padding: 0.8rem 1.5rem;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-left: auto;
+}
+
+.edit-button {
+    background-color: #1e3a8a;
+    color: white;
+}
+
+.save-button {
+    background-color: #15803d;
+    color: white;
+}
+
+/* Info Sections */
+.info-section {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.info-section h2 {
+    color: #1e3a8a;
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+}
+
+.info-grid {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.2rem;
+}
+
+.info-item label {
+    color: #1e3a8a;
+    font-weight: normal;
+}
+
+/* Edit Mode Styles */
+.edit-input {
+    padding: 0.5rem;
+    font-size: 1.2rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 6px;
+    width: 60%;
+}
+
+.edit-input:focus {
+    outline: none;
+    border-color: #1e3a8a;
+}
+
+/* Loading State */
+.loading {
+    text-align: center;
+    font-size: 1.5rem;
+    padding: 2rem;
+    color: #1e3a8a;
+}
+
+/* Page Title */
+.page-header h1 {
+    color: #1e3a8a;
+    font-size: 2rem;
+    margin: 0;
+}
