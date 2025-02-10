@@ -1,223 +1,206 @@
-/* Base styles */
-body {
-    margin: 0;
+.dashboard {
+    min-height: 100vh;
+    background-color: #0a1929;
     padding: 0;
-    background-color: #f0f5ff;
-    height: 100vh;
+    margin: 0;
+  }
+  
+.header-bar {
+    padding: 1rem; /* Reduce padding if needed */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: nowrap; /* Prevent wrapping */
+    color: white;
+}
+
+  
+  .menu-button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+  }
+  
+  .patient-header {
+    flex-grow: 1;
+    text-align: center;
+    margin: 0 auto; /* Existing centering */
+    margin-right: 250px; /* Moves 50 pixels to the right */
+    white-space: nowrap;
+}
+
+.current-time {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    max-width: 150px; /* Prevents it from overflowing */
+    white-space: nowrap;
     overflow: hidden;
 }
 
-/* Main container */
-.dashboard {
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-/* Header with time */
-.dashboard-header {
-    background-color: #1e3a8a;
-    color: white;
-    padding: 2rem;
-}
-
-.datetime-display h1 {
-    margin: 0;
-    font-size: 4rem;
-    font-weight: bold;
-}
-
-/* Main content */
-.dashboard-content {
-    flex: 1;
-    padding: 0 2rem;
-}
-
-.content-title {
-    text-align: center;
-    color: #1e3a8a;
-    font-size: 2.5rem;
-    margin: 1.5rem 0;
-}
-
-/* Patient cards grid */
-.patient-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 2rem;
-    max-width: 1400px;
+  
+  .content-container {
+    padding: 1rem 2rem;
+    max-width: 800px;
     margin: 0 auto;
-}
-
-.patient-card {
+  }
+  
+  /* Rest of your CSS remains the same */
+  
+  /* Info Cards */
+  .info-card {
     background: white;
-    padding: 2rem;
-    border-radius: 15px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.patient-name {
-    color: #1e3a8a;
-    font-size: 2rem;
-    margin-bottom: 2rem;
-    text-align: center;
-    border-bottom: 2px solid #1e3a8a;
-    padding-bottom: 0.5rem;
-}
-
-.patient-details {
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    width: auto;
+  }
+  
+  /* Patient Info Specific */
+  .patient-name {
+    font-size: 1.5rem;
+    color: #0a1929;
+    margin: 0 0 1rem 0;
+  }
+  
+  .staff-info {
+    margin-bottom: 1rem;
+  }
+  
+  .staff-member {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    color: #4a5568;
+  }
+  
+  .patient-details {
     display: flex;
     flex-direction: column;
-    gap: 1.2rem;
-}
-
-.detail-row {
+    gap: 0.5rem;
+    color: #4a5568;
+  }
+  
+  /* Schedule Section */
+  .schedule-list {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 1.2rem;
-}
-
-.detail-row strong {
-    color: #1e3a8a;
-    font-weight: normal;
-}
-
-/* Navigation buttons */
-.navigation {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    margin: 2rem 0;
-}
-
-.nav-button {
-    background-color: #1e3a8a;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 0.8rem 1.5rem;
-    font-size: 1.2rem;
-    cursor: pointer;
-    min-width: 120px;
-}
-
-.nav-button:hover {
-    background-color: #2851c9;
-}
-
-/* Loading and Error states */
-.loading, .error {
-    text-align: center;
-    font-size: 1.5rem;
-    padding: 2rem;
-}
-
-.error {
-    color: #dc2626;
-}
-
-/* Patient Info Page Styles */
-.patient-info-page {
-    min-height: 100vh;
-    background-color: #f0f5ff;
-    padding: 2rem;
-}
-
-/* Header Section */
-.page-header {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+  
+  .schedule-item {
     display: flex;
     align-items: center;
     gap: 2rem;
-    margin-bottom: 3rem;
-}
+  }
+  
+  .time {
+    min-width: 80px;
+    font-weight: bold;
+  }
+  
+  .activity {
+    color: #4a5568;
+  }
+  
+  h2 {
+    font-size: 1.3rem;
+    margin: 0 0 1rem 0;
+    color: #0a1929;
+  }
 
-.back-button {
-    padding: 0.8rem 1.5rem;
+
+  /* Sidebar Styles */
+.sidebar {
+    position: fixed;
+    left: -250px;
+    top: 0;
+    bottom: 0;
+    width: 250px;
+    background-color: #0a1929;
+    transition: left 0.3s ease;
+    z-index: 1000;
+    color: white;
+    padding: 1rem 0;
+  }
+  
+  .sidebar.open {
+    left: 0;
+  }
+  
+  .sidebar-header {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .room-info {
     font-size: 1.2rem;
-    background-color: #1e3a8a;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-}
-
-.edit-button, .save-button {
-    padding: 0.8rem 1.5rem;
-    font-size: 1.2rem;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-left: auto;
-}
-
-.edit-button {
-    background-color: #1e3a8a;
-    color: white;
-}
-
-.save-button {
-    background-color: #15803d;
-    color: white;
-}
-
-/* Info Sections */
-.info-section {
-    background: white;
-    padding: 2rem;
-    border-radius: 15px;
-    margin-bottom: 2rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.info-section h2 {
-    color: #1e3a8a;
-    font-size: 1.8rem;
-    margin-bottom: 1.5rem;
-}
-
-.info-grid {
-    display: grid;
-    gap: 1.5rem;
-}
-
-.info-item {
+    color: #4299e1;
+  }
+  
+  .sidebar-nav {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    padding: 1rem;
+    gap: 0.5rem;
+  }
+  
+  .nav-item {
+    display: flex;
     align-items: center;
-    font-size: 1.2rem;
-}
+    gap: 0.5rem;
+    padding: 1rem;
+    color: white;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    text-align: left;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+  }
+  
+  .nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  /* Overlay */
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+  
+  /* Adjust main content */
+  .main-content {
+    transition: margin-left 0.3s ease;
+  }
+  
+  .main-content.shifted {
+    margin-left: 250px;
+  }
 
-.info-item label {
-    color: #1e3a8a;
-    font-weight: normal;
-}
-
-/* Edit Mode Styles */
-.edit-input {
-    padding: 0.5rem;
+  .patient-selector {
+    padding: 0.8rem;
     font-size: 1.2rem;
     border: 2px solid #e2e8f0;
-    border-radius: 6px;
-    width: 60%;
-}
-
-.edit-input:focus {
+    border-radius: 8px;
+    background-color: white;
+    margin-right: 1rem;
+    cursor: pointer;
+  }
+  
+  .patient-selector:focus {
     outline: none;
     border-color: #1e3a8a;
-}
-
-/* Loading State */
-.loading {
-    text-align: center;
-    font-size: 1.5rem;
-    padding: 2rem;
-    color: #1e3a8a;
-}
-
-/* Page Title */
-.page-header h1 {
-    color: #1e3a8a;
-    font-size: 2rem;
-    margin: 0;
-}
+  }
+  
