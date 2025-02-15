@@ -204,3 +204,40 @@
     border-color: #1e3a8a;
   }
   
+/* Focus styles for TV navigation */
+*:focus {
+  outline: 3px solid #4299e1;
+  outline-offset: 2px;
+  transform: scale(1.05);
+  transition: all 0.2s ease;
+}
+
+/* Navigation instructions */
+.navigation-instructions {
+  position: fixed;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+  background-color: rgba(10, 25, 41, 0.8);
+  padding: 10px;
+  font-size: 1.2rem;
+}
+
+/* Enhance button styles for focus */
+.nav-item:focus,
+.menu-button:focus,
+.patient-selector:focus {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Make focused items more visible */
+.info-card:focus-within {
+  box-shadow: 0 0 0 3px #4299e1;
+}
+
+/* Ensure focused items are above others */
+*:focus {
+  z-index: 1;
+}

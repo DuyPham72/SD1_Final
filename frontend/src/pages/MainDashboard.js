@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/TVMode.css';
 
@@ -9,18 +9,16 @@ function MainDashboard() {
   const [selectedPatientId, setSelectedPatientId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isNavOpen, setIsNavOpen] = useState(false);
+  const [sidebarFocusIndex, setSidebarFocusIndex] = useState(0);
+  const [mainNavFocusIndex, setMainNavFocusIndex] = useState(null);
   const navigate = useNavigate();
-
-  const formatDate = (date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      weekday: 'long',
-      month: 'long',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-      hour12: true
-    }).format(date);
-  };
+  const sidebarRef = useRef(null);
+  const sidebarButtonsRef = useRef([]);
+  const selectRef = useRef(null);
+  const mainNavElementsRef = useRef({
+    menuButton: null,
+    patientSelector: null,
+  });
 
   // Update time every second
   useEffect(() => {
@@ -38,8 +36,10 @@ function MainDashboard() {
         const data = await response.json();
         setAllPatients(data);
         // Set first patient as default
-        setPatient(data[0]);
-        setSelectedPatientId(data[0].patientId);
+        if (data.length > 0) {
+          setPatient(data[0]);
+          setSelectedPatientId(data[0].patientId);
+        }
       } catch (error) {
         console.error('Error fetching patients:', error);
       } finally {
@@ -49,10 +49,152 @@ function MainDashboard() {
     fetchPatients();
   }, []);
 
+  // Automatically focus home button when sidebar opens
+  useEffect(() => {
+    if (isNavOpen && sidebarButtonsRef.current[0]) {
+      sidebarButtonsRef.current[0].focus();
+      setSidebarFocusIndex(0);
+      setMainNavFocusIndex(null);
+    }
+  }, [isNavOpen]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const mainNavElements = [
+        mainNavElementsRef.current.menuButton,
+        mainNavElementsRef.current.patientSelector
+      ];
+
+      // If sidebar is open
+      if (isNavOpen) {
+        const sidebarButtons = sidebarButtonsRef.current;
+        if (!sidebarButtons || sidebarButtons.length === 0) return;
+
+        switch(e.key) {
+          case 'ArrowUp':
+            e.preventDefault();
+            setSidebarFocusIndex(prevIndex => {
+              const newIndex = prevIndex > 0 ? prevIndex - 1 : sidebarButtons.length - 1;
+              sidebarButtons[newIndex]?.focus();
+              return newIndex;
+            });
+            break;
+
+          case 'ArrowDown':
+            e.preventDefault();
+            setSidebarFocusIndex(prevIndex => {
+              const newIndex = prevIndex < sidebarButtons.length - 1 ? prevIndex + 1 : 0;
+              sidebarButtons[newIndex]?.focus();
+              return newIndex;
+            });
+            break;
+
+          case 'Enter':
+            e.preventDefault();
+            sidebarButtons[sidebarFocusIndex]?.click();
+            break;
+
+          case 'Escape':
+            e.preventDefault();
+            setIsNavOpen(false);
+            break;
+        }
+        return;
+      }
+
+      // Main dashboard navigation when sidebar is closed
+      switch(e.key) {
+        case 'ArrowRight':
+        case 'ArrowDown':
+          e.preventDefault();
+          setMainNavFocusIndex(prev => 
+            prev === null || prev >= mainNavElements.length - 1 ? 0 : prev + 1
+          );
+          break;
+
+        case 'ArrowLeft':
+        case 'ArrowUp':
+          e.preventDefault();
+          setMainNavFocusIndex(prev => 
+            prev === null || prev <= 0 ? mainNavElements.length - 1 : prev - 1
+          );
+          break;
+
+        case 'Enter':
+          e.preventDefault();
+          if (mainNavFocusIndex !== null) {
+            const focusedElement = mainNavElements[mainNavFocusIndex];
+            
+            // Special handling for patient selector to open dropdown
+            if (focusedElement === mainNavElementsRef.current.patientSelector) {
+              // Open dropdown by focusing and triggering click
+              try {
+                focusedElement.focus();
+                focusedElement.click();
+                
+                // Programmatically open the dropdown if needed
+                if ('showPicker' in focusedElement) {
+                  focusedElement.showPicker();
+                }
+              } catch (error) {
+                console.error('Error opening dropdown:', error);
+              }
+            } else {
+              focusedElement?.click();
+            }
+          }
+          break;
+
+        // Number key shortcuts
+        case '1':
+          navigate('/entertainment');
+          break;
+        case '2':
+          navigate('/patient-info');
+          break;
+        case '3':
+          navigate('/call-nurse');
+          break;
+        case '4':
+          navigate('/settings');
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [sidebarFocusIndex, mainNavFocusIndex, isNavOpen, navigate]);
+
+  // Focus management for main nav elements
+  useEffect(() => {
+    const mainNavElements = [
+      mainNavElementsRef.current.menuButton,
+      mainNavElementsRef.current.patientSelector
+    ];
+
+    if (!isNavOpen && mainNavFocusIndex !== null && mainNavElements[mainNavFocusIndex]) {
+      mainNavElements[mainNavFocusIndex].focus();
+    }
+  }, [mainNavFocusIndex, isNavOpen]);
+
   const handlePatientChange = (patientId) => {
     const selected = allPatients.find(p => p.patientId === patientId);
     setSelectedPatientId(patientId);
     setPatient(selected);
+  };
+
+  const handleMenuButtonClick = () => {
+    setIsNavOpen(!isNavOpen);
+    if (!isNavOpen) {
+      setSidebarFocusIndex(0);
+      setMainNavFocusIndex(null);
+    }
+  };
+
+  const handlePatientSelectorClick = (e) => {
+    // Ensure the dropdown gets focus
+    e.target.focus();
   };
 
   if (loading) return <div className="loading">Loading...</div>;
@@ -61,39 +203,53 @@ function MainDashboard() {
   return (
     <div className="dashboard">
       {/* Sidebar Navigation */}
-      <div className={`sidebar ${isNavOpen ? 'open' : ''}`}>
+      <div 
+        ref={sidebarRef}
+        className={`sidebar ${isNavOpen ? 'open' : ''}`}
+      >
         <div className="sidebar-header">
           <div className="room-info">Room #{patient.room}</div>
         </div>
         <nav className="sidebar-nav">
-          <button className="nav-item" onClick={() => navigate('/')}>
-            🏠 Home
-          </button>
-          <button className="nav-item" onClick={() => navigate('/status')}>
-            📋 Patient Status & Feedback
-          </button>
-          <button className="nav-item" onClick={() => navigate('/library')}>
-            📚 Library
-          </button>
-          <button className="nav-item" onClick={() => navigate('/entertainment')}>
-            🎮 Entertainment
-          </button>
-          <button className="nav-item" onClick={() => navigate('/settings')}>
-            ⚙️ Settings
-          </button>
+          {[
+            { icon: '🏠', text: 'Home', path: '/' },
+            { icon: '📋', text: 'Patient Status & Feedback', path: '/status' },
+            { icon: '📚', text: 'Library', path: '/library' },
+            { icon: '🎮', text: 'Entertainment', path: '/entertainment' },
+            { icon: '⚙️', text: 'Settings', path: '/settings' }
+          ].map((item, index) => (
+            <button 
+              key={item.path}
+              ref={el => sidebarButtonsRef.current[index] = el}
+              className="nav-item" 
+              onClick={() => navigate(item.path)}
+              tabIndex={isNavOpen ? 0 : -1}
+            >
+              {item.icon} {item.text}
+            </button>
+          ))}
         </nav>
       </div>
 
       <div className="main-content">
         {/* Header Bar */}
         <div className="header-bar">
-          <button className="menu-button" onClick={() => setIsNavOpen(!isNavOpen)}>
+          <button 
+            ref={el => mainNavElementsRef.current.menuButton = el}
+            className={`menu-button ${mainNavFocusIndex === 0 ? 'focused' : ''}`}
+            onClick={handleMenuButtonClick}
+          >
             ☰
           </button>
           <select 
-            className="patient-selector"
+            ref={el => {
+              mainNavElementsRef.current.patientSelector = el;
+              selectRef.current = el;
+            }}
+            className={`patient-selector ${mainNavFocusIndex === 1 ? 'focused' : ''}`}
             value={selectedPatientId}
             onChange={(e) => handlePatientChange(e.target.value)}
+            onClick={handlePatientSelectorClick}
           >
             {allPatients.map(p => (
               <option key={p.patientId} value={p.patientId}>
@@ -145,6 +301,12 @@ function MainDashboard() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Navigation Instructions */}
+        <div className="navigation-instructions">
+          <p>Use ↑↓ arrows to navigate • Enter to select • Esc to go back</p>
+          <p>Quick access: 1-Entertainment • 2-Info • 3-Nurse • 4-Settings</p>
         </div>
       </div>
 
