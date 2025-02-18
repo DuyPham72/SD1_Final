@@ -91,15 +91,28 @@ body.dark-mode .info-card h2 {
     align-items: center;
     gap: 0.5rem;
     margin-bottom: 0.5rem;
-    color: #4a5568;
   }
   
   .patient-details {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    color: #4a5568;
   }
+
+  .staff-member span,
+.patient-details div {
+    color: #1e293b;  /* Dark text for light mode */
+}
+
+body.dark-mode .staff-member span,
+body.dark-mode .patient-details div {
+    color: #e2e8f0;  /* Light text for dark mode */
+}
+
+.staff-member span,
+.patient-details div {
+    transition: color 0.3s ease;
+}
   /* Patient Details */
 .patient-details span {
   transition: color 0.3s ease;
@@ -169,11 +182,12 @@ body.dark-mode .menu-button {
     top: 0;
     bottom: 0;
     width: 250px;
-    background-color: #0a1929;
-    transition: left 0.3s ease;
+    transition: all 0.3s ease;
     z-index: 1000;
-    color: white;
     padding: 1rem 0;
+    background-color: #f8fafc;
+    color: #1e293b;
+    border-right: 1px solid #e2e8f0;
   }
   
   .sidebar.open {
@@ -182,12 +196,17 @@ body.dark-mode .menu-button {
   
   .sidebar-header {
     padding: 1rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid  #e2e8f0;
   }
+
+  body.dark-mode .sidebar-header {
+    border-bottom: 1px solid #334155;
+}
+
   
   .room-info {
     font-size: 1.2rem;
-    color: #4299e1;
+    color: #1e3a8a;
   }
   
   .sidebar-nav {
@@ -202,7 +221,7 @@ body.dark-mode .menu-button {
     align-items: center;
     gap: 0.5rem;
     padding: 1rem;
-    color: white;
+    color: #1e293b;
     background: none;
     border: none;
     cursor: pointer;
@@ -213,8 +232,25 @@ body.dark-mode .menu-button {
   }
   
   .nav-item:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: #e2e8f0;
   }
+
+  body.dark-mode .sidebar {
+    background-color: #1e293b;
+    color: #e2e8f0;
+    border-right: 1px solid #334155;
+}
+body.dark-mode .room-info {
+  color: #60a5fa;
+}
+
+body.dark-mode .nav-item {
+  color: #e2e8f0;
+}
+body.dark-mode .nav-item:hover {
+  background-color: #334155;
+}
+
   
   /* Overlay */
   .overlay {
@@ -223,9 +259,13 @@ body.dark-mode .menu-button {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.2);
     z-index: 999;
   }
+
+  body.dark-mode .overlay {
+    background-color: rgba(0, 0, 0, 0.5);
+}
   
   /* Adjust main content */
   .main-content {
@@ -454,3 +494,5 @@ body.dark-mode .care-team-member {
 body.dark-mode .today-schedule h2 {
   color: #e2e8f0;
 }
+
+
