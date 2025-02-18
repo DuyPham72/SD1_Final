@@ -3,6 +3,7 @@
     background-color: #0a1929;
     padding: 0;
     margin: 0;
+    transition: all 0.3s ease;
   }
   
 .header-bar {
@@ -11,7 +12,8 @@
     align-items: center;
     justify-content: space-between;
     flex-wrap: nowrap; /* Prevent wrapping */
-    color: white;
+    background-color: #f8fafc;
+    color: #1e293b;
 }
 
   
@@ -31,6 +33,9 @@
     margin-right: 250px; /* Moves 50 pixels to the right */
     white-space: nowrap;
 }
+.patient-header, .current-time {
+  color: #1e293b;
+}
 
 .current-time {
     display: flex;
@@ -48,9 +53,18 @@
     margin: 0 auto;
   }
   
-  /* Rest of your CSS remains the same */
   
-  /* Info Cards */
+/* Patient Info Card */
+.info-card h2, 
+.info-card p, 
+.info-card div {
+  transition: color 0.3s ease;
+}
+
+body.dark-mode .info-card h2 {
+  color: #e2e8f0;
+}
+
   .info-card {
     background: white;
     border-radius: 10px;
@@ -58,6 +72,7 @@
     margin-bottom: 1rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     width: auto;
+    color: #1e293b;
   }
   
   /* Patient Info Specific */
@@ -85,6 +100,23 @@
     gap: 0.5rem;
     color: #4a5568;
   }
+  /* Patient Details */
+.patient-details span {
+  transition: color 0.3s ease;
+}
+
+body.dark-mode .patient-details span {
+  color: #e2e8f0;
+}
+
+/* Menu Button */
+.menu-button {
+  transition: all 0.3s ease;
+}
+
+body.dark-mode .menu-button {
+  color: #e2e8f0;
+}
   
   /* Schedule Section */
   .schedule-list {
@@ -97,11 +129,26 @@
     display: flex;
     align-items: center;
     gap: 2rem;
+    padding: 0.8rem;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    transition: background-color 0.3s ease;
+  }
+
+  body.dark-mode .schedule-item {
+    background-color: #2d3748;
   }
   
   .time {
     min-width: 80px;
     font-weight: bold;
+  }
+  body.dark-mode .time {
+    color: #60a5fa;
+  }
+
+  body.dark-mode .activity {
+    color: #e2e8f0;
   }
   
   .activity {
@@ -219,10 +266,18 @@
   left: 0;
   right: 0;
   text-align: center;
-  color: rgba(255, 255, 255, 0.7);
-  background-color: rgba(10, 25, 41, 0.8);
+  background-color: rgba(248, 250, 252, 0.9);
+  color: #1e293b;
   padding: 10px;
   font-size: 1.2rem;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+body.dark-mode .navigation-instructions {
+  background-color: #1e293b;
+  color: #e2e8f0;
+  border-top: 1px solid #334155;
 }
 
 /* Enhance button styles for focus */
@@ -240,4 +295,162 @@
 /* Ensure focused items are above others */
 *:focus {
   z-index: 1;
+}
+
+/*settings css*/
+
+/* Light Mode (Default) */
+body {
+  background-color: #f8fafc;
+  color: #1e293b;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.dashboard {
+  background-color: #f8fafc;
+  color: #1e293b;
+}
+
+.info-card {
+  background-color: white;
+  color: #1e293b;
+}
+
+/* Dark Mode */
+body.dark-mode {
+  background-color: #0f172a;
+  color: #e2e8f0;
+}
+
+body.dark-mode .dashboard {
+  background-color: #0f172a;
+  color: #e2e8f0;
+}
+
+body.dark-mode .info-card {
+  background-color: #1e293b;
+  color: #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Header Styles */
+.header-bar {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.dark-mode .header-bar {
+  background-color: #1e293b;
+  color: #e2e8f0;
+}
+
+body.dark-mode .patient-header,
+body.dark-mode .current-time {
+  color: #e2e8f0;
+}
+
+
+/* Toggle Button */
+.toggle-button {
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  background-color: #f1f5f9;
+  color: #1e293b;
+}
+
+body.dark-mode .toggle-button {
+  background-color: #334155;
+  color: #e2e8f0;
+}
+
+.toggle-button.active {
+  background-color: #3b82f6;
+  color: white;
+}
+
+/* Settings Section */
+.settings-section {
+  transition: background-color 0.3s ease;
+}
+
+.setting-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  background-color: #f8fafc;
+  margin-bottom: 1rem;
+}
+
+body.dark-mode .setting-option {
+  background-color: #1e293b;
+  color: #e2e8f0;
+}
+
+/* Patient Selector */
+.patient-selector {
+  background-color: white;
+  color: #1e293b;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+body.dark-mode .patient-selector {
+  background-color: #1e293b;
+  color: #e2e8f0;
+  border-color: #334155;
+}
+
+/* Navigation Instructions */
+
+
+body.dark-mode .navigation-instructions {
+  background-color: rgba(15, 23, 42, 0.9);
+  color: #e2e8f0;
+}
+
+/* Menu Button */
+.menu-button {
+  transition: color 0.3s ease;
+  color: #1e293b;
+}
+
+body.dark-mode .menu-button {
+  color: #e2e8f0;
+}
+
+/* Focus States */
+*:focus {
+  outline: 3px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+body.dark-mode *:focus {
+  outline-color: #60a5fa;
+}
+
+/* Care Team Icons */
+.care-team-member {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+body.dark-mode .care-team-member {
+  color: #e2e8f0;
+}
+
+/* Today's Schedule */
+.today-schedule {
+  margin-top: 2rem;
+}
+
+body.dark-mode .today-schedule h2 {
+  color: #e2e8f0;
 }

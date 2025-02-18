@@ -213,7 +213,7 @@ function MainDashboard() {
         <nav className="sidebar-nav">
           {[
             { icon: '🏠', text: 'Home', path: '/' },
-            { icon: '📋', text: 'Patient Status & Feedback', path: '/status' },
+            { icon: '📋', text: 'Patient Status & Feedback', path: '/patient-info' },
             { icon: '📚', text: 'Library', path: '/library' },
             { icon: '🎮', text: 'Entertainment', path: '/entertainment' },
             { icon: '⚙️', text: 'Settings', path: '/settings' }
