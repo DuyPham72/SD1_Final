@@ -1,0 +1,262 @@
+/* Base layout */
+.dashboard {
+    height: 100vh;
+    display: flex;
+    background-color: #f0f5ff;
+  }
+  
+  /* Sidebar */
+  .sidebar {
+    width: 300px;
+    background-color: #1e3a8a;
+    color: white;
+    position: fixed;
+    height: 100vh;
+    left: -300px;
+    transition: left 0.3s ease;
+    z-index: 1000;
+  }
+  
+  .sidebar.open {
+    left: 0;
+  }
+  
+  .sidebar-header {
+    padding: 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .room-info {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  .sidebar-nav {
+    padding: 1rem;
+  }
+  
+  .nav-item {
+    width: 100%;
+    padding: 1rem;
+    border: none;
+    background: none;
+    color: white;
+    font-size: 1.2rem;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .nav-item:hover,
+  .nav-item:focus {
+    background-color: rgba(255, 255, 255, 0.1);
+    outline: none;
+  }
+  
+  /* Main content area */
+  .main-content {
+    flex: 1;
+    margin-left: 0;
+    transition: margin-left 0.3s ease;
+  }
+  
+  /* Header bar */
+  .header-bar {
+    background-color: #1e3a8a;
+    color: white;
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .menu-button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+  }
+  
+  .menu-button:hover,
+  .menu-button.focused {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .patient-selector {
+    padding: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid white;
+    background-color: transparent;
+    color: white;
+    font-size: 1rem;
+  }
+  
+  .patient-header {
+    margin: 0;
+    flex: 1;
+    font-size: 1.5rem;
+  }
+  
+  .current-time {
+    text-align: right;
+    font-size: 1.2rem;
+  }
+  
+  /* Content container */
+  .content-container {
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 2rem;
+  }
+  
+  /* Info cards */
+  .info-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .staff-info,
+  .patient-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    font-size: 1.2rem;
+  }
+  
+  .staff-member {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  /* Schedule list */
+  .schedule-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .schedule-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .time {
+    font-weight: bold;
+    min-width: 100px;
+  }
+  
+  /* Navigation instructions */
+  .navigation-instructions {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(30, 58, 138, 0.9);
+    color: white;
+    padding: 1rem;
+    text-align: center;
+    font-size: 1rem;
+  }
+  
+  /* Overlay */
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+  
+  /* Focus states */
+  .focused {
+    outline: 2px solid white;
+    outline-offset: 2px;
+  }
+  
+  /* Loading and error states */
+  .loading,
+  .error {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-size: 1.5rem;
+  }
+  
+  .error {
+    color: #dc2626;
+  }
+
+  /* Add these styles to your MainDashboard.css file */
+
+.schedule-list {
+  margin-top: 10px;
+}
+
+.schedule-item {
+  display: flex;
+  padding: 8px;
+  background-color: #f5f5f5;
+  transition: all 0.3s ease;
+}
+
+.schedule-item > div:first-child {
+  display: flex;
+}
+
+.schedule-item:hover {
+  background-color: #e9e9e9;
+}
+
+.time {
+  font-weight: bold;
+  min-width: 85px;
+  color: #2a5885;
+}
+
+.activity {
+  flex: 1;
+  color:#2a5885;
+}
+
+.notes {
+  font-size: 0.9em;
+  font-style: italic;
+  margin-top: 4px;
+  margin-left: 85px;
+  color: #666;
+}
+
+/* Style for past activities */
+.past-activity {
+  text-decoration: line-through;
+  opacity: 0.7;
+  background-color: #f0f0f0;
+  color: #777;
+}
+
+.past-activity .time {
+  color: #777;
+}
+
+.past-activity .notes {
+  color: #999;
+}
+
+.no-schedule {
+  font-style: italic;
+  color: #777;
+  padding: 10px;
+  text-align: center;
+}

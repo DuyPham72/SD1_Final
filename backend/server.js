@@ -33,6 +33,98 @@ app.get('/api/patients', async (req, res) => {
   }
 });
 
+// Get a specific patient by ID
+app.get('/api/patients/:patientId', async (req, res) => {
+  try {
+    const patient = await Patient.findOne({ patientId: req.params.patientId });
+    if (!patient) {
+      return res.status(404).json({ message: 'Patient not found' });
+    }
+    res.json(patient);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Update a patient
+app.put('/api/patients/:patientId', async (req, res) => {
+  try {
+    const updatedPatient = await Patient.findOneAndUpdate(
+      { patientId: req.params.patientId },
+      req.body,
+      { new: true }
+    );
+    if (!updatedPatient) {
+      return res.status(404).json({ message: 'Patient not found' });
+    }
+    res.json(updatedPatient);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Add an item to patient's schedule
+app.post('/api/patients/:patientId/schedule', async (req, res) => {
+  try {
+    const patient = await Patient.findOne({ patientId: req.params.patientId });
+    if (!patient) {
+      return res.status(404).json({ message: 'Patient not found' });
+    }
+    
+    patient.schedule.push(req.body);
+    patient.lastUpdated = Date.now();
+    
+    const updatedPatient = await patient.save();
+    res.status(201).json(updatedPatient);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Update a schedule item
+app.put('/api/patients/:patientId/schedule/:itemId', async (req, res) => {
+  try {
+    const patient = await Patient.findOne({ patientId: req.params.patientId });
+    if (!patient) {
+      return res.status(404).json({ message: 'Patient not found' });
+    }
+    
+    const scheduleItem = patient.schedule.id(req.params.itemId);
+    if (!scheduleItem) {
+      return res.status(404).json({ message: 'Schedule item not found' });
+    }
+    
+    // Update schedule item fields
+    Object.keys(req.body).forEach(key => {
+      scheduleItem[key] = req.body[key];
+    });
+    
+    patient.lastUpdated = Date.now();
+    const updatedPatient = await patient.save();
+    res.json(updatedPatient);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Delete a schedule item
+app.delete('/api/patients/:patientId/schedule/:itemId', async (req, res) => {
+  try {
+    const patient = await Patient.findOne({ patientId: req.params.patientId });
+    if (!patient) {
+      return res.status(404).json({ message: 'Patient not found' });
+    }
+    
+    patient.schedule.id(req.params.itemId).remove();
+    patient.lastUpdated = Date.now();
+    
+    const updatedPatient = await patient.save();
+    res.json(updatedPatient);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 const PORT = process.env.PORT || 5000;
 
 mongoose.connect(process.env.MONGODB_URI)
@@ -45,17 +137,3 @@ mongoose.connect(process.env.MONGODB_URI)
   .catch((error) => {
     console.error('MongoDB connection error:', error);
   });
-
-  // In backend/server.js, add this new route
-app.put('/api/patients/:patientId', async (req, res) => {
-  try {
-    const updatedPatient = await Patient.findOneAndUpdate(
-      { patientId: req.params.patientId },
-      req.body,
-      { new: true }
-    );
-    res.json(updatedPatient);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});

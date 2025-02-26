@@ -1,0 +1,480 @@
+/* PatientInfo.css */
+
+/* Base Styles */
+:root {
+  --primary-color: #1d3557;
+  --secondary-color: #3a5a87;
+  --text-color: #333;
+  --background-color: #f5f7fa;
+  --card-background: #fff;
+  --border-color: #e1e4e8;
+  --focus-color: #4361ee;
+  --button-primary: #1d3557;
+  --button-primary-hover: #2a4a7f;
+  --button-text: #fff;
+  --save-button-color: #2e7d32;
+  --save-button-hover: #1b5e20;
+  --error-color: #d32f2f;
+  --header-bg: #1d3557;
+  --header-text: #fff;
+  --nav-instructions-bg: #1d3557;
+  --nav-instructions-text: #fff;
+}
+
+/* Dark Mode */
+[data-theme='dark'] {
+  --primary-color: #1d3557;
+  --secondary-color: #3a5a87;
+  --text-color: #e1e4e8;
+  --background-color: #121212;
+  --card-background: #1e2332;
+  --border-color: #3a4055;
+  --focus-color: #4361ee;
+  --button-primary: #3a5a87;
+  --button-primary-hover: #4a6a97;
+  --button-text: #fff;
+  --save-button-color: #2e7d32;
+  --save-button-hover: #1b5e20;
+  --error-color: #f44336;
+  --header-bg: #1d3557;
+  --header-text: #fff;
+  --nav-instructions-bg: #121212;
+  --nav-instructions-text: #e1e4e8;
+}
+
+/* Main Layout */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.content-container {
+  padding: 1rem;
+  margin-bottom: 60px; /* Space for navigation instructions */
+}
+
+/* Loading and Error States */
+.loading, .error {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+}
+
+.error {
+  color: var(--error-color);
+}
+
+.error-message {
+  background-color: rgba(211, 47, 47, 0.1);
+  color: var(--error-color);
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  margin-left: 1rem;
+  font-size: 0.9rem;
+  display: inline-block;
+}
+
+/* Header Styling */
+.header {
+  background-color: var(--header-bg);
+  color: var(--header-text);
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 10;
+}
+
+.header-title {
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.menu-button {
+  background: none;
+  border: none;
+  color: var(--header-text);
+  font-size: 1.5rem;
+  cursor: pointer;
+  margin-right: 1rem;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.menu-button:hover, .menu-button:focus {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+.current-time {
+  margin-right: 1rem;
+  font-size: 0.9rem;
+}
+
+.patient-selector {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--header-text);
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  margin-right: 1rem;
+  cursor: pointer;
+}
+
+.patient-selector:focus {
+  outline: 2px solid var(--focus-color);
+}
+
+.header-edit-button, .header-save-button {
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.2s;
+}
+
+.header-edit-button {
+  background-color: var(--button-primary);
+  color: var(--button-text);
+}
+
+.header-edit-button:hover {
+  background-color: var(--button-primary-hover);
+}
+
+.header-save-button {
+  background-color: var(--save-button-color);
+  color: var(--button-text);
+}
+
+.header-save-button:hover {
+  background-color: var(--save-button-hover);
+}
+
+.header-edit-button.disabled, .header-save-button.disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.header-edit-button.focused, .header-save-button.focused, .patient-selector.focused, .menu-button.focused {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
+}
+
+/* Info Card Styling */
+.info-card {
+  background-color: var(--card-background);
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  transition: background-color 0.3s;
+}
+
+.info-card h2 {
+  font-size: 1.3rem;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: var(--primary-color);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
+}
+
+.info-fields {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.info-field {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  align-items: center;
+}
+
+.info-field label {
+  font-weight: 500;
+  color: var(--secondary-color);
+}
+
+.info-field span {
+  padding: 0.5rem 0;
+}
+
+.editable-input {
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  width: 100%;
+  max-width: 400px;
+}
+
+.editable-input:focus, .editable-input.focused {
+  outline: 2px solid var(--focus-color);
+  border-color: var(--focus-color);
+}
+
+.editable-input:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Sidebar Navigation */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 250px;
+  background-color: var(--primary-color);
+  color: white;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  z-index: 1000;
+  overflow-y: auto;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar.open {
+  transform: translateX(0);
+}
+
+.sidebar-header {
+  padding: 1rem;
+  background-color: var(--secondary-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebar-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.nav-items {
+  padding: 1rem 0;
+}
+
+.nav-item {
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  color: white;
+  text-decoration: none;
+}
+
+.nav-item:hover {
+  background-color: var(--secondary-color);
+}
+
+.nav-item.active {
+  background-color: var(--secondary-color);
+  font-weight: 500;
+}
+
+.nav-item.focused {
+  outline: 2px solid white;
+  outline-offset: -2px;
+}
+
+.nav-item-icon {
+  margin-right: 0.75rem;
+}
+
+/* Navigation Instructions */
+.navigation-instructions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--nav-instructions-bg);
+  color: var(--nav-instructions-text);
+  padding: 0.75rem;
+  text-align: center;
+  font-size: 0.85rem;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Adjustments */
+@media (min-width: 768px) {
+  .info-fields {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .header-right {
+    margin-top: 0.5rem;
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .current-time {
+    display: none;
+  }
+  
+  .info-field {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+  }
+}
+
+/* Patient Background */
+.layout-container {
+  min-height: 100vh;
+  transition: padding-left 0.3s ease;
+}
+
+.layout-with-sidebar {
+  padding-left: 250px;
+}
+
+/* Patient info at top of sidebar */
+.patient-info-sidebar {
+  padding: 1rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.patient-name {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.patient-details {
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+/* Add to your PatientInfo.css file */
+
+/* Schedule section styling */
+.schedule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.schedule-item {
+  display: grid;
+  grid-template-columns: 100px 1fr auto;
+  align-items: center;
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.schedule-item .time {
+  font-weight: bold;
+}
+
+.schedule-item .activity {
+  flex-grow: 1;
+}
+
+.schedule-item .notes {
+  font-style: italic;
+  opacity: 0.8;
+}
+
+/* Schedule edit button styling */
+.schedule-edit-button {
+  padding: 6px 12px;
+  background-color: #4a72ab;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.schedule-edit-button:hover {
+  background-color: #5a82bb;
+}
+
+.schedule-edit-button.focused {
+  background-color: #e67e22;
+  box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.5);
+  outline: none;
+}
+
+/* Improve focus styles for inputs */
+.editable-input.focused {
+  border-color: #e67e22;
+  box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.5);
+  outline: none;
+}
+
+/* Edit/Save button focus state */
+.header-edit-button.focused,
+.header-save-button.focused {
+  box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.5);
+  outline: none;
+}
+
+/* Disabled button state */
+button.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Error message styling */
+.error-message {
+  color: #e74c3c;
+  background-color: rgba(231, 76, 60, 0.1);
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin-left: 10px;
+}
+
+/* Dark mode adjustments */
+.dark-mode .schedule-item {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.dark-mode .schedule-edit-button {
+  background-color: #3d5a80;
+}
+
+.dark-mode .schedule-edit-button:hover {
+  background-color: #4d6a90;
+}
+
+.dark-mode .schedule-edit-button.focused {
+  background-color: #e67e22;
+}
