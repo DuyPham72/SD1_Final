@@ -11,63 +11,6 @@ import {
   NavigationInstructions
 } from '../shared';
 
-// Custom hook for schedule editing
-const useScheduleEditing = (editedData, setEditedData) => {
-  const [editingScheduleItem, setEditingScheduleItem] = useState(null);
-  const [focusedScheduleIndex, setFocusedScheduleIndex] = useState(null);
-  const scheduleButtonRefs = useRef([]);
-  const scheduleInputRefs = useRef([]);
-
-  const handleItemEdit = useCallback((index) => {
-    setEditingScheduleItem(index);
-    setFocusedScheduleIndex(index);
-    requestAnimationFrame(() => {
-      scheduleInputRefs.current[index]?.timeInput?.focus();
-    });
-  }, []);
-
-  const handleItemUpdate = useCallback((index, field, value) => {
-    setEditedData(prev => ({
-      ...prev,
-      schedule: prev.schedule.map((item, i) => 
-        i === index ? { ...item, [field]: value } : item
-      )
-    }));
-  }, [setEditedData]);
-
-  const handleKeyDown = useCallback((e, index, field) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      if (field === 'time') {
-        scheduleInputRefs.current[index]?.activityInput?.focus();
-      } else if (field === 'activity') {
-        scheduleInputRefs.current[index]?.notesInput?.focus();
-      } else if (field === 'notes') {
-        setEditingScheduleItem(null);
-        setFocusedScheduleIndex(index);
-        scheduleButtonRefs.current[index]?.focus();
-      }
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      setEditingScheduleItem(null);
-      setFocusedScheduleIndex(index);
-      scheduleButtonRefs.current[index]?.focus();
-    }
-  }, []);
-
-  return {
-    editingScheduleItem,
-    setEditingScheduleItem,
-    focusedScheduleIndex,
-    setFocusedScheduleIndex,
-    scheduleButtonRefs,
-    scheduleInputRefs,
-    handleItemEdit,
-    handleItemUpdate,
-    handleKeyDown
-  };
-};
-
 // Custom hook for form state management
 const usePatientForm = (patient, setPatient) => {
   const [editing, setEditing] = useState(false);
@@ -125,8 +68,6 @@ const usePatientForm = (patient, setPatient) => {
 
       const updatedData = await response.json();
       
-      // The key change is here - properly updating the patient data
-      // which will update the cache and ensure MainDashboard sees changes
       setPatient(updatedData);
       setEditing(false);
       
@@ -217,6 +158,11 @@ function PatientInfo() {
   // Navigation section state
   const [navigationSection, setNavigationSection] = useState('main');
   const [focusedInputIndex, setFocusedInputIndex] = useState(null);
+  const [focusedScheduleIndex, setFocusedScheduleIndex] = useState(null);
+  const [editingScheduleItem, setEditingScheduleItem] = useState(null);
+  
+  // State for save button hover
+  const [isSaveButtonHovered, setIsSaveButtonHovered] = useState(false);
   
   // Refs
   const mainNavElementsRef = useRef({
@@ -225,27 +171,14 @@ function PatientInfo() {
     editButton: null
   });
   const sidebarButtonsRef = useRef([]);
+  const scheduleButtonRefs = useRef([]);
+  const scheduleInputRefs = useRef([]);
 
-  // Custom hooks
+  // Custom form hook
   const {
     editing, setEditing, editedData, setEditedData, saveError, isSaving,
     inputRefs, initializeForm, saveForm, updateField, getFieldValue
   } = usePatientForm(patient, setPatient);
-
-  const {
-    editingScheduleItem, setEditingScheduleItem, focusedScheduleIndex, 
-    setFocusedScheduleIndex, scheduleButtonRefs, scheduleInputRefs,
-    handleItemEdit, handleItemUpdate, handleKeyDown
-  } = useScheduleEditing(editedData, setEditedData);
-
-  // Clear refs when editing status changes
-  useEffect(() => {
-    if (editing) {
-      inputRefs.current = [];
-      scheduleButtonRefs.current = [];
-      scheduleInputRefs.current = [];
-    }
-  }, [editing]);
 
   // Handle edit button click
   const handleEdit = useCallback(() => {
@@ -273,7 +206,72 @@ function PatientInfo() {
         mainNavElementsRef.current.editButton?.focus();
       });
     });
-  }, [saveForm, editingScheduleItem, setMainNavFocusIndex]);
+  }, [saveForm, editingScheduleItem, setEditingScheduleItem, setMainNavFocusIndex]);
+
+  // Schedule item editing functions
+  const handleItemEdit = useCallback((index) => {
+    setEditingScheduleItem(index);
+    setFocusedScheduleIndex(index);
+    requestAnimationFrame(() => {
+      scheduleInputRefs.current[index]?.timeInput?.focus();
+    });
+  }, []);
+
+  const handleItemUpdate = useCallback((index, field, value) => {
+    setEditedData(prev => ({
+      ...prev,
+      schedule: prev.schedule.map((item, i) => 
+        i === index ? { ...item, [field]: value } : item
+      )
+    }));
+  }, [setEditedData]);
+
+  const handleKeyDown = useCallback((e, index, field) => {
+    // If hovering over save button and pressing Enter, save changes
+    if (e.key === 'Enter' && isSaveButtonHovered) {
+      e.preventDefault();
+      handleSave();
+      return;
+    }
+
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (field === 'time') {
+        scheduleInputRefs.current[index]?.activityInput?.focus();
+      } else if (field === 'activity') {
+        scheduleInputRefs.current[index]?.notesInput?.focus();
+      } else if (field === 'notes') {
+        // When pressing Enter on the last field (notes), 
+        // save all changes instead of just closing the edit mode
+        handleSave();
+      }
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      setEditingScheduleItem(null);
+      setFocusedScheduleIndex(index);
+      scheduleButtonRefs.current[index]?.focus();
+    } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+      // Allow arrow navigation to exit editing mode and go to Save Changes button
+      if (field === 'notes' && e.key === 'ArrowDown') {
+        e.preventDefault();
+        setEditingScheduleItem(null);
+        setNavigationSection('main');
+        setMainNavFocusIndex(2);
+        requestAnimationFrame(() => {
+          mainNavElementsRef.current.editButton?.focus();
+        });
+      }
+    }
+  }, [isSaveButtonHovered, handleSave, setMainNavFocusIndex]);
+  
+  // Clear refs when editing status changes
+  useEffect(() => {
+    if (editing) {
+      inputRefs.current = [];
+      scheduleButtonRefs.current = [];
+      scheduleInputRefs.current = [];
+    }
+  }, [editing]);
 
   // Handle the edit/save button click
   const handleButtonClick = useCallback((e) => {
@@ -561,6 +559,8 @@ function PatientInfo() {
           setFocusedInputIndex(null);
           setFocusedScheduleIndex(null);
         }}
+        onMouseEnter={() => setIsSaveButtonHovered(true)}
+        onMouseLeave={() => setIsSaveButtonHovered(false)}
       >
         {editing ? (isSaving ? 'Saving...' : 'Save Changes') : 'Edit Information'}
       </button>
