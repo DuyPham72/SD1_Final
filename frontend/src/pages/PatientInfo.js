@@ -54,7 +54,7 @@ const usePatientForm = (patient, setPatient) => {
     }
 
     try {
-      const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+      const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
       const response = await fetch(`${API_BASE_URL}/api/patients/${editedData.patientId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
