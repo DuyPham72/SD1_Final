@@ -125,7 +125,7 @@ app.delete('/api/patients/:patientId/schedule/:itemId', async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
