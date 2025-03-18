@@ -110,10 +110,7 @@ export const useKeyboardNavigation = ({
         }
         break;
 
-      case '1': navigate('/entertainment'); break;
-      case '2': navigate('/patient-info'); break;
-      case '3': navigate('/call-nurse'); break;
-      case '4': navigate('/settings'); break;
+
 
       default:
         break;

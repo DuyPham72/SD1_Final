@@ -1,0 +1,72 @@
+/* src/styles/PatientFeedbackTab.css - Modified for horizontal category layout */
+
+/* Keep existing CSS styles and add/modify these: */
+
+/* Make category ratings display horizontally */
+.category-ratings {
+  margin-top: 20px;
+  border-top: 1px solid #dee2e6;
+  padding-top: 15px;
+}
+
+.rating-categories-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.category-rating-item {
+  background-color: white;
+  border-radius: 4px;
+  padding: 15px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  flex: 1;
+  min-width: 150px;
+  max-width: calc(50% - 10px); /* Two items per row on most screens */
+}
+
+.category-name {
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 5px;
+  font-size: 1rem;
+}
+
+.category-stars {
+  font-size: 1.2rem;
+  margin: 5px 0;
+}
+
+.category-score {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+/* Adjust for different screen sizes */
+@media (min-width: 768px) {
+  .category-rating-item {
+    /* Three items per row on medium screens */
+    max-width: calc(33.333% - 15px);
+  }
+}
+
+@media (min-width: 992px) {
+  .category-rating-item {
+    /* Five items per row on large screens */
+    max-width: calc(20% - 15px);
+  }
+}
+
+@media (max-width: 576px) {
+  .category-rating-item {
+    /* One item per row on very small screens */
+    max-width: 100%;
+  }
+}

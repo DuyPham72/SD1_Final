@@ -7,8 +7,7 @@ import {
   useNavigationState,
   useKeyboardNavigation,
   Layout,
-  Header,
-  NavigationInstructions
+  Header
 } from '../shared';
 import youtubeIcon from '../assets/youtube.png';
 import spotifyIcon from '../assets/spotify.png';
@@ -96,8 +95,6 @@ function Entertainment() {
           </div>
         </div>
       </div>
-
-      <NavigationInstructions />
     </Layout>
   );
 }

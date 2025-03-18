@@ -478,3 +478,216 @@ button.disabled {
 .dark-mode .schedule-edit-button.focused {
   background-color: #e67e22;
 }
+
+/* Schedule Card Styles */
+.schedule-card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  padding: 20px;
+  margin: 20px;
+}
+
+.schedule-card h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #334155;
+  font-size: 1.25rem;
+  font-weight: 600;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 12px;
+}
+
+/* Schedule Section Layout */
+
+
+/* Schedule Actions */
+.schedule-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 15px;
+  padding: 5px 0;
+}
+
+.add-schedule-button {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+}
+
+.add-schedule-button:hover {
+  background-color: #1d4ed8;
+}
+
+/* Schedule List */
+.schedule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.schedule-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.schedule-item:hover {
+  background-color: #f9fafb;
+}
+
+.schedule-item:nth-child(even) {
+  background-color: #f9fafb;
+}
+
+/* Time and Activity Display */
+.schedule-item .time {
+  color: #6b7280;
+  font-size: 0.95rem;
+  width: 90px;
+  font-weight: 500;
+}
+
+.schedule-item .activity {
+  flex: 1;
+  font-weight: 500;
+  color: #374151;
+}
+
+.schedule-item .notes {
+  color: #9ca3af;
+  font-style: italic;
+  font-weight: normal;
+  margin-left: 5px;
+}
+
+/* Empty Schedule Message */
+.no-schedule {
+  padding: 20px;
+  text-align: center;
+  color: #6b7280;
+  font-style: italic;
+  background-color: #f9fafb;
+  border-radius: 6px;
+  border: 1px dashed #d1d5db;
+}
+
+/* Strikethrough for completed/past activities */
+.past-activity .activity,
+.past-activity .time,
+.schedule-item.completed .time,
+.schedule-item.completed .activity {
+  text-decoration: line-through;
+  color: #9ca3af;
+}
+
+/* Action Buttons */
+.item-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.schedule-edit-button,
+.delete-button {
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.schedule-edit-button {
+  background-color: #f1f5f9;
+  color: #334155;
+}
+
+.schedule-edit-button:hover {
+  background-color: #e2e8f0;
+}
+
+.delete-button {
+  background-color: #fee2e2;
+  color: #ef4444;
+}
+
+.delete-button:hover {
+  background-color: #fecaca;
+}
+
+/* Delete Button in Edit Mode */
+.delete-item-button {
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-left: 5px;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.delete-item-button:hover {
+  background-color: #dc2626;
+}
+
+/* Editing Mode Styles */
+.schedule-item.editing {
+  background-color: #f1f5f9;
+  padding: 15px;
+  border: 1px solid #bfdbfe;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.schedule-input {
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  padding: 8px 10px;
+  margin-right: 8px;
+  font-size: 0.9rem;
+}
+
+.schedule-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.time-input {
+  width: 100px;
+}
+
+.activity-input {
+  flex: 1;
+  min-width: 150px;
+}
+
+.notes-input {
+  flex: 1;
+  max-width: 200px;
+}
+
+/* Focus Styles */
+.schedule-edit-button.focused {
+  outline: 2px solid #3b82f6;
+  outline-offset: 1px;
+}

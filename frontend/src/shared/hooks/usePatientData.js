@@ -108,6 +108,40 @@ export function usePatientData() {
     );
   }, []);
 
+  // Function to update patient data on the server
+  const updatePatientData = useCallback(async (updatedPatient) => {
+    setLoading(true);
+    
+    try {
+      const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+      const response = await fetch(`${API_BASE_URL}/api/patients/${updatedPatient.patientId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedPatient),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error updating patient data: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      // Update local state and cache
+      updatePatient(data);
+      
+      console.log("Patient data updated successfully:", data);
+      return data;
+    } catch (error) {
+      console.error("Failed to update patient data:", error);
+      setError(error.message);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, [updatePatient]);
+
   // Handle patient change
   const handlePatientChange = useCallback((patientId) => {
     setSelectedPatientId(patientId);
@@ -121,6 +155,7 @@ export function usePatientData() {
     loading, 
     error,
     handlePatientChange,
+    updatePatientData, // Add the function to update patient data on the server
     invalidateCache: useCallback((patientId) => {
       if (patientId) {
         delete patientCache[patientId];

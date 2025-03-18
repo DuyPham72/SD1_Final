@@ -8,8 +8,41 @@ import {
   useKeyboardNavigation,
   Layout,
   Header,
-  NavigationInstructions
 } from '../shared';
+import PatientFeedbackTab from '../shared/components/PatientFeedbackTab';
+
+// Time conversion utility function
+const timeToMinutes = (timeStr) => {
+  if (!timeStr) return Number.MAX_SAFE_INTEGER; // Put empty times at the end
+  
+  // Extract hours, minutes, and AM/PM
+  const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)?/i);
+  if (!match) return Number.MAX_SAFE_INTEGER;
+  
+  let [_, hours, minutes, period] = match;
+  hours = parseInt(hours, 10);
+  minutes = parseInt(minutes, 10);
+  
+  // Convert to 24-hour format
+  if (period && period.toUpperCase() === 'PM' && hours < 12) {
+    hours += 12;
+  } else if (period && period.toUpperCase() === 'AM' && hours === 12) {
+    hours = 0;
+  }
+  
+  return hours * 60 + minutes;
+};
+
+// Function to sort schedule items by time
+const sortScheduleByTime = (schedule) => {
+  if (!schedule || !Array.isArray(schedule)) return [];
+  
+  return [...schedule].sort((a, b) => {
+    const timeA = timeToMinutes(a.time);
+    const timeB = timeToMinutes(b.time);
+    return timeA - timeB;
+  });
+};
 
 // Custom hook for form state management
 const usePatientForm = (patient, setPatient) => {
@@ -25,12 +58,12 @@ const usePatientForm = (patient, setPatient) => {
     setEditing(true);
     setEditedData({
       ...patient,
-      schedule: patient.schedule || [
+      schedule: sortScheduleByTime(patient.schedule || [
         { time: '9:00 AM', activity: 'Medication', notes: 'Pain relief' },
         { time: '10:00 AM', activity: 'Physical Therapy', notes: null },
         { time: '12:00 PM', activity: 'Lunch', notes: 'Vegetarian' },
         { time: '2:00 PM', activity: 'Doctor Visit', notes: 'Check vitals' }
-      ]
+      ])
     });
   }, [patient]);
 
@@ -54,11 +87,17 @@ const usePatientForm = (patient, setPatient) => {
     }
 
     try {
+      // Sort schedule before saving
+      const dataToSave = {
+        ...editedData,
+        schedule: sortScheduleByTime(editedData.schedule)
+      };
+
       const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
       const response = await fetch(`${API_BASE_URL}/api/patients/${editedData.patientId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editedData),
+        body: JSON.stringify(dataToSave),
       });
 
       if (!response.ok) {
@@ -140,6 +179,8 @@ const usePatientForm = (patient, setPatient) => {
 };
 
 function PatientInfo() {
+  // Reference to track previous editingScheduleItem state
+  const prevEditingItemRef = useRef(null);
   const navigate = useNavigate();
   const { 
     patient, 
@@ -160,6 +201,9 @@ function PatientInfo() {
   const [focusedInputIndex, setFocusedInputIndex] = useState(null);
   const [focusedScheduleIndex, setFocusedScheduleIndex] = useState(null);
   const [editingScheduleItem, setEditingScheduleItem] = useState(null);
+  
+  // Tab state for different sections of patient info
+  const [activeTab, setActiveTab] = useState('info'); // 'info', 'schedule', 'feedback'
   
   // State for save button hover
   const [isSaveButtonHovered, setIsSaveButtonHovered] = useState(false);
@@ -218,13 +262,84 @@ function PatientInfo() {
   }, []);
 
   const handleItemUpdate = useCallback((index, field, value) => {
+    setEditedData(prev => {
+      const updatedSchedule = prev.schedule.map((item, i) => 
+        i === index ? { ...item, [field]: value } : item
+      );
+      
+      // Don't sort while actively editing - just update the value
+      return {
+        ...prev,
+        schedule: updatedSchedule
+      };
+    });
+  }, [setEditedData]);
+
+  // Add new schedule item
+  const handleAddScheduleItem = useCallback(() => {
+    if (!editing || !editedData) return;
+    
+    // Create a new empty schedule item
+    const newItem = {
+      time: '',
+      activity: '',
+      notes: '',
+      completed: false
+    };
+    
+    // Add to schedule array
+    setEditedData(prev => {
+      const updatedSchedule = [...prev.schedule, newItem];
+      return {
+        ...prev,
+        schedule: updatedSchedule
+      };
+    });
+    
+    // Set focus to the new item (it will be the last one)
+    const newIndex = editedData.schedule.length;
+    setTimeout(() => {
+      setEditingScheduleItem(newIndex);
+      setFocusedScheduleIndex(newIndex);
+      requestAnimationFrame(() => {
+        scheduleInputRefs.current[newIndex]?.timeInput?.focus();
+      });
+    }, 50);
+  }, [editing, editedData, setEditedData]);
+
+  // Delete schedule item
+  const handleDeleteScheduleItem = useCallback((index) => {
+    if (!editing || !editedData) return;
+    
+    // Remove the item at the specified index
     setEditedData(prev => ({
       ...prev,
-      schedule: prev.schedule.map((item, i) => 
-        i === index ? { ...item, [field]: value } : item
-      )
+      schedule: prev.schedule.filter((_, i) => i !== index)
     }));
-  }, [setEditedData]);
+    
+    // Reset focus
+    setEditingScheduleItem(null);
+    setFocusedScheduleIndex(null);
+  }, [editing, editedData, setEditedData]);
+
+  // Effect to resort schedule when exiting edit mode for an item
+  useEffect(() => {
+    // Only sort when we exit the item editing mode (not during active editing)
+    if (editing && editedData) {
+      // Check if previous value was not null (meaning we just exited item edit mode)
+      if (prevEditingItemRef.current !== null && editingScheduleItem === null) {
+        setEditedData(prev => {
+          if (!prev || !prev.schedule) return prev;
+          return {
+            ...prev,
+            schedule: sortScheduleByTime(prev.schedule)
+          };
+        });
+      }
+      
+      prevEditingItemRef.current = editingScheduleItem;
+    }
+  }, [editing, editedData, editingScheduleItem]);
 
   const handleKeyDown = useCallback((e, index, field) => {
     // If hovering over save button and pressing Enter, save changes
@@ -242,11 +357,20 @@ function PatientInfo() {
         scheduleInputRefs.current[index]?.notesInput?.focus();
       } else if (field === 'notes') {
         // When pressing Enter on the last field (notes), 
-        // save all changes instead of just closing the edit mode
+        // sort the schedule and save all changes
+        setEditedData(prev => ({
+          ...prev,
+          schedule: sortScheduleByTime(prev.schedule)
+        }));
         handleSave();
       }
     } else if (e.key === 'Escape') {
       e.preventDefault();
+      // Sort the schedule when exiting item edit mode
+      setEditedData(prev => ({
+        ...prev,
+        schedule: sortScheduleByTime(prev.schedule)
+      }));
       setEditingScheduleItem(null);
       setFocusedScheduleIndex(index);
       scheduleButtonRefs.current[index]?.focus();
@@ -254,6 +378,11 @@ function PatientInfo() {
       // Allow arrow navigation to exit editing mode and go to Save Changes button
       if (field === 'notes' && e.key === 'ArrowDown') {
         e.preventDefault();
+        // Sort before changing focus
+        setEditedData(prev => ({
+          ...prev,
+          schedule: sortScheduleByTime(prev.schedule)
+        }));
         setEditingScheduleItem(null);
         setNavigationSection('main');
         setMainNavFocusIndex(2);
@@ -262,7 +391,7 @@ function PatientInfo() {
         });
       }
     }
-  }, [isSaveButtonHovered, handleSave, setMainNavFocusIndex]);
+  }, [isSaveButtonHovered, handleSave, setMainNavFocusIndex, setEditedData]);
   
   // Clear refs when editing status changes
   useEffect(() => {
@@ -460,82 +589,118 @@ function PatientInfo() {
 
   // Render schedule section
   const renderSchedule = () => {
-    const scheduleData = editing ? editedData?.schedule : (patient.schedule || []);
+    // Only sort when not actively editing an item
+    const scheduleData = editing 
+      ? (editingScheduleItem !== null ? editedData?.schedule || [] : sortScheduleByTime(editedData?.schedule || [])) 
+      : sortScheduleByTime(patient.schedule || []);
     
-    if (scheduleData.length === 0) {
-      return <div className="no-schedule">No scheduled activities</div>;
-    }
-
     return (
-      <div className="schedule-list">
-        {scheduleData.map((item, index) => (
-          <div key={index} className={`schedule-item ${editingScheduleItem === index ? 'editing' : ''}`}>
-            {editingScheduleItem === index ? (
-              // Editing mode for this item
-              <>
-                <input
-                  ref={el => {
-                    if (!scheduleInputRefs.current[index]) scheduleInputRefs.current[index] = {};
-                    scheduleInputRefs.current[index].timeInput = el;
-                  }}
-                  type="text"
-                  value={editedData.schedule[index].time}
-                  onChange={(e) => handleItemUpdate(index, 'time', e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(e, index, 'time')}
-                  className="schedule-input time-input"
-                />
-                <input
-                  ref={el => {
-                    if (!scheduleInputRefs.current[index]) scheduleInputRefs.current[index] = {};
-                    scheduleInputRefs.current[index].activityInput = el;
-                  }}
-                  type="text"
-                  value={editedData.schedule[index].activity}
-                  onChange={(e) => handleItemUpdate(index, 'activity', e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(e, index, 'activity')}
-                  className="schedule-input activity-input"
-                />
-                <input
-                  ref={el => {
-                    if (!scheduleInputRefs.current[index]) scheduleInputRefs.current[index] = {};
-                    scheduleInputRefs.current[index].notesInput = el;
-                  }}
-                  type="text"
-                  value={editedData.schedule[index].notes || ''}
-                  placeholder="Notes (optional)"
-                  onChange={(e) => handleItemUpdate(index, 'notes', e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(e, index, 'notes')}
-                  className="schedule-input notes-input"
-                />
-              </>
-            ) : (
-              // Display mode
-              <>
-                <div className="time">{item.time}</div>
-                <div className="activity">
-                  {item.activity}
-                  {item.notes && <span className="notes"> - {item.notes}</span>}
-                </div>
-                {editing && (
-                  <button 
-                    ref={el => scheduleButtonRefs.current[index] = el}
-                    className={`schedule-edit-button ${navigationSection === 'schedule' && focusedScheduleIndex === index ? 'focused' : ''}`}
-                    onClick={() => handleItemEdit(index)}
-                    onFocus={() => {
-                      setNavigationSection('schedule');
-                      setFocusedScheduleIndex(index);
-                      setFocusedInputIndex(null);
-                      setMainNavFocusIndex(null);
-                    }}
-                    tabIndex={editing ? 0 : -1}
-                  >
-                    Edit
-                  </button>
-                )}
-              </>
-            )}
+      <div className="schedule-section">
+        {editing && (
+          <div className="schedule-actions">
+            <button 
+              type="button"
+              className="add-schedule-button"
+              onClick={handleAddScheduleItem}
+            >
+              + Add Schedule Item
+            </button>
           </div>
-        ))}
+        )}
+        
+        {scheduleData.length === 0 ? (
+          <div className="no-schedule">No scheduled activities</div>
+        ) : (
+          <div className="schedule-list">
+            {scheduleData.map((item, index) => (
+              <div key={index} className={`schedule-item ${editingScheduleItem === index ? 'editing' : ''}`}>
+                {editingScheduleItem === index ? (
+                  // Editing mode for this item
+                  <>
+                    <input
+                      ref={el => {
+                        if (!scheduleInputRefs.current[index]) scheduleInputRefs.current[index] = {};
+                        scheduleInputRefs.current[index].timeInput = el;
+                      }}
+                      type="text"
+                      value={editedData.schedule[index].time}
+                      onChange={(e) => handleItemUpdate(index, 'time', e.target.value)}
+                      onKeyDown={(e) => handleKeyDown(e, index, 'time')}
+                      className="schedule-input time-input"
+                      placeholder="Time (e.g., 9:00 AM)"
+                    />
+                    <input
+                      ref={el => {
+                        if (!scheduleInputRefs.current[index]) scheduleInputRefs.current[index] = {};
+                        scheduleInputRefs.current[index].activityInput = el;
+                      }}
+                      type="text"
+                      value={editedData.schedule[index].activity}
+                      onChange={(e) => handleItemUpdate(index, 'activity', e.target.value)}
+                      onKeyDown={(e) => handleKeyDown(e, index, 'activity')}
+                      className="schedule-input activity-input"
+                      placeholder="Activity"
+                    />
+                    <input
+                      ref={el => {
+                        if (!scheduleInputRefs.current[index]) scheduleInputRefs.current[index] = {};
+                        scheduleInputRefs.current[index].notesInput = el;
+                      }}
+                      type="text"
+                      value={editedData.schedule[index].notes || ''}
+                      placeholder="Notes (optional)"
+                      onChange={(e) => handleItemUpdate(index, 'notes', e.target.value)}
+                      onKeyDown={(e) => handleKeyDown(e, index, 'notes')}
+                      className="schedule-input notes-input"
+                    />
+                    <button
+                      type="button"
+                      className="delete-item-button"
+                      onClick={() => handleDeleteScheduleItem(index)}
+                      title="Delete this schedule item"
+                    >
+                      ×
+                    </button>
+                  </>
+                ) : (
+                  // Display mode
+                  <>
+                    <div className="time">{item.time}</div>
+                    <div className="activity">
+                      {item.activity}
+                      {item.notes && <span className="notes"> - {item.notes}</span>}
+                    </div>
+                    {editing && (
+                      <div className="item-actions">
+                        <button 
+                          ref={el => scheduleButtonRefs.current[index] = el}
+                          className={`schedule-edit-button ${navigationSection === 'schedule' && focusedScheduleIndex === index ? 'focused' : ''}`}
+                          onClick={() => handleItemEdit(index)}
+                          onFocus={() => {
+                            setNavigationSection('schedule');
+                            setFocusedScheduleIndex(index);
+                            setFocusedInputIndex(null);
+                            setMainNavFocusIndex(null);
+                          }}
+                          tabIndex={editing ? 0 : -1}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="delete-button"
+                          onClick={() => handleDeleteScheduleItem(index)}
+                          title="Delete this schedule item"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     );
   };
@@ -594,59 +759,87 @@ function PatientInfo() {
         extraHeaderContent={extraHeaderContent}
       />
 
-      <div className="content-container">
-        {/* Patient Information Card */}
-        <div className="info-card">
-          <h2>Personal Information</h2>
-          <div className="info-fields">
-            {visibleFields.map((field, index) => (
-              <div key={field.label} className="info-field">
-                <label>{field.label}:</label>
-                {editing ? (
-                  <input
-                    ref={el => inputRefs.current[index] = el}
-                    type="text"
-                    value={field.isArray 
-                      ? editedData[field.path[0]][field.path[1]].join(', ')
-                      : field.path.length === 2 
-                        ? editedData[field.path[0]][field.path[1]]
-                        : editedData[field.path[0]]
-                    }
-                    onChange={(e) => updateField(field, e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        handleSave();
-                      } else if (e.key === 'Escape') {
-                        e.preventDefault();
-                        handleKeyNavigation(e);
-                      }
-                    }}
-                    onFocus={() => {
-                      setNavigationSection('info');
-                      setFocusedInputIndex(index);
-                      setFocusedScheduleIndex(null);
-                      setMainNavFocusIndex(null);
-                    }}
-                    className={`editable-input ${navigationSection === 'info' && focusedInputIndex === index ? 'focused' : ''}`}
-                    disabled={isSaving}
-                  />
-                ) : (
-                  <span>{getFieldValue(field)}</span>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Schedule Card */}
-        <div className="info-card">
-          <h2>Today's Schedule</h2>
-          {renderSchedule()}
-        </div>
+      {/* Tab Navigation */}
+      <div className="tab-navigation">
+        <button 
+          className={`tab-button ${activeTab === 'info' ? 'active' : ''}`}
+          onClick={() => setActiveTab('info')}
+        >
+          Patient Info
+        </button>
+        <button 
+          className={`tab-button ${activeTab === 'schedule' ? 'active' : ''}`}
+          onClick={() => setActiveTab('schedule')}
+        >
+          Schedule
+        </button>
+        <button 
+          className={`tab-button ${activeTab === 'feedback' ? 'active' : ''}`}
+          onClick={() => setActiveTab('feedback')}
+        >
+          Feedback
+        </button>
       </div>
 
-      <NavigationInstructions />
+      <div className="content-container">
+        {activeTab === 'info' && (
+          <div className="info-card">
+            <h2>Personal Information</h2>
+            <div className="info-fields">
+              {visibleFields.map((field, index) => (
+                <div key={field.label} className="info-field">
+                  <label>{field.label}:</label>
+                  {editing ? (
+                    <input
+                      ref={el => inputRefs.current[index] = el}
+                      type="text"
+                      value={field.isArray 
+                        ? editedData[field.path[0]][field.path[1]].join(', ')
+                        : field.path.length === 2 
+                          ? editedData[field.path[0]][field.path[1]]
+                          : editedData[field.path[0]]
+                      }
+                      onChange={(e) => updateField(field, e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleSave();
+                        } else if (e.key === 'Escape') {
+                          e.preventDefault();
+                          handleKeyNavigation(e);
+                        }
+                      }}
+                      onFocus={() => {
+                        setNavigationSection('info');
+                        setFocusedInputIndex(index);
+                        setFocusedScheduleIndex(null);
+                        setMainNavFocusIndex(null);
+                      }}
+                      className={`editable-input ${navigationSection === 'info' && focusedInputIndex === index ? 'focused' : ''}`}
+                      disabled={isSaving}
+                    />
+                  ) : (
+                    <span>{getFieldValue(field)}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'schedule' && (
+          <div className="info-card schedule-card">
+            <h2>Today's Schedule</h2>
+            {renderSchedule()}
+          </div>
+        )}
+
+        {activeTab === 'feedback' && (
+          <div className="info-card">
+            <PatientFeedbackTab patient={patient} />
+          </div>
+        )}
+      </div>
     </Layout>
   );
 }

@@ -8,7 +8,6 @@ import {
   useKeyboardNavigation,
   Layout,
   Header,
-  NavigationInstructions
 } from '../shared';
 
 function Settings() {
@@ -105,8 +104,6 @@ function Settings() {
           </div>
         </div>
       </div>
-
-      <NavigationInstructions />
     </Layout>
   );
 }

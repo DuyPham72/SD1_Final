@@ -1,17 +1,38 @@
-// src/components/Layout.jsx
+// src/shared/components/Layout.js
 import React, { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/AuthContext';
 
 export const Layout = ({ 
   children, 
   patient, 
   isNavOpen, 
   onNavToggle, 
-  navItems,
   sidebarButtonsRef 
 }) => {
   const navigate = useNavigate();
   const sidebarRef = useRef(null);
+  const { mode } = useAuth();
+  
+  // Define navigation items based on user mode
+  const getNavItems = () => {
+    if (mode === 'staff') {
+      // Staff can only access patient info and settings
+      return [
+        { icon: '📋', text: 'Patient Info', path: '/patient-info' },
+        { icon: '⚙️', text: 'Settings', path: '/settings' }
+      ];
+    } else {
+      // Patients can only access home and entertainment
+      return [
+        { icon: '🏠', text: 'Home', path: '/' },
+        { icon: '🎮', text: 'Entertainment', path: '/entertainment' },
+        { icon: '📝', text: 'Patient Feedback', path: '/feedback' }
+      ];
+    }
+  };
+  
+  const navItems = getNavItems();
 
   const handleNavigate = (path) => {
     // Close sidebar first, then navigate
@@ -53,3 +74,5 @@ export const Layout = ({
     </div>
   );
 };
+
+export default Layout;

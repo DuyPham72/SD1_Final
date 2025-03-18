@@ -8,7 +8,6 @@ import {
   useKeyboardNavigation,
   Layout,
   Header,
-  NavigationInstructions
 } from '../shared';
 
 function MainDashboard() {
@@ -183,8 +182,6 @@ function MainDashboard() {
           </div>
         </div>
       </div>
-
-      <NavigationInstructions />
     </Layout>
   );
 }
