@@ -1,423 +1,117 @@
-/* PatientInfo.css - Updated for two-column layout */
-
-/* Tab Navigation */
-.tab-navigation {
-  display: flex;
-  margin-bottom: 20px;
-  border-bottom: 1px solid #dee2e6;
-}
-
-.tab-button {
-  background: none;
-  border: none;
-  padding: 10px 20px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  border-bottom: 3px solid transparent;
-  color: #333;
-}
-
-.tab-button.active {
-  border-bottom: 3px solid #1d3557;
-  color: #1d3557;
-  font-weight: 500;
-}
-
-.tab-button:hover:not(.active) {
+/* Compact Feedback Styles */
+.feedback-container {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 15px;
   background-color: #f8f9fa;
-  border-bottom: 3px solid #e9ecef;
-}
-
-/* Content Container - Modified for two-column layout */
-.content-container {
-  padding: 1rem;
-  margin: 0 auto;  /* Center the container */
-  display: grid;
-  grid-template-columns: minmax(00px, 1fr) minmax(500px, 1.5fr);
-  grid-template-rows: auto;
-  gap: 20px;
-  /* Added for testing */
-  max-width: 100%;
-  overflow: hidden;
-  width: 100%;
-  box-sizing: border-box; /* Include padding and border in the width calculation */
-}
-
-/* Left Column Container */
-.left-column {
-  display: flex;
-  flex-direction: column;
-  /* Added for testing */
-  min-width: 0; /* Prevents content from overflowing */
-  overflow: hidden;
-}
-
-/* Right Column Container */
-.right-column {
-  height: 100%;
-   /* Added for testing */
-  min-width: 0; /* Prevents content from overflowing */
-  overflow: hidden;
-}
-
-/* Info Cards */
-.info-card {
-  background-color: white;
   border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  padding: 20px; /* Reduced padding from 20px to 15px */
-  margin-bottom: 0; /* Remove bottom margin since we're using grid gap */
-  height: 100%;
-   /* Added for testing */
-  min-width: 0; /* Prevents content from overflowing */
-  overflow: auto; /* Allow scrolling if content is too large */
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
-.info-card h2 {
-  color: #1d3557;
-  margin-top: 0;
-  margin-bottom: 10px; /* Reduced from 15px to 10px */
-  padding-bottom: 1px; /* Reduced from 12px to 8px */
-  border-bottom: 1px solid #e5e7eb;
-  font-size: 1.25rem;
-  font-weight: 600;
+.feedback-container h2 {
+  text-align: center;
+  color: #2c3e50;
+  margin-bottom: 15px;
+  font-size: 1.5rem;
 }
 
-/* Patient Info Section */
-.info-fields {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
-  
-}
-
-.info-field {
-  display: flex;
-  flex-direction: column;
-}
-
-.info-field label {
-  font-weight: 500;
-  color: #4b5563;
-  margin-bottom: 5px;
-}
-
-.info-field span {
-  color: #1f2937;
-}
-
-.editable-input {
-  padding: 8px 10px;
-  border: 1px solid #d1d5db;
-  border-radius: 4px;
-  font-size: 0.95rem;
-  color: #1f2937;
-}
-
-.editable-input:focus, 
-.editable-input.focused {
-  border-color: #3b82f6;
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-}
-
-/* Info card bottom padding adjustment */
-.info-card.personal-info {
-  padding-bottom: 5px; /* Reduced padding at the bottom */
-}
-
-/* Schedule card top padding adjustment */
-.info-card.schedule {
-  padding-top: 5px; /* Reduced padding at the top */
-}
-
-.schedule-actions {
-  display: flex;
-  justify-content: flex-end; /* Align to the left */
-  margin-bottom: 10px; /* Add some space below the button */
-  padding: 0 25px; /* Match the padding of the info-card content */
-}
-
-.add-schedule-button {
-  background-color: #10b981;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 8px 16px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: background-color 0.2s;
-}
-
-.add-schedule-button:hover {
-  background-color: #059669;
-}
-
-/* Schedule List */
-.schedule-list {
+.feedback-form {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.schedule-item {
-  display: flex;
-  align-items: center;
-  padding: 5px 15px;
+.form-group {
+  background-color: white;
+  padding: 10px;
   border-radius: 6px;
-  border: 1px solid #e5e7eb;
-  position: relative;
-  width: 96%
-
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-.schedule-item:hover {
-  background-color: #f9fafb;
-}
-
-.schedule-item:nth-child(even) {
-  background-color: #f9fafb;
-}
-
-/* Time and Activity Display */
-.schedule-item .time {
-  color: #4b5563;
-  font-size: 0.95rem;
-  width: 90px;
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
   font-weight: 600;
+  color: #34495e;
 }
 
-.schedule-item .activity {
-  flex: 1;
-  color: #1f2937;
+.rating-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.schedule-item .notes {
-  color: #6b7280;
-  font-style: italic;
-  margin-left: 5px;
-}
-
-/* Empty Schedule Message */
-.no-schedule {
-  padding: 20px;
-  text-align: center;
-  color: #6b7280;
-  font-style: italic;
-  background-color: #f9fafb;
-  border-radius: 6px;
-  border: 1px dashed #d1d5db;
-}
-
-/* Edit and Delete Buttons */
-.schedule-edit-button,
-.delete-button {
+.rating-button {
+  background: none;
   border: none;
-  border-radius: 4px;
-  padding: 6px 12px;
-  font-size: 0.85rem;
+  font-size: 1.8rem;
+  color: #bdc3c7;
   cursor: pointer;
   transition: all 0.2s;
-  margin-left: 8px;
+  padding: 0 3px;
 }
 
-.schedule-edit-button {
-  background-color: #e5e7eb;
-  color: #374151;
+.rating-button.selected,
+.rating-button:hover {
+  color: #f39c12;
+  transform: scale(1.1);
 }
 
-.schedule-edit-button:hover {
-  background-color: #d1d5db;
+.overall-rating .rating-button {
+  font-size: 1.5rem;
 }
 
-.delete-button {
-  background-color: #fee2e2;
-  color: #ef4444;
-}
-
-.delete-button:hover {
-  background-color: #fecaca;
-}
-
-/* Editing Mode Styles */
-.schedule-item.editing {
-  background-color: #f3f4f6;
-  padding: 15px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-}
-
-.schedule-input {
-  border: 1px solid #d1d5db;
+textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
   border-radius: 4px;
-  padding: 8px 10px;
-  font-size: 0.95rem;
+  resize: vertical;
+  max-height: 100px;
 }
 
-.schedule-input:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-}
-
-.time-input {
-  width: 100px;
-}
-
-.activity-input {
-  flex: 1;
-  min-width: 150px;
-}
-
-.notes-input {
-  flex: 1;
-  min-width: 200px;
-}
-
-.delete-item-button {
-  background-color: #ef4444;
+.submit-button {
+  background-color: #3498db;
   color: white;
   border: none;
-  border-radius: 50%;
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
+  padding: 10px;
+  border-radius: 6px;
   cursor: pointer;
-  padding: 0;
+  transition: background-color 0.3s;
+  margin-top: 10px;
 }
 
-.delete-item-button:hover {
-  background-color: #dc2626;
+.submit-button:hover {
+  background-color: #2980b9;
 }
 
-/* Focus and Active States */
-.focused {
-  outline: 2px solid #3b82f6;
-  outline-offset: 2px;
-}
-
-/* Loading and Error States */
-.loading, .error {
+.feedback-success {
   text-align: center;
-  padding: 2rem;
-  font-size: 1.2rem;
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
 }
 
-.error {
-  color: #ef4444;
+.success-icon {
+  font-size: 3rem;
+  color: #2ecc71;
+  margin-bottom: 15px;
 }
 
-.error-message {
-  background-color: #fee2e2;
-  color: #ef4444;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  margin-left: 1rem;
-  font-size: 0.9rem;
-}
-
-/* Header Button Styles */
-.header-edit-button, 
-.header-save-button {
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
+.reset-button {
+  background-color: #3498db;
+  color: white;
   border: none;
-  transition: background-color 0.2s;
+  padding: 8px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 15px;
 }
 
-.header-edit-button {
-  background-color: #1d3557;
-  color: white;
-}
-
-.header-edit-button:hover {
-  background-color: #3a5a87;
-}
-
-.header-save-button {
-  background-color: #10b981;
-  color: white;
-}
-
-.header-save-button:hover {
-  background-color: #059669;
-}
-
-.header-edit-button.disabled, 
-.header-save-button.disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-/* Patient feedback section - for right column */
-.feedback-container {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  overflow: auto; /* Allow scrolling for the feedback content */
-}
-
-/* Responsive Adjustments */
-@media (max-width: 1024px) {
-  .content-container {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto;
-  }
-  
-  .left-column {
-    grid-row: 1;
-  }
-  
-  .right-column {
-    grid-row: 2;
-  }
-}
-
-@media (max-width: 768px) {
-  .info-fields {
-    grid-template-columns: 1fr;
-  }
-  
-  .schedule-item {
-    flex-wrap: wrap;
-  }
-  
-  .schedule-item .time {
-    margin-bottom: 4px;
-  }
-  
-  .schedule-item .activity {
-    width: 100%;
-    margin-bottom: 4px;
-  }
-  
-  .schedule-edit-button,
-  .delete-button {
-    margin-top: 8px;
-    margin-left: 0;
-    margin-right: 8px;
-  }
-  
-  .schedule-item.editing {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  
-  .schedule-input {
-    width: 100%;
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .feedback-container {
+    width: 95%;
+    padding: 10px;
   }
 }
