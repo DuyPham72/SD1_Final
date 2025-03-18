@@ -28,24 +28,6 @@ function MainDashboard() {
     patientSelector: null
   });
   const sidebarButtonsRef = useRef([]);
-  const selectRef = useRef(null);
-
-  // Custom handler for patient selector
-  const handlePatientSelectorAction = (e) => {
-    const element = mainNavElementsRef.current.patientSelector;
-    if (!element) return;
-    
-    try {
-      element.focus();
-      element.click();
-      
-      if ('showPicker' in element) {
-        element.showPicker();
-      }
-    } catch (error) {
-      console.error('Error opening dropdown:', error);
-    }
-  };
 
   // Hook up keyboard navigation
   useKeyboardNavigation({
@@ -59,15 +41,13 @@ function MainDashboard() {
     sidebarButtonsRef,
     navigate,
     customHandlers: {
-      // Add custom handler for Home path
       Enter: (e) => {
         if (isNavOpen) {
           e.preventDefault();
           const selectedItem = sidebarButtonsRef.current[sidebarFocusIndex];
           if (selectedItem) {
-            setIsNavOpen(false); // Close the sidebar first
+            setIsNavOpen(false);
             setTimeout(() => {
-              // Use timeout to ensure UI updates before navigation
               navigate(selectedItem.dataset.path);
             }, 10);
           }
@@ -80,26 +60,22 @@ function MainDashboard() {
   const isTimeInPast = (scheduleTime) => {
     if (!scheduleTime) return false;
     
-    // Parse the schedule time (assuming format like "10:00 AM")
     const [timePart, ampm] = scheduleTime.split(' ');
     const [hourStr, minuteStr] = timePart.split(':');
     
     let hour = parseInt(hourStr, 10);
     const minute = parseInt(minuteStr, 10);
     
-    // Convert to 24-hour format
     if (ampm === 'PM' && hour < 12) {
       hour += 12;
     } else if (ampm === 'AM' && hour === 12) {
       hour = 0;
     }
     
-    // Get current time
     const now = new Date();
     const currentHour = now.getHours();
     const currentMinute = now.getMinutes();
     
-    // Compare times
     if (currentHour > hour) {
       return true;
     } else if (currentHour === hour && currentMinute > minute) {
@@ -141,44 +117,62 @@ function MainDashboard() {
       />
 
       <div className="content-container">
-        {/* Patient Info Card */}
-        <div className="info-card">
-          <div className="staff-info">
-            <div className="staff-member">
-              👨‍⚕️ <span>Physician: {patient.careTeam.primaryDoctor}</span>
+        {/* Left panel with patient info */}
+        <div className="patient-info-panel">
+          {/* Staff Info Card */}
+          <div className="info-card">
+            <div className="staff-item">
+              <span className="staff-icon">👨‍⚕️</span>
+              <span className="staff-label">Physician: {patient.careTeam.primaryDoctor}</span>
             </div>
-            <div className="staff-member">
-              👩‍⚕️ <span>Nurse: {patient.careTeam.primaryNurse}</span>
+            
+            <div className="staff-item">
+              <span className="staff-icon">👩‍⚕️</span>
+              <span className="staff-label">Nurse: {patient.careTeam.primaryNurse}</span>
             </div>
           </div>
 
-          <div className="patient-details">
-            <div>Room: {patient.room}</div>
-            <div>Dietary: {patient.preferences.dietary.join(', ')}</div>
-            <div>Language: {patient.preferences.language}</div>
+          {/* Patient Details Card */}
+          <div className="info-card">
+            <div className="patient-detail-item">
+              <span className="detail-icon">🏠</span>
+              <span className="detail-content">Room: {patient.room}</span>
+            </div>
+            
+            <div className="patient-detail-item">
+              <span className="detail-icon">🍽️</span>
+              <span className="detail-content">Dietary: {patient.preferences.dietary.join(', ')}</span>
+            </div>
+            
+            <div className="patient-detail-item">
+              <span className="detail-icon">🗣️</span>
+              <span className="detail-content">Language: {patient.preferences.language}</span>
+            </div>
           </div>
         </div>
 
-        {/* Schedule Card */}
-        <div className="info-card schedule-card">
-          <h2>Today's Schedule:</h2>
-          <div className="schedule-list">
-            {patient.schedule && patient.schedule.length > 0 ? (
-              patient.schedule.map((item, index) => (
-                <div 
-                  key={index} 
-                  className={`schedule-item ${isTimeInPast(item.time) ? 'past-activity' : ''}`}
-                >
-                  <div className="time">{item.time}</div>
-                  <div className="activity">
-                    {item.activity}
-                    {item.notes && <span className="notes"> - {item.notes}</span>}
+        {/* Right panel with schedule */}
+        <div className="schedule-panel">
+          <div className="info-card schedule-card">
+            <h2>Today's Schedule:</h2>
+            <div className="schedule-list">
+              {patient.schedule && patient.schedule.length > 0 ? (
+                patient.schedule.map((item, index) => (
+                  <div 
+                    key={index} 
+                    className={`schedule-item ${isTimeInPast(item.time) ? 'past-activity' : ''}`}
+                  >
+                    <div className="time">{item.time}</div>
+                    <div className="activity">
+                      {item.activity}
+                      {item.notes && <div className="notes">{item.notes}</div>}
+                    </div>
                   </div>
-                </div>
-              ))
-            ) : (
-              <div className="no-schedule">No scheduled activities for today</div>
-            )}
+                ))
+              ) : (
+                <div className="no-schedule">No scheduled activities for today</div>
+              )}
+            </div>
           </div>
         </div>
       </div>

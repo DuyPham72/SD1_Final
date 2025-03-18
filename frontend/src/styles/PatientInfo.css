@@ -1,516 +1,146 @@
-/* PatientInfo.css */
+/* PatientInfo.css - Updated for two-column layout */
 
-/* Base Styles */
-:root {
-  --primary-color: #1d3557;
-  --secondary-color: #3a5a87;
-  --text-color: #333;
-  --background-color: #f5f7fa;
-  --card-background: #fff;
-  --border-color: #e1e4e8;
-  --focus-color: #4361ee;
-  --button-primary: #1d3557;
-  --button-primary-hover: #2a4a7f;
-  --button-text: #fff;
-  --save-button-color: #2e7d32;
-  --save-button-hover: #1b5e20;
-  --error-color: #d32f2f;
-  --header-bg: #1d3557;
-  --header-text: #fff;
-  --nav-instructions-bg: #1d3557;
-  --nav-instructions-text: #fff;
-}
-
-/* Dark Mode */
-[data-theme='dark'] {
-  --primary-color: #1d3557;
-  --secondary-color: #3a5a87;
-  --text-color: #e1e4e8;
-  --background-color: #121212;
-  --card-background: #1e2332;
-  --border-color: #3a4055;
-  --focus-color: #4361ee;
-  --button-primary: #3a5a87;
-  --button-primary-hover: #4a6a97;
-  --button-text: #fff;
-  --save-button-color: #2e7d32;
-  --save-button-hover: #1b5e20;
-  --error-color: #f44336;
-  --header-bg: #1d3557;
-  --header-text: #fff;
-  --nav-instructions-bg: #121212;
-  --nav-instructions-text: #e1e4e8;
-}
-
-/* Main Layout */
-body {
-  margin: 0;
-  padding: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: var(--background-color);
-  color: var(--text-color);
-  transition: background-color 0.3s, color 0.3s;
-}
-
-.content-container {
-  padding: 1rem;
-  margin-bottom: 60px; /* Space for navigation instructions */
-}
-
-/* Loading and Error States */
-.loading, .error {
-  text-align: center;
-  padding: 2rem;
-  font-size: 1.2rem;
-}
-
-.error {
-  color: var(--error-color);
-}
-
-.error-message {
-  background-color: rgba(211, 47, 47, 0.1);
-  color: var(--error-color);
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  margin-left: 1rem;
-  font-size: 0.9rem;
-  display: inline-block;
-}
-
-/* Header Styling */
-.header {
-  background-color: var(--header-bg);
-  color: var(--header-text);
-  padding: 0.75rem 1rem;
+/* Tab Navigation */
+.tab-navigation {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  position: relative;
-  z-index: 10;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #dee2e6;
 }
 
-.header-title {
-  font-size: 1.2rem;
-  margin: 0;
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
-}
-
-.menu-button {
+.tab-button {
   background: none;
   border: none;
-  color: var(--header-text);
-  font-size: 1.5rem;
+  padding: 10px 20px;
+  font-size: 1rem;
   cursor: pointer;
-  margin-right: 1rem;
-  padding: 0.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
+  transition: all 0.2s;
+  border-bottom: 3px solid transparent;
+  color: #333;
 }
 
-.menu-button:hover, .menu-button:focus {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.header-right {
-  display: flex;
-  align-items: center;
-}
-
-.current-time {
-  margin-right: 1rem;
-  font-size: 0.9rem;
-}
-
-.patient-selector {
-  background-color: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: var(--header-text);
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  margin-right: 1rem;
-  cursor: pointer;
-}
-
-.patient-selector:focus {
-  outline: 2px solid var(--focus-color);
-}
-
-.header-edit-button, .header-save-button {
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  font-size: 0.9rem;
+.tab-button.active {
+  border-bottom: 3px solid #1d3557;
+  color: #1d3557;
   font-weight: 500;
-  cursor: pointer;
-  border: none;
-  transition: background-color 0.2s;
 }
 
-.header-edit-button {
-  background-color: var(--button-primary);
-  color: var(--button-text);
+.tab-button:hover:not(.active) {
+  background-color: #f8f9fa;
+  border-bottom: 3px solid #e9ecef;
 }
 
-.header-edit-button:hover {
-  background-color: var(--button-primary-hover);
+/* Content Container - Modified for two-column layout */
+.content-container {
+  padding: 1rem;
+  margin: 0 auto;  /* Center the container */
+  display: grid;
+  grid-template-columns: minmax(00px, 1fr) minmax(500px, 1.5fr);
+  grid-template-rows: auto;
+  gap: 20px;
+  /* Added for testing */
+  max-width: 100%;
+  overflow: hidden;
+  width: 100%;
+  box-sizing: border-box; /* Include padding and border in the width calculation */
 }
 
-.header-save-button {
-  background-color: var(--save-button-color);
-  color: var(--button-text);
+/* Left Column Container */
+.left-column {
+  display: flex;
+  flex-direction: column;
+  /* Added for testing */
+  min-width: 0; /* Prevents content from overflowing */
+  overflow: hidden;
 }
 
-.header-save-button:hover {
-  background-color: var(--save-button-hover);
+/* Right Column Container */
+.right-column {
+  height: 100%;
+   /* Added for testing */
+  min-width: 0; /* Prevents content from overflowing */
+  overflow: hidden;
 }
 
-.header-edit-button.disabled, .header-save-button.disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.header-edit-button.focused, .header-save-button.focused, .patient-selector.focused, .menu-button.focused {
-  outline: 2px solid var(--focus-color);
-  outline-offset: 2px;
-}
-
-/* Info Card Styling */
+/* Info Cards */
 .info-card {
-  background-color: var(--card-background);
+  background-color: white;
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  transition: background-color 0.3s;
+  padding: 20px; /* Reduced padding from 20px to 15px */
+  margin-bottom: 0; /* Remove bottom margin since we're using grid gap */
+  height: 100%;
+   /* Added for testing */
+  min-width: 0; /* Prevents content from overflowing */
+  overflow: auto; /* Allow scrolling if content is too large */
 }
 
 .info-card h2 {
-  font-size: 1.3rem;
+  color: #1d3557;
   margin-top: 0;
-  margin-bottom: 1rem;
-  color: var(--primary-color);
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 0.5rem;
+  margin-bottom: 10px; /* Reduced from 15px to 10px */
+  padding-bottom: 1px; /* Reduced from 12px to 8px */
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 1.25rem;
+  font-weight: 600;
 }
 
+/* Patient Info Section */
 .info-fields {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  
 }
 
 .info-field {
-  display: grid;
-  grid-template-columns: 100px 1fr;
-  align-items: center;
+  display: flex;
+  flex-direction: column;
 }
 
 .info-field label {
   font-weight: 500;
-  color: var(--secondary-color);
+  color: #4b5563;
+  margin-bottom: 5px;
 }
 
 .info-field span {
-  padding: 0.5rem 0;
+  color: #1f2937;
 }
 
 .editable-input {
-  padding: 0.5rem;
-  border: 1px solid var(--border-color);
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
   border-radius: 4px;
-  background-color: var(--background-color);
-  color: var(--text-color);
-  width: 100%;
-  max-width: 400px;
+  font-size: 0.95rem;
+  color: #1f2937;
 }
 
-.editable-input:focus, .editable-input.focused {
-  outline: 2px solid var(--focus-color);
-  border-color: var(--focus-color);
-}
-
-.editable-input:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-/* Sidebar Navigation */
-.sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 250px;
-  background-color: var(--primary-color);
-  color: white;
-  transform: translateX(-100%);
-  transition: transform 0.3s ease;
-  z-index: 1000;
-  overflow-y: auto;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
-}
-
-.sidebar.open {
-  transform: translateX(0);
-}
-
-.sidebar-header {
-  padding: 1rem;
-  background-color: var(--secondary-color);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.sidebar-close {
-  background: none;
-  border: none;
-  color: white;
-  font-size: 1.5rem;
-  cursor: pointer;
-}
-
-.nav-items {
-  padding: 1rem 0;
-}
-
-.nav-item {
-  padding: 0.75rem 1rem;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  color: white;
-  text-decoration: none;
-}
-
-.nav-item:hover {
-  background-color: var(--secondary-color);
-}
-
-.nav-item.active {
-  background-color: var(--secondary-color);
-  font-weight: 500;
-}
-
-.nav-item.focused {
-  outline: 2px solid white;
-  outline-offset: -2px;
-}
-
-.nav-item-icon {
-  margin-right: 0.75rem;
-}
-
-/* Navigation Instructions */
-.navigation-instructions {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: var(--nav-instructions-bg);
-  color: var(--nav-instructions-text);
-  padding: 0.75rem;
-  text-align: center;
-  font-size: 0.85rem;
-  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
-}
-
-/* Responsive Adjustments */
-@media (min-width: 768px) {
-  .info-fields {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 600px) {
-  .header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  
-  .header-right {
-    margin-top: 0.5rem;
-    width: 100%;
-    justify-content: space-between;
-  }
-  
-  .current-time {
-    display: none;
-  }
-  
-  .info-field {
-    grid-template-columns: 1fr;
-    gap: 0.25rem;
-  }
-}
-
-/* Patient Background */
-.layout-container {
-  min-height: 100vh;
-  transition: padding-left 0.3s ease;
-}
-
-.layout-with-sidebar {
-  padding-left: 250px;
-}
-
-/* Patient info at top of sidebar */
-.patient-info-sidebar {
-  padding: 1rem;
-  background-color: rgba(255, 255, 255, 0.1);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.patient-name {
-  font-size: 1.1rem;
-  font-weight: 500;
-  margin-bottom: 0.25rem;
-}
-
-.patient-details {
-  font-size: 0.85rem;
-  opacity: 0.9;
-}
-
-/* Add to your PatientInfo.css file */
-
-/* Schedule section styling */
-.schedule-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.schedule-item {
-  display: grid;
-  grid-template-columns: 100px 1fr auto;
-  align-items: center;
-  padding: 10px;
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
-}
-
-.schedule-item .time {
-  font-weight: bold;
-}
-
-.schedule-item .activity {
-  flex-grow: 1;
-}
-
-.schedule-item .notes {
-  font-style: italic;
-  opacity: 0.8;
-}
-
-/* Schedule edit button styling */
-.schedule-edit-button {
-  padding: 6px 12px;
-  background-color: #4a72ab;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9rem;
-}
-
-.schedule-edit-button:hover {
-  background-color: #5a82bb;
-}
-
-.schedule-edit-button.focused {
-  background-color: #e67e22;
-  box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.5);
-  outline: none;
-}
-
-/* Improve focus styles for inputs */
+.editable-input:focus, 
 .editable-input.focused {
-  border-color: #e67e22;
-  box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.5);
+  border-color: #3b82f6;
   outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
-/* Edit/Save button focus state */
-.header-edit-button.focused,
-.header-save-button.focused {
-  box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.5);
-  outline: none;
+/* Info card bottom padding adjustment */
+.info-card.personal-info {
+  padding-bottom: 5px; /* Reduced padding at the bottom */
 }
 
-/* Disabled button state */
-button.disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+/* Schedule card top padding adjustment */
+.info-card.schedule {
+  padding-top: 5px; /* Reduced padding at the top */
 }
 
-/* Error message styling */
-.error-message {
-  color: #e74c3c;
-  background-color: rgba(231, 76, 60, 0.1);
-  padding: 8px 12px;
-  border-radius: 4px;
-  margin-left: 10px;
-}
-
-/* Dark mode adjustments */
-.dark-mode .schedule-item {
-  background-color: rgba(0, 0, 0, 0.2);
-}
-
-.dark-mode .schedule-edit-button {
-  background-color: #3d5a80;
-}
-
-.dark-mode .schedule-edit-button:hover {
-  background-color: #4d6a90;
-}
-
-.dark-mode .schedule-edit-button.focused {
-  background-color: #e67e22;
-}
-
-/* Schedule Card Styles */
-.schedule-card {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-  padding: 20px;
-  margin: 20px;
-}
-
-.schedule-card h2 {
-  margin-top: 0;
-  margin-bottom: 20px;
-  color: #334155;
-  font-size: 1.25rem;
-  font-weight: 600;
-  border-bottom: 1px solid #e5e7eb;
-  padding-bottom: 12px;
-}
-
-/* Schedule Section Layout */
-
-
-/* Schedule Actions */
 .schedule-actions {
   display: flex;
-  justify-content: flex-end;
-  margin-bottom: 15px;
-  padding: 5px 0;
+  justify-content: flex-end; /* Align to the left */
+  margin-bottom: 10px; /* Add some space below the button */
+  padding: 0 25px; /* Match the padding of the info-card content */
 }
 
 .add-schedule-button {
-  background-color: #2563eb;
+  background-color: #10b981;
   color: white;
   border: none;
   border-radius: 6px;
@@ -525,7 +155,7 @@ button.disabled {
 }
 
 .add-schedule-button:hover {
-  background-color: #1d4ed8;
+  background-color: #059669;
 }
 
 /* Schedule List */
@@ -538,11 +168,12 @@ button.disabled {
 .schedule-item {
   display: flex;
   align-items: center;
-  padding: 12px 15px;
+  padding: 5px 15px;
   border-radius: 6px;
   border: 1px solid #e5e7eb;
-  transition: all 0.2s;
   position: relative;
+  width: 96%
+
 }
 
 .schedule-item:hover {
@@ -555,22 +186,20 @@ button.disabled {
 
 /* Time and Activity Display */
 .schedule-item .time {
-  color: #6b7280;
+  color: #4b5563;
   font-size: 0.95rem;
   width: 90px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .schedule-item .activity {
   flex: 1;
-  font-weight: 500;
-  color: #374151;
+  color: #1f2937;
 }
 
 .schedule-item .notes {
-  color: #9ca3af;
+  color: #6b7280;
   font-style: italic;
-  font-weight: normal;
   margin-left: 5px;
 }
 
@@ -585,39 +214,25 @@ button.disabled {
   border: 1px dashed #d1d5db;
 }
 
-/* Strikethrough for completed/past activities */
-.past-activity .activity,
-.past-activity .time,
-.schedule-item.completed .time,
-.schedule-item.completed .activity {
-  text-decoration: line-through;
-  color: #9ca3af;
-}
-
-/* Action Buttons */
-.item-actions {
-  display: flex;
-  gap: 8px;
-  margin-left: auto;
-}
-
+/* Edit and Delete Buttons */
 .schedule-edit-button,
 .delete-button {
   border: none;
   border-radius: 4px;
   padding: 6px 12px;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.2s;
+  margin-left: 8px;
 }
 
 .schedule-edit-button {
-  background-color: #f1f5f9;
-  color: #334155;
+  background-color: #e5e7eb;
+  color: #374151;
 }
 
 .schedule-edit-button:hover {
-  background-color: #e2e8f0;
+  background-color: #d1d5db;
 }
 
 .delete-button {
@@ -629,47 +244,27 @@ button.disabled {
   background-color: #fecaca;
 }
 
-/* Delete Button in Edit Mode */
-.delete-item-button {
-  background-color: #ef4444;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  margin-left: 5px;
-  font-size: 1rem;
-  line-height: 1;
-}
-
-.delete-item-button:hover {
-  background-color: #dc2626;
-}
-
 /* Editing Mode Styles */
 .schedule-item.editing {
-  background-color: #f1f5f9;
+  background-color: #f3f4f6;
   padding: 15px;
-  border: 1px solid #bfdbfe;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
 }
 
 .schedule-input {
   border: 1px solid #d1d5db;
   border-radius: 4px;
   padding: 8px 10px;
-  margin-right: 8px;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
 }
 
 .schedule-input:focus {
   outline: none;
   border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
 .time-input {
@@ -683,11 +278,146 @@ button.disabled {
 
 .notes-input {
   flex: 1;
-  max-width: 200px;
+  min-width: 200px;
 }
 
-/* Focus Styles */
-.schedule-edit-button.focused {
+.delete-item-button {
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0;
+}
+
+.delete-item-button:hover {
+  background-color: #dc2626;
+}
+
+/* Focus and Active States */
+.focused {
   outline: 2px solid #3b82f6;
-  outline-offset: 1px;
+  outline-offset: 2px;
+}
+
+/* Loading and Error States */
+.loading, .error {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+}
+
+.error {
+  color: #ef4444;
+}
+
+.error-message {
+  background-color: #fee2e2;
+  color: #ef4444;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  margin-left: 1rem;
+  font-size: 0.9rem;
+}
+
+/* Header Button Styles */
+.header-edit-button, 
+.header-save-button {
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.2s;
+}
+
+.header-edit-button {
+  background-color: #1d3557;
+  color: white;
+}
+
+.header-edit-button:hover {
+  background-color: #3a5a87;
+}
+
+.header-save-button {
+  background-color: #10b981;
+  color: white;
+}
+
+.header-save-button:hover {
+  background-color: #059669;
+}
+
+.header-edit-button.disabled, 
+.header-save-button.disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Patient feedback section - for right column */
+.feedback-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: auto; /* Allow scrolling for the feedback content */
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1024px) {
+  .content-container {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+  }
+  
+  .left-column {
+    grid-row: 1;
+  }
+  
+  .right-column {
+    grid-row: 2;
+  }
+}
+
+@media (max-width: 768px) {
+  .info-fields {
+    grid-template-columns: 1fr;
+  }
+  
+  .schedule-item {
+    flex-wrap: wrap;
+  }
+  
+  .schedule-item .time {
+    margin-bottom: 4px;
+  }
+  
+  .schedule-item .activity {
+    width: 100%;
+    margin-bottom: 4px;
+  }
+  
+  .schedule-edit-button,
+  .delete-button {
+    margin-top: 8px;
+    margin-left: 0;
+    margin-right: 8px;
+  }
+  
+  .schedule-item.editing {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .schedule-input {
+    width: 100%;
+  }
 }
