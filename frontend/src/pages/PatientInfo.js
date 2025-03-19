@@ -9,6 +9,7 @@ import {
   Layout,
   Header,
 } from '../shared';
+import { useAuth } from '../shared/hooks/AuthContext'; // Make sure this path is correct
 import PatientFeedbackTab from '../shared/components/PatientFeedbackTab';
 
 // Custom hook for form state management
@@ -141,6 +142,10 @@ const usePatientForm = (patient, setPatient) => {
 
 function PatientInfo() {
   const navigate = useNavigate();
+  
+  // Get auth context for mode and nurse selected patient
+  const { mode, nurseSelectedPatientId, updateNurseSelectedPatient } = useAuth();
+  
   const { 
     patient, 
     setPatient, 
@@ -149,6 +154,7 @@ function PatientInfo() {
     loading, 
     handlePatientChange 
   } = usePatientData();
+  
   const currentTime = useTimeUpdate();
   const { 
     isNavOpen, setIsNavOpen, sidebarFocusIndex, setSidebarFocusIndex,
@@ -179,6 +185,33 @@ function PatientInfo() {
     editing, setEditing, editedData, setEditedData, saveError, isSaving,
     inputRefs, initializeForm, saveForm, updateField, getFieldValue
   } = usePatientForm(patient, setPatient);
+
+  // Use the nurse-selected patient ONLY in staff mode
+  useEffect(() => {
+    // Only apply nurse selection in staff mode
+    if (mode === 'staff' && nurseSelectedPatientId && allPatients && allPatients.length > 0) {
+      // Check if the nurseSelectedPatientId exists in allPatients
+      const patientExists = allPatients.some(p => p.patientId === nurseSelectedPatientId);
+      
+      if (patientExists && selectedPatientId !== nurseSelectedPatientId) {
+        console.log('PatientInfo: Setting patient from nurse selection:', nurseSelectedPatientId);
+        handlePatientChange(nurseSelectedPatientId);
+      }
+    }
+  }, [mode, nurseSelectedPatientId, allPatients, selectedPatientId, handlePatientChange]);
+
+  // Create a wrapped version of handlePatientChange that also updates the persisted ID
+  const handlePatientChangeWithModeAwareness = (patientId) => {
+    console.log('PatientInfo: Patient changed in mode:', mode, 'to:', patientId);
+    
+    // In staff mode, update the nurse-selected patient
+    if (mode === 'staff') {
+      updateNurseSelectedPatient(patientId);
+    }
+    
+    // Always update the current selection
+    handlePatientChange(patientId);
+  };
 
   // Handle edit button click
   const handleEdit = useCallback(() => {
@@ -476,14 +509,6 @@ function PatientInfo() {
   if (loading) return <div className="loading">Loading...</div>;
   if (!patient) return <div className="error">No patient data available</div>;
 
-  // Sidebar navigation items
-  const navItems = [
-    { icon: '🏠', text: 'Home', path: '/' },
-    { icon: '📋', text: 'Patient Info', path: '/patient-info' },
-    { icon: '🎮', text: 'Entertainment', path: '/entertainment' },
-    { icon: '⚙️', text: 'Settings', path: '/settings' }
-  ];
-
   // Field definitions for patient info
   const patientFields = [
     { label: 'Physician', path: ['careTeam', 'primaryDoctor'] },
@@ -700,14 +725,13 @@ function PatientInfo() {
       patient={patient}
       isNavOpen={isNavOpen}
       onNavToggle={() => setIsNavOpen(!isNavOpen)}
-      navItems={navItems}
       sidebarButtonsRef={sidebarButtonsRef}
     >
       <Header
         patient={patient}
         allPatients={allPatients}
         selectedPatientId={selectedPatientId}
-        onPatientChange={handlePatientChange}
+        onPatientChange={handlePatientChangeWithModeAwareness}
         currentTime={currentTime}
         isNavOpen={isNavOpen}
         onNavToggle={() => setIsNavOpen(!isNavOpen)}

@@ -1,22 +1,18 @@
-// src/shared/components/PatientFeedbackTab.js - Fixed with enhanced debugging
-import React, { useEffect } from 'react';
+// src/shared/components/PatientFeedbackTab.js
+import React, { useState, useEffect } from 'react';
 import '../../styles/PatientFeedbackTab.css';
 
 const PatientFeedbackTab = ({ patient }) => {
   // Check if patient has feedback
   const hasFeedback = patient && patient.feedback && patient.feedback.length > 0;
   
+  // State for current feedback index
+  const [currentIndex, setCurrentIndex] = useState(0);
+  
   // Debug patient feedback on mount
   useEffect(() => {
     if (hasFeedback) {
       console.log("Patient feedback data:", patient.feedback);
-      patient.feedback.forEach((feedback, index) => {
-        console.log(`Feedback #${index+1}:`, feedback);
-        console.log(`Rating type: ${typeof feedback.rating}, value:`, feedback.rating);
-        if (feedback.ratings) {
-          console.log(`Overall rating type: ${typeof feedback.ratings.overall}, value:`, feedback.ratings.overall);
-        }
-      });
     } else {
       console.log("No feedback found for patient");
     }
@@ -32,10 +28,8 @@ const PatientFeedbackTab = ({ patient }) => {
   const getStarRating = (rating) => {
     // Convert to number and ensure it's valid
     const numRating = Number(rating);
-    console.log(`Converting rating ${rating} to number:`, numRating);
     
     const validRating = isNaN(numRating) ? 0 : Math.round(numRating);
-    console.log(`Rounded valid rating:`, validRating);
     
     const stars = [];
     for (let i = 1; i <= 5; i++) {
@@ -55,43 +49,26 @@ const PatientFeedbackTab = ({ patient }) => {
     let totalRating = 0;
     let count = 0;
     
-    // Debug log for average calculation
-    console.log("Calculating average from feedback items:", patient.feedback.length);
-    
     // Loop through all feedback entries
-    patient.feedback.forEach((feedback, index) => {
+    patient.feedback.forEach((feedback) => {
       // Check if it's new format with ratings object
       if (feedback.ratings && typeof feedback.ratings.overall === 'number') {
-        console.log(`Feedback #${index+1}: Using ratings.overall: ${feedback.ratings.overall}`);
         totalRating += feedback.ratings.overall;
         count++;
       } 
       // Check if it's old format with single rating
       else if (typeof feedback.rating === 'number') {
-        console.log(`Feedback #${index+1}: Using rating: ${feedback.rating}`);
         totalRating += feedback.rating;
         count++;
-      } else {
-        console.log(`Feedback #${index+1}: No valid rating found`);
-        if (feedback.rating !== undefined) {
-          console.log(`  Invalid rating:`, feedback.rating, `type:`, typeof feedback.rating);
-        }
-        if (feedback.ratings) {
-          console.log(`  Invalid ratings.overall:`, feedback.ratings.overall, `type:`, typeof feedback.ratings.overall);
-        }
       }
     });
     
-    console.log(`Total rating sum: ${totalRating}, count: ${count}`);
-    
     // Avoid division by zero
     if (count === 0) {
-      console.log("No valid ratings found, returning 0");
       return "0.0";
     }
     
     const average = totalRating / count;
-    console.log(`Calculated average: ${average} (${average.toFixed(1)})`);
     return average.toFixed(1);
   };
 
@@ -125,11 +102,8 @@ const PatientFeedbackTab = ({ patient }) => {
       }
     });
     
-    console.log("Category totals:", totals);
-    
     // Only return category ratings if we have new format feedback
     if (!hasNewFormat || totals.count === 0) {
-      console.log("No category ratings available");
       return null;
     }
     
@@ -141,33 +115,19 @@ const PatientFeedbackTab = ({ patient }) => {
       mealQuality: (totals.mealQuality / totals.count).toFixed(1)
     };
     
-    console.log("Category averages:", categoryAverages);
     return categoryAverages;
   };
   
   // Get rating value for display (supporting both new and old feedback structures)
   const getRatingValue = (feedback) => {
-    console.log('Getting rating value for feedback:', feedback);
-    
     // First check if it has the ratings object with overall property
     if (feedback.ratings && typeof feedback.ratings.overall === 'number') {
-      console.log('Using new format rating (overall):', feedback.ratings.overall);
       return feedback.ratings.overall;
     }
     
     // Fall back to the old format or default to 0
     if (typeof feedback.rating === 'number') {
-      console.log('Using old format rating:', feedback.rating);
       return feedback.rating;
-    }
-    
-    // If neither format has a valid rating, provide debug info
-    if (feedback.rating !== undefined) {
-      console.log('Invalid rating format:', feedback.rating, typeof feedback.rating);
-    } else if (feedback.ratings && feedback.ratings.overall !== undefined) {
-      console.log('Invalid overall rating format:', feedback.ratings.overall, typeof feedback.ratings.overall);
-    } else {
-      console.log('No rating found in feedback');
     }
     
     return 0;
@@ -203,12 +163,25 @@ const PatientFeedbackTab = ({ patient }) => {
     );
   };
 
+  // Navigation functions
+  const goToPrevious = () => {
+    if (hasFeedback) {
+      setCurrentIndex(prevIndex => 
+        prevIndex === 0 ? patient.feedback.length - 1 : prevIndex - 1
+      );
+    }
+  };
+
+  const goToNext = () => {
+    if (hasFeedback) {
+      setCurrentIndex(prevIndex => 
+        prevIndex === patient.feedback.length - 1 ? 0 : prevIndex + 1
+      );
+    }
+  };
+
   const averageRating = getAverageRating();
   const categoryRatings = getCategoryRatings();
-  
-  // Log the calculated values for debugging
-  console.log("Final average rating:", averageRating);
-  console.log("Category ratings available:", !!categoryRatings);
   
   return (
     <div className="patient-feedback-tab">
@@ -258,28 +231,49 @@ const PatientFeedbackTab = ({ patient }) => {
             )}
           </div>
           
-          <div className="feedback-list">
-            <h4>Individual Feedback Submissions</h4>
-            {patient.feedback.map((feedback) => (
-              <div key={feedback.id} className="feedback-item">
-                <div className="feedback-header">
-                  <div className="rating-stars">
-                    {getStarRating(getRatingValue(feedback))}
-                  </div>
-                  <div className="feedback-time">
-                    {formatDate(feedback.timestamp)}
-                  </div>
-                </div>
-                
-                {getDetailedRatings(feedback)}
-                
-                {feedback.comment && (
-                  <div className="feedback-comment">
-                    "{feedback.comment}"
-                  </div>
-                )}
+          <div className="feedback-carousel">
+            <h4>Individual Feedback</h4>
+            <div className="feedback-navigation">
+              <span className="feedback-counter">
+                {currentIndex + 1} of {patient.feedback.length}
+              </span>
+              <div className="navigation-buttons">
+                <button 
+                  className="nav-button prev-button" 
+                  onClick={goToPrevious}
+                  aria-label="Previous feedback"
+                >
+                  ←
+                </button>
+                <button 
+                  className="nav-button next-button" 
+                  onClick={goToNext}
+                  aria-label="Next feedback"
+                >
+                  →
+                </button>
               </div>
-            ))}
+            </div>
+            
+            {/* Current feedback item */}
+            <div className="feedback-item">
+              <div className="feedback-header">
+                <div className="rating-stars">
+                  {getStarRating(getRatingValue(patient.feedback[currentIndex]))}
+                </div>
+                <div className="feedback-time">
+                  {formatDate(patient.feedback[currentIndex].timestamp)}
+                </div>
+              </div>
+              
+              {getDetailedRatings(patient.feedback[currentIndex])}
+              
+              {patient.feedback[currentIndex].comment && (
+                <div className="feedback-comment">
+                  "{patient.feedback[currentIndex].comment}"
+                </div>
+              )}
+            </div>
           </div>
         </>
       ) : (

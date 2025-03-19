@@ -1,201 +1,162 @@
-/* Root layout for better space utilization */
-.dashboard {
+/* MainDashboard.css */
+
+/* General styling */
+.loading, .error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   height: 100vh;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  background-color: #f0f5ff;
-  overflow-x: hidden;
+  font-size: 1.2rem;
+  color: #555;
 }
 
-/* Main content container */
-.main-content {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: calc(100vh - 68px); /* Adjust based on your header height */
-  overflow-y: auto;
+.error {
+  color: #e74c3c;
 }
 
-/* Content container - maximizing space usage */
+/* Content container layout */
 .content-container {
   display: flex;
-  width: 100%;
-  padding: 1.5rem 2rem;
-  gap: 2.5rem;
-  max-width: 1800px; /* Prevent excessive stretching on ultra-wide screens */
-  margin: 0 auto;
+  padding: 20px;
+  gap: 20px;
+  height: calc(100vh - 80px); /* Adjust based on header height */
 }
 
-/* Left panel - patient info */
-.patient-info-panel {
-  width: 350px;
-  flex-shrink: 0;
+/* Panel styling for patient info and schedule */
+.patient-info-panel, .schedule-panel {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 20px;
 }
 
-/* Right panel - schedule */
-.schedule-panel {
+.patient-info-panel {
   flex: 1;
-  min-width: 500px; /* Larger minimum width */
+  max-width: 400px;
 }
 
-/* Card styles - larger and more spacious */
+.schedule-panel {
+  flex: 2;
+}
+
+/* Info card styling */
 .info-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  padding: 1.75rem;
-  margin-bottom: 1.5rem;
-  width: 100%;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 20px;
 }
 
-/* Patient/Staff info styling */
+/* Staff info styling */
 .staff-item, .patient-detail-item {
   display: flex;
-  padding: 0.75rem 0;
   align-items: center;
-  gap: 1rem;
-  border-bottom: 1px solid #e5e7eb;
-  font-size: 1.15rem; /* Larger font */
+  margin-bottom: 15px;
 }
 
 .staff-item:last-child, .patient-detail-item:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
+  margin-bottom: 0;
 }
 
 .staff-icon, .detail-icon {
-  font-size: 1.5rem; /* Larger icons */
-  width: 32px;
+  font-size: 1.5rem;
+  margin-right: 15px;
   display: flex;
+  align-items: center;
   justify-content: center;
+  width: 40px;
 }
 
 .staff-label, .detail-content {
-  font-weight: 500;
-  flex: 1;
+  font-size: 1rem;
+  color: #333;
 }
 
-.staff-label {
-  color: #1e3a8a;
-}
-
-.detail-content {
-  color: #4b5563;
-}
-
-/* Schedule styling */
+/* Schedule card specific styling */
 .schedule-card h2 {
-  font-size: 1.5rem;
-  color: #1e3a8a;
   margin-top: 0;
-  margin-bottom: 1.5rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 2px solid #e5e7eb;
-  font-weight: 600;
+  margin-bottom: 15px;
+  font-size: 1.3rem;
+  color: #2c3e50;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
 }
 
 .schedule-list {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 10px;
+  max-height: calc(100vh - 240px);
+  overflow-y: auto;
 }
 
 .schedule-item {
   display: flex;
-  padding: 1rem 1.25rem;
-  background-color: #f8fafc;
-  border-radius: 10px;
-  border-left: 5px solid #3b82f6;
-  margin-bottom: 0.75rem;
-  transition: all 0.2s ease;
-  align-items: flex-start;
-  font-size: 1.1rem;
+  padding: 12px;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  border-left: 4px solid #3498db;
 }
 
-.schedule-item:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  transform: translateY(-2px);
+.past-activity {
+  opacity: 0.6;
+  border-left-color: #95a5a6;
 }
 
 .time {
-  font-weight: 600;
+  font-weight: bold;
   min-width: 80px;
-  color: #1e40af;
-  font-size: 1.15rem;
+  color: #3498db;
+}
+
+.past-activity .time {
+  color: #95a5a6;
 }
 
 .activity {
   flex: 1;
-  color: #4b5563;
-  line-height: 1.5;
 }
 
 .notes {
+  font-size: 0.9rem;
+  color: #7f8c8d;
+  margin-top: 5px;
   font-style: italic;
-  color: #6b7280;
-  font-size: 0.95em;
-  margin-top: 0.5rem;
 }
 
-/* Past activity styling */
-.past-activity {
-  opacity: 0.65;
-  background-color: #f1f5f9;
-  border-left-color: #94a3b8;
+.no-schedule {
+  color: #7f8c8d;
+  font-style: italic;
+  text-align: center;
+  padding: 20px;
 }
 
-.past-activity .time {
-  color: #64748b;
-}
-
-/* Header styling improvements */
-.header-bar {
-  background-color: #1e3a8a;
-  color: white;
-  padding: 1rem 2rem;
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  height: 68px;
-}
-
-.patient-header {
-  font-size: 1.5rem;
-  font-weight: 600;
-}
-
-.current-time {
-  font-size: 1.25rem;
-}
-
-/* Responsive adaptations */
-@media (max-width: 1200px) {
-  .content-container {
-    padding: 1.25rem;
-    gap: 1.5rem;
-  }
-  
-  .schedule-item {
-    padding: 0.875rem 1rem;
-  }
-}
-
-@media (max-width: 992px) {
+/* Responsive styles */
+@media (max-width: 768px) {
   .content-container {
     flex-direction: column;
   }
   
   .patient-info-panel {
-    width: 100%;
+    max-width: none;
+  }
+  
+  .schedule-list {
+    max-height: 400px;
   }
 }
-
-/* Consistent hover states */
-.nav-item:hover, .menu-button:hover {
-  background-color: rgba(255, 255, 255, 0.15);
-  transform: translateY(-1px);
+/* For large TV displays */
+@media (min-width: 1920px) {
+  body {
+    font-size: 18px; /* Larger base font size */
+  }
+  
+  .content-container {
+    max-width: 1800px;
+    margin: 0 auto; /* Center content on very large screens */
+  }
+  
+  .info-card {
+    padding: 30px; /* More padding on larger screens */
+  }
 }

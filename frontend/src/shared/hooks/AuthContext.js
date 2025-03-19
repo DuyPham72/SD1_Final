@@ -12,7 +12,26 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [lastActivity, setLastActivity] = useState(Date.now());
   const [timeoutId, setTimeoutId] = useState(null);
+  
+  // Store nurse-selected patient ID
+  const [nurseSelectedPatientId, setNurseSelectedPatientId] = useState(() => {
+    return localStorage.getItem('nurseSelectedPatientId') || null;
+  });
+  
   const navigate = useNavigate();
+  
+  // Save nurse-selected patient to localStorage when it changes
+  useEffect(() => {
+    if (nurseSelectedPatientId) {
+      localStorage.setItem('nurseSelectedPatientId', nurseSelectedPatientId);
+    }
+  }, [nurseSelectedPatientId]);
+  
+  // Function to update the nurse-selected patient
+  const updateNurseSelectedPatient = (patientId) => {
+    console.log('Saving nurse-selected patient:', patientId);
+    setNurseSelectedPatientId(patientId);
+  };
   
   // Function to switch to staff mode and redirect to patient info
   const loginStaff = (userData) => {
@@ -37,6 +56,9 @@ export const AuthProvider = ({ children }) => {
     
     // Redirect to main dashboard
     navigate('/');
+    
+    // We don't clear nurseSelectedPatientId on logout
+    // so it can be restored when they log back in
   };
   
   // Reset inactivity timer when there's activity
@@ -91,14 +113,21 @@ export const AuthProvider = ({ children }) => {
 
   // Debug output
   useEffect(() => {
-    console.log("Auth state changed:", { mode, user, isAuthenticated: mode === 'staff' && user !== null });
-  }, [mode, user]);
+    console.log("Auth state changed:", { 
+      mode, 
+      user, 
+      isAuthenticated: mode === 'staff' && user !== null,
+      nurseSelectedPatientId
+    });
+  }, [mode, user, nurseSelectedPatientId]);
 
   return (
     <AuthContext.Provider value={{
       mode,
       user,
       isAuthenticated: mode === 'staff' && user !== null,
+      nurseSelectedPatientId,  // Expose the nurse-selected patient ID
+      updateNurseSelectedPatient, // Expose the function to update it
       loginStaff,
       logout,
       resetActivityTimer

@@ -11,3 +11,236 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* Global styles to prevent scrolling throughout the entire site */
+
+/* Reset body and html to take full viewport with no scrolling */
+html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* Add these styles to your index.css file */
+
+/* Ensure schedule times are fully visible */
+.time {
+  min-width: 90px; /* Increase minimum width for time column */
+  flex-shrink: 0; /* Prevent time from shrinking */
+  margin-right: 10px; /* Add some spacing */
+}
+
+/* Adjust activity content layout */
+.activity {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Make sure activity text has space to display */
+.schedule-item {
+  display: flex;
+  padding: 12px;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  border-left: 4px solid #3498db;
+  margin-bottom: 10px;
+  align-items: flex-start; /* Align items to the top */
+}
+
+/* Improve truncation for long descriptions */
+.schedule-item .activity,
+.schedule-item .notes {
+  max-width: 100%;
+  white-space: normal; /* Allow text to wrap */
+  overflow: visible; /* Show all content */
+  text-overflow: clip; /* No ellipsis */
+  -webkit-line-clamp: initial; /* Remove line clamp */
+}
+
+/* Adjust overall schedule layout */
+.schedule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: none; /* Remove max-height restriction */
+  overflow: visible; /* Allow content to be visible */
+}
+
+/* Ensure container has appropriate padding */
+.info-card.schedule-card {
+  padding: 20px;
+}
+
+/* Fix for AM/PM display */
+.time {
+  white-space: nowrap;
+}
+
+/* Dashboard container should fill the viewport */
+.dashboard {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Adjust header to have fixed height */
+.header-bar {
+  flex: 0 0 70px; /* Fixed 70px height, doesn't grow or shrink */
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Main content should fill remaining space */
+.main-content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Content container should fill main content area */
+.content-container {
+  flex: 1;
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  overflow: hidden;
+}
+
+/* Make columns have fixed proportions */
+.left-column {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 350px;
+  overflow: hidden;
+}
+
+.right-column {
+  flex: 3;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Adjust card heights to fit in columns */
+.info-card {
+  overflow: hidden;
+  margin-bottom: 0; /* Remove margin to save space */
+}
+
+.left-column .info-card {
+  flex: 1; /* Equal distribution of space */
+  display: flex;
+  flex-direction: column;
+}
+
+.right-column .info-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Feedback container should fill its parent */
+.feedback-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Patient feedback tab components */
+.patient-feedback-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.feedback-summary {
+  flex: 0 0 auto; /* Don't grow or shrink */
+}
+
+.feedback-carousel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Schedule panel should not scroll */
+.schedule-panel {
+  overflow: hidden;
+}
+
+.schedule-list {
+  max-height: calc(100% - 40px); /* Subtract header height */
+  overflow: hidden;
+}
+
+/* Truncate long text */
+.schedule-item .activity, 
+.schedule-item .notes,
+.feedback-comment,
+.patient-detail-content {
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Show only 2 lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.feedback-comment {
+  -webkit-line-clamp: 3; /* Show 3 lines for comments */
+}
+
+/* Patient info fields should not scroll */
+.info-fields {
+  overflow: hidden;
+}
+
+/* Make sure sidebar doesn't cause scrolling */
+.sidebar {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.sidebar-nav {
+  overflow: hidden;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .content-container {
+    flex-direction: column;
+  }
+  
+  .left-column, .right-column {
+    width: 100%;
+  }
+  
+  .left-column .info-card {
+    max-height: 200px; /* Limit height on mobile */
+  }
+}
+
+/* TV optimization */
+@media (min-width: 1800px) {
+  .header-bar {
+    flex: 0 0 80px; /* Slightly taller header on large screens */
+  }
+  
+  .left-column {
+    flex: 3;
+  }
+  
+  .right-column {
+    flex: 4;
+  }
+}
+

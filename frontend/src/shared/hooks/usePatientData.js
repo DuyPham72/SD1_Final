@@ -1,15 +1,34 @@
-// usePatientData.js - Place this in your shared folder
+// usePatientData.js - Updated with localStorage persistence
 import { useState, useEffect, useCallback } from 'react';
+import { useAuth } from './AuthContext'; // Make sure this path is correct
 
 // Add a simple caching mechanism
 let patientCache = {};
 
+// Storage key for selected patient
+const SELECTED_PATIENT_STORAGE_KEY = 'selectedPatientId';
+
 export function usePatientData() {
   const [patient, setPatient] = useState(null);
   const [allPatients, setAllPatients] = useState([]);
-  const [selectedPatientId, setSelectedPatientId] = useState(null);
+  // Initialize from localStorage if available
+  const [selectedPatientId, setSelectedPatientId] = useState(() => {
+    const storedId = localStorage.getItem(SELECTED_PATIENT_STORAGE_KEY);
+    return storedId || null;
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // Get auth context to access mode
+  const { mode, nurseSelectedPatientId } = useAuth();
+
+  // Persist selectedPatientId to localStorage when it changes
+  useEffect(() => {
+    if (selectedPatientId) {
+      localStorage.setItem(SELECTED_PATIENT_STORAGE_KEY, selectedPatientId);
+      console.log('Saved patient ID to localStorage:', selectedPatientId);
+    }
+  }, [selectedPatientId]);
 
   // Fetch all patients
   useEffect(() => {
@@ -26,9 +45,35 @@ export function usePatientData() {
         const data = await response.json();
         setAllPatients(data);
         
-        // Select first patient by default if none is selected
+        // Selection logic based on mode and whether we already have a selectedPatientId
         if (data.length > 0 && !selectedPatientId) {
-          setSelectedPatientId(data[0].patientId);
+          let patientToSelect;
+          
+          if (mode === 'patient') {
+            // In patient mode, always select first patient by default
+            console.log('Patient mode: Setting default patient to first patient');
+            patientToSelect = data[0].patientId;
+          } else if (mode === 'staff' && nurseSelectedPatientId) {
+            // In staff mode, use nurse selected patient if available
+            // Check if nurseSelectedPatientId exists in the data
+            const nursePatientExists = data.some(p => p.patientId === nurseSelectedPatientId);
+            if (nursePatientExists) {
+              console.log('Staff mode: Using nurse-selected patient:', nurseSelectedPatientId);
+              patientToSelect = nurseSelectedPatientId;
+            } else {
+              // Fallback to first patient if nurse-selected doesn't exist
+              console.log('Staff mode: Nurse-selected patient not found, using first patient');
+              patientToSelect = data[0].patientId;
+            }
+          } else {
+            // Default case, use first patient
+            console.log('Default case: Setting to first patient');
+            patientToSelect = data[0].patientId;
+          }
+          
+          setSelectedPatientId(patientToSelect);
+          // Also save to localStorage immediately
+          localStorage.setItem(SELECTED_PATIENT_STORAGE_KEY, patientToSelect);
         }
         
         setLoading(false);
@@ -40,7 +85,7 @@ export function usePatientData() {
     };
 
     fetchPatients();
-  }, []);
+  }, [mode, nurseSelectedPatientId, selectedPatientId]); // Include selectedPatientId as dependency
 
   // Fetch selected patient data
   useEffect(() => {
@@ -142,16 +187,20 @@ export function usePatientData() {
     }
   }, [updatePatient]);
 
-  // Handle patient change
+  // Handle patient change with explicit logging
   const handlePatientChange = useCallback((patientId) => {
+    console.log('handlePatientChange called with patientId:', patientId);
     setSelectedPatientId(patientId);
+    // Also save to localStorage immediately for extra safety
+    localStorage.setItem(SELECTED_PATIENT_STORAGE_KEY, patientId);
   }, []);
 
   return { 
     patient, 
     setPatient: updatePatient,
     allPatients, 
-    selectedPatientId, 
+    selectedPatientId,
+    setSelectedPatientId, // Expose this for direct access if needed 
     loading, 
     error,
     handlePatientChange,

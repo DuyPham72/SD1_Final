@@ -1,72 +1,838 @@
-/* src/styles/PatientFeedbackTab.css - Modified for horizontal category layout */
+/* PatientFeedbackTab.css */
 
-/* Keep existing CSS styles and add/modify these: */
+.patient-feedback-tab {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
 
-/* Make category ratings display horizontally */
+.patient-feedback-tab h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #2c3e50;
+  font-size: 1.4rem;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.patient-feedback-tab h4 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #2c3e50;
+  font-size: 1.1rem;
+}
+
+/* Feedback summary section */
+.feedback-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  margin-bottom: 30px;
+  padding-bottom: 25px;
+  border-bottom: 1px solid #eee;
+}
+
+/* Average rating display */
+.average-rating {
+  flex: 1;
+  min-width: 200px;
+  text-align: center;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.average-rating p {
+  margin: 5px 0;
+  color: #555;
+}
+
+.big-rating {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #2c3e50;
+  line-height: 1;
+  margin: 10px 0;
+}
+
+.stars {
+  font-size: 1.6rem;
+  margin: 10px 0;
+  color: #ddd;
+}
+
+.star {
+  margin: 0 2px;
+}
+
+.star.filled {
+  color: #f1c40f;
+}
+
+.feedback-count {
+  font-size: 0.9rem;
+  color: #7f8c8d;
+}
+
+/* Category ratings grid */
 .category-ratings {
-  margin-top: 20px;
-  border-top: 1px solid #dee2e6;
-  padding-top: 15px;
+  flex: 2;
+  min-width: 300px;
 }
 
 .rating-categories-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   gap: 15px;
-  margin-top: 10px;
 }
 
 .category-rating-item {
-  background-color: white;
-  border-radius: 4px;
-  padding: 15px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  background-color: #f8f9fa;
+  padding: 12px;
+  border-radius: 8px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
-  flex: 1;
-  min-width: 150px;
-  max-width: calc(50% - 10px); /* Two items per row on most screens */
 }
 
 .category-name {
-  font-weight: 500;
-  color: #495057;
+  font-weight: 600;
+  color: #555;
   margin-bottom: 5px;
-  font-size: 1rem;
 }
 
 .category-stars {
   font-size: 1.2rem;
   margin: 5px 0;
+  color: #ddd;
 }
 
 .category-score {
-  font-size: 1.3rem;
-  font-weight: bold;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-top: auto;
+}
+
+/* Individual feedback items */
+.feedback-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.feedback-item {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 15px;
+}
+
+.feedback-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.rating-stars {
+  font-size: 1.2rem;
+  color: #ddd;
+}
+
+.feedback-time {
+  font-size: 0.9rem;
+  color: #7f8c8d;
+}
+
+.feedback-comment {
+  margin-top: 15px;
+  font-style: italic;
+  color: #555;
+  line-height: 1.5;
+}
+
+/* Detailed ratings */
+.detailed-ratings {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.rating-detail {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.rating-label {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.rating-value {
+  font-weight: 600;
   color: #2c3e50;
 }
 
-/* Adjust for different screen sizes */
-@media (min-width: 768px) {
-  .category-rating-item {
-    /* Three items per row on medium screens */
-    max-width: calc(33.333% - 15px);
-  }
+/* No feedback message */
+.no-feedback {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #7f8c8d;
+  font-style: italic;
+  text-align: center;
+  padding: 40px 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
 }
 
-@media (min-width: 992px) {
-  .category-rating-item {
-    /* Five items per row on large screens */
-    max-width: calc(20% - 15px);
-  }
-}
-
+/* Responsive styles */
+/* Mobile screens */
 @media (max-width: 576px) {
+  .feedback-summary {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .average-rating {
+    width: 100%;
+  }
+  
+  .detailed-ratings {
+    grid-template-columns: 1fr;
+  }
+  
+  .feedback-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+}
+
+/* Tablet screens */
+@media (min-width: 577px) and (max-width: 991px) {
+  .rating-categories-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Large screens and standard TVs */
+@media (min-width: 1200px) {
+  .patient-feedback-tab h3 {
+    font-size: 1.6rem;
+    margin-bottom: 25px;
+  }
+  
+  .patient-feedback-tab h4 {
+    font-size: 1.3rem;
+  }
+  
+  .big-rating {
+    font-size: 3.5rem;
+  }
+  
+  .stars, .category-stars {
+    font-size: 1.8rem;
+  }
+  
+  .rating-categories-grid {
+    gap: 20px;
+  }
+  
   .category-rating-item {
-    /* One item per row on very small screens */
-    max-width: 100%;
+    padding: 15px;
+  }
+  
+  .category-name {
+    font-size: 1.1rem;
+  }
+  
+  .category-score {
+    font-size: 1.4rem;
+  }
+  
+  .feedback-item {
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .feedback-comment {
+    font-size: 1.1rem;
+  }
+}
+
+/* Very large screens and 4K TVs */
+@media (min-width: 2560px) {
+  .patient-feedback-tab h3 {
+    font-size: 2.2rem;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+  }
+  
+  .patient-feedback-tab h4 {
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+  }
+  
+  .feedback-summary {
+    gap: 40px;
+    margin-bottom: 40px;
+    padding-bottom: 35px;
+  }
+  
+  .average-rating {
+    padding: 25px;
+  }
+  
+  .average-rating p {
+    font-size: 1.4rem;
+  }
+  
+  .big-rating {
+    font-size: 5rem;
+    margin: 15px 0;
+  }
+  
+  .stars {
+    font-size: 2.6rem;
+    margin: 15px 0;
+  }
+  
+  .feedback-count {
+    font-size: 1.2rem;
+  }
+  
+  .rating-categories-grid {
+    gap: 25px;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  }
+  
+  .category-rating-item {
+    padding: 25px;
+  }
+  
+  .category-name {
+    font-size: 1.6rem;
+    margin-bottom: 10px;
+  }
+  
+  .category-stars {
+    font-size: 2.2rem;
+    margin: 10px 0;
+  }
+  
+  .category-score {
+    font-size: 1.8rem;
+  }
+  
+  .feedback-item {
+    padding: 30px;
+    margin-bottom: 30px;
+    border-radius: 12px;
+  }
+  
+  .rating-stars {
+    font-size: 2rem;
+  }
+  
+  .feedback-time {
+    font-size: 1.2rem;
+  }
+  
+  .feedback-comment {
+    margin-top: 25px;
+    font-size: 1.5rem;
+    line-height: 1.6;
+  }
+  
+  .detailed-ratings {
+    gap: 15px;
+    margin-top: 25px;
+    padding-top: 25px;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+  
+  .rating-label {
+    font-size: 1.3rem;
+  }
+  
+  .rating-value {
+    font-size: 1.4rem;
+  }
+  
+  .no-feedback {
+    padding: 60px 40px;
+    font-size: 1.6rem;
+  }
+}
+/* PatientFeedbackTab.css - Optimized for 13-inch screens */
+
+.patient-feedback-tab {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto; /* Enable scrolling within the feedback tab */
+}
+
+.patient-feedback-tab h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #2c3e50;
+  font-size: 1.2rem;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+}
+
+.patient-feedback-tab h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #2c3e50;
+  font-size: 1rem;
+}
+
+/* Feedback summary section */
+.feedback-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+/* Average rating display */
+.average-rating {
+  flex: 1;
+  min-width: 180px;
+  text-align: center;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.average-rating p {
+  margin: 3px 0;
+  color: #555;
+}
+
+.big-rating {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #2c3e50;
+  line-height: 1;
+  margin: 8px 0;
+}
+
+.stars {
+  font-size: 1.4rem;
+  margin: 8px 0;
+  color: #ddd;
+}
+
+.star {
+  margin: 0 1px;
+}
+
+.star.filled {
+  color: #f1c40f;
+}
+
+.feedback-count {
+  font-size: 0.8rem;
+  color: #7f8c8d;
+}
+
+/* Category ratings grid */
+.category-ratings {
+  flex: 2;
+  min-width: 280px;
+}
+
+.category-rating-item {
+  background-color: #f8f9fa;
+  padding: 10px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.category-name {
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 3px;
+  font-size: 0.9rem;
+}
+
+.category-stars {
+  font-size: 1rem;
+  margin: 3px 0;
+  color: #ddd;
+}
+
+.category-score {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-top: auto;
+}
+
+/* Individual feedback items */
+.feedback-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.feedback-item {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 12px;
+}
+
+.feedback-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.rating-stars {
+  font-size: 1rem;
+  color: #ddd;
+}
+
+.feedback-time {
+  font-size: 0.8rem;
+  color: #7f8c8d;
+}
+
+.feedback-comment {
+  margin-top: 10px;
+  font-style: italic;
+  color: #555;
+  line-height: 1.4;
+  font-size: 0.9rem;
+}
+
+/* Detailed ratings */
+.detailed-ratings {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #eee;
+}
+
+.rating-detail {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.rating-label {
+  font-size: 0.8rem;
+  color: #555;
+}
+
+.rating-value {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.9rem;
+}
+
+/* No feedback message */
+.no-feedback {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #7f8c8d;
+  font-style: italic;
+  text-align: center;
+  padding: 30px 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+/* Compact layout for Individual Feedback */
+.individual-feedback {
+  margin-top: 5px;
+}
+
+.individual-feedback-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.individual-feedback-header h3 {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.pagination-counts {
+  font-size: 0.8rem;
+  color: #7f8c8d;
+}
+
+.pagination-button {
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.pagination-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Responsive styles */
+/* Extra small screens (13-inch laptops at lower resolutions) */
+@media (max-width: 1200px) {
+  .content-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .left-column, .right-column {
+    width: 100%;
+  }
+  
+  .patient-feedback-tab h3 {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+  }
+  
+  .big-rating {
+    font-size: 2.2rem;
+  }
+  
+  .stars {
+    font-size: 1.2rem;
+  }
+  
+  .rating-categories-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 8px;
+  }
+  
+  .category-name {
+    font-size: 0.85rem;
+  }
+  
+  .category-stars {
+    font-size: 0.9rem;
+  }
+  
+  .category-score {
+    font-size: 1rem;
+  }
+  
+  .detailed-ratings {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Mobile screens */
+@media (max-width: 576px) {
+  .feedback-summary {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .average-rating {
+    width: 100%;
+  }
+  
+  .rating-categories-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .detailed-ratings {
+    grid-template-columns: 1fr;
+  }
+  
+  .feedback-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+}
+
+/* Tablet screens */
+@media (min-width: 577px) and (max-width: 991px) {
+  .rating-categories-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Large screens and standard TVs */
+@media (min-width: 1600px) {
+  .patient-feedback-tab h3 {
+    font-size: 1.6rem;
+    margin-bottom: 25px;
+  }
+  
+  .patient-feedback-tab h4 {
+    font-size: 1.3rem;
+  }
+  
+  .big-rating {
+    font-size: 3.5rem;
+  }
+  
+  .stars, .category-stars {
+    font-size: 1.8rem;
+  }
+  
+  .rating-categories-grid {
+    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+  
+  .category-rating-item {
+    padding: 15px;
+  }
+  
+  .category-name {
+    font-size: 1.1rem;
+  }
+  
+  .category-score {
+    font-size: 1.4rem;
+  }
+  
+  .feedback-item {
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .feedback-comment {
+    font-size: 1.1rem;
+  }
+}
+
+/* Very large screens and 4K TVs */
+@media (min-width: 2560px) {
+  .patient-feedback-tab h3 {
+    font-size: 2.2rem;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+  }
+  
+  .patient-feedback-tab h4 {
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+  }
+  
+  .feedback-summary {
+    gap: 40px;
+    margin-bottom: 40px;
+    padding-bottom: 35px;
+  }
+  
+  .average-rating {
+    padding: 25px;
+  }
+  
+  .average-rating p {
+    font-size: 1.4rem;
+  }
+  
+  .big-rating {
+    font-size: 5rem;
+    margin: 15px 0;
+  }
+  
+  .stars {
+    font-size: 2.6rem;
+    margin: 15px 0;
+  }
+  
+  .feedback-count {
+    font-size: 1.2rem;
+  }
+  
+  .rating-categories-grid {
+    gap: 25px;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  }
+  
+  .category-rating-item {
+    padding: 25px;
+  }
+  
+  .category-name {
+    font-size: 1.6rem;
+    margin-bottom: 10px;
+  }
+  
+  .category-stars {
+    font-size: 2.2rem;
+    margin: 10px 0;
+  }
+  
+  .category-score {
+    font-size: 1.8rem;
+  }
+  
+  .feedback-item {
+    padding: 30px;
+    margin-bottom: 30px;
+    border-radius: 12px;
+  }
+  
+  .rating-stars {
+    font-size: 2rem;
+  }
+  
+  .feedback-time {
+    font-size: 1.2rem;
+  }
+  
+  .feedback-comment {
+    margin-top: 25px;
+    font-size: 1.5rem;
+    line-height: 1.6;
+  }
+  
+  .detailed-ratings {
+    gap: 15px;
+    margin-top: 25px;
+    padding-top: 25px;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+  
+  .rating-label {
+    font-size: 1.3rem;
+  }
+  
+  .rating-value {
+    font-size: 1.4rem;
+  }
+  
+  .no-feedback {
+    padding: 60px 40px;
+    font-size: 1.6rem;
   }
 }

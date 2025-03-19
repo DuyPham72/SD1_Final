@@ -1,0 +1,349 @@
+/* Header.css */
+
+.header-bar {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    padding: 12px 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 100;
+    height: 70px;
+  }
+
+
+  
+  /* Menu button */
+  .menu-button {
+    background: none;
+    border: none;
+    font-size: 1.6rem;
+    cursor: pointer;
+    padding: 8px 12px;
+    margin-right: 15px;
+    color: #555;
+    border-radius: 4px;
+    transition: background-color 0.2s, color 0.2s;
+  }
+  
+  .menu-button:hover {
+    background-color: #f1f2f3;
+    color: #333;
+  }
+  
+  .menu-button.focused {
+    background-color: #e1f5fe;
+    color: #0288d1;
+    outline: 2px solid #0288d1;
+    outline-offset: 2px;
+  }
+  
+  /* Patient selector dropdown */
+  .patient-selector {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    background-color: #f8f9fa;
+    margin-right: 20px;
+    min-width: 200px;
+  }
+  
+  .patient-selector.focused {
+    border-color: #0288d1;
+    outline: 2px solid #0288d1;
+    outline-offset: 2px;
+  }
+  
+  .patient-selector:hover {
+    border-color: #bbb;
+  }
+  
+  /* Patient name header */
+  .patient-header {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+  }
+  
+  /* Header actions area */
+  .header-actions {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    margin-right: 20px;
+    gap: 15px;
+  }
+  
+  /* Staff login button */
+  .staff-login-button {
+    background-color: #ecf0f1;
+    border: none;
+    color: #34495e;
+    padding: 8px 15px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .staff-login-button:hover {
+    background-color: #bdc3c7;
+  }
+  
+  /* Current time display */
+/* Updated fix for the date/time display */
+
+.current-time {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    min-width: 150px; /* Increased width for date/time */
+    margin-left: 20px;
+    margin-right: 20px; /* Add right margin to prevent edge cutting */
+    white-space: nowrap;
+    position: relative; /* Add position relative */
+    right: 0; /* Ensure it stays aligned to the right */
+    font-size: 0.9rem; /* Slightly larger font */
+    padding-right: 5px; /* Add some padding on the right */
+  }
+  
+  /* Override any conflicting styles */
+  .header-bar {
+    padding-right: 25px !important; /* Ensure enough padding on the right side */
+    overflow: visible !important;
+  }
+  
+  /* Adjust header actions position */
+  .header-actions {
+    margin-right: 30px; /* More space between actions and time */
+  }
+  
+  /* For TVs and larger screens */
+  @media (min-width: 1200px) {
+    .current-time {
+      min-width: 180px; /* Even wider on large screens */
+      font-size: 1rem;
+    }
+  
+    /* Increase right padding on header for more space */
+    .header-bar {
+      padding-right: 35px !important;
+    }
+  }
+  
+  /* For very large screens */
+  @media (min-width: 2560px) {
+    .current-time {
+      min-width: 220px;
+      font-size: 1.3rem;
+      margin-right: 40px;
+    }
+  
+    .header-bar {
+      padding-right: 50px !important;
+    }
+  }
+  
+  /* Focus styles for accessibility */
+  :focus {
+    outline: 2px solid #0288d1;
+    outline-offset: 2px;
+  }
+  
+  /* Responsive styles */
+  /* Mobile screens */
+  @media (max-width: 768px) {
+    .header-bar {
+      flex-wrap: wrap;
+      height: auto;
+      padding: 10px 15px;
+    }
+    
+    .menu-button {
+      font-size: 1.4rem;
+      padding: 6px 10px;
+      margin-right: 10px;
+    }
+    
+    .patient-selector {
+      min-width: 150px;
+      font-size: 0.9rem;
+      margin-right: 10px;
+    }
+    
+    .patient-header {
+      font-size: 1rem;
+      width: 100%;
+      order: 2;
+      margin: 10px 0;
+    }
+    
+    .header-actions {
+      order: 3;
+      width: 100%;
+      margin-right: 0;
+      justify-content: space-between;
+    }
+    
+    .current-time {
+      margin-top: 5px;
+      order: 4;
+      width: 100%;
+      align-items: flex-start;
+    }
+  }
+  
+  /* Tablet screens */
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .patient-header {
+      font-size: 1.1rem;
+      max-width: 200px;
+    }
+    
+    .header-actions {
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+  }
+  
+  /* Large screens and standard TVs */
+  @media (min-width: 1200px) {
+    .header-bar {
+      padding: 15px 25px;
+      height: 80px;
+    }
+    
+    .menu-button {
+      font-size: 1.8rem;
+    }
+    
+    .patient-selector {
+      font-size: 1.1rem;
+      min-width: 250px;
+    }
+    
+    .patient-header {
+      font-size: 1.4rem;
+    }
+    
+    .staff-login-button {
+      padding: 10px 18px;
+      font-size: 1rem;
+    }
+    
+    .current-time {
+      font-size: 1rem;
+    }
+  }
+  
+  /* Very large screens and 4K TVs */
+  @media (min-width: 2560px) {
+    .header-bar {
+      padding: 20px 40px;
+      height: 100px;
+    }
+    
+    .menu-button {
+      font-size: 2.5rem;
+      padding: 12px 18px;
+      margin-right: 25px;
+    }
+    
+    .patient-selector {
+      font-size: 1.4rem;
+      min-width: 350px;
+      padding: 12px 20px;
+      margin-right: 30px;
+    }
+    
+    .patient-header {
+      font-size: 2rem;
+    }
+    
+    .staff-login-button {
+      padding: 15px 30px;
+      font-size: 1.3rem;
+      border-radius: 8px;
+    }
+    
+    .current-time {
+      font-size: 1.3rem;
+    }
+  }
+  
+  /* Extra header content styles */
+  /* These styles apply to any additional elements passed via extraHeaderContent */
+  .header-edit-button, .header-save-button {
+    margin-left: 10px;
+  }
+  /* Add these styles to your index.css or Header.css file */
+
+/* Fix for header time display */
+.current-time {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  min-width: 120px; /* Ensure enough space for date/time */
+  white-space: nowrap; /* Prevent wrapping */
+  margin-left: 15px; /* Add some spacing */
+}
+
+/* Ensure the header has enough space for all elements */
+.header-bar {
+  padding: 0 20px; /* Add horizontal padding */
+  overflow: visible !important; /* Override the hidden overflow */
+  height: auto; /* Allow natural height */
+  min-height: 70px; /* Maintain minimum height */
+}
+
+/* Adjust header actions to ensure mode indicator and buttons fit */
+.header-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-shrink: 0; /* Prevent shrinking */
+}
+
+/* Make patient header truncate if needed */
+.patient-header {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px; /* Limit width to allow space for other elements */
+}
+
+/* Make header elements more responsive */
+@media (max-width: 768px) {
+  .header-bar {
+    flex-wrap: wrap;
+    padding: 10px 15px;
+  }
+  
+  .patient-header {
+    max-width: 100%;
+    width: 100%;
+    order: 2;
+    margin: 10px 0;
+  }
+  
+  .header-actions {
+    order: 3;
+    width: 100%;
+    margin-right: 0;
+    justify-content: space-between;
+  }
+  
+  .current-time {
+    margin-top: 5px;
+    order: 4;
+    width: 100%;
+    align-items: flex-start;
+  }
+}

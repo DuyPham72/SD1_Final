@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/MainDashboard.css';
+import '../styles/Header.css';
 import {
   usePatientData,
   useTimeUpdate,
@@ -88,20 +89,12 @@ function MainDashboard() {
   if (loading) return <div className="loading">Loading...</div>;
   if (!patient) return <div className="error">No patient data available</div>;
 
-  const navItems = [
-    { icon: '🏠', text: 'Home', path: '/' },
-    { icon: '📋', text: 'Patient Status & Feedback', path: '/patient-info' },
-    { icon: '📚', text: 'Library', path: '/library' },
-    { icon: '🎮', text: 'Entertainment', path: '/entertainment' },
-    { icon: '⚙️', text: 'Settings', path: '/settings' }
-  ];
 
   return (
     <Layout
       patient={patient}
       isNavOpen={isNavOpen}
       onNavToggle={() => setIsNavOpen(!isNavOpen)}
-      navItems={navItems}
       sidebarButtonsRef={sidebarButtonsRef}
     >
       <Header

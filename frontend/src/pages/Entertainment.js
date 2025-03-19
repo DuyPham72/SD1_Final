@@ -48,19 +48,13 @@ function Entertainment() {
   if (loading) return <div className="loading">Loading...</div>;
   if (!patient) return <div className="error">No patient data available</div>;
 
-  const navItems = [
-    { icon: '🏠', text: 'Home', path: '/' },
-    { icon: '📋', text: 'Patient Status & Feedback', path: '/patient-info' },
-    { icon: '🎮', text: 'Entertainment', path: '/entertainment' },
-    { icon: '⚙️', text: 'Settings', path: '/settings' }
-  ];
+
 
   return (
     <Layout
       patient={patient}
       isNavOpen={isNavOpen}
       onNavToggle={() => setIsNavOpen(!isNavOpen)}
-      navItems={navItems}
       sidebarButtonsRef={sidebarButtonsRef}
     >
       <Header
