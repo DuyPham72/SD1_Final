@@ -123,6 +123,7 @@ const usePatientForm = (patient, setPatient) => {
       console.error(`Error getting field value for ${field.label}:`, error);
       return '';
     }
+    
   }, [patient]);
 
   return {

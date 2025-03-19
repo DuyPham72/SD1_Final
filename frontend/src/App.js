@@ -6,6 +6,8 @@ import PatientInfo from './pages/PatientInfo';
 import Entertainment from './pages/Entertainment';
 import Settings from './pages/Settings';
 import Feedback from './pages/Feedback';
+import PatientAccessPage from './pages/PatientAccessPage';
+import PatientRegistrationPage from './pages/PatientRegistrationPage';
 import { AuthProvider, useAuth } from './shared';
 
 // Debug component to display current auth state
@@ -43,7 +45,8 @@ function AppWithRoutes() {
         <Route path="/entertainment" element={<Entertainment />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/feedback" element={<Feedback />} />
-        
+        <Route path="/patient-access/:token" element={<PatientAccessPage />} />
+        <Route path="/register/:token" element={<PatientRegistrationPage />} />
         {/* Default redirect based on mode */}
         <Route path="*" element={
           <Navigate to={mode === 'staff' ? '/patient-info' : '/'} replace />

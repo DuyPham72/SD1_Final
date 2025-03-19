@@ -15,9 +15,9 @@ const ModeIndicator = () => {
         <div className="mode-name">
           {mode === 'staff' ? 'Staff Mode' : 'Patient Mode'}
         </div>
-        {mode === 'staff' && user && (
-          <div className="user-info">
-            <span>{user.name}</span>
+        <div className="user-info">
+          {mode === 'staff' && user && <span>{user.name}</span>}
+          {mode === 'staff' && (
             <button 
               className="logout-button" 
               onClick={logout}
@@ -25,8 +25,8 @@ const ModeIndicator = () => {
             >
               Exit
             </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

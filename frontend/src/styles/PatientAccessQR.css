@@ -1,0 +1,238 @@
+.patient-access-qr-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+  }
+  
+  .qr-modal {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 420px;
+    max-height: 90vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .qr-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .qr-header h2 {
+    margin: 0;
+    font-size: 1.3rem;
+    color: #2c3e50;
+  }
+  
+  .close-button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #95a5a6;
+    cursor: pointer;
+  }
+  
+  .close-button:hover {
+    color: #2c3e50;
+  }
+  
+  .qr-content {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .qr-instructions {
+    color: #34495e;
+    margin-bottom: 20px;
+    font-size: 1rem;
+  }
+  
+  .qr-code-display {
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    margin-bottom: 20px;
+  }
+  
+  .qr-code-image {
+    max-width: 250px;
+    height: auto;
+  }
+  
+  .expiry-note {
+    color: #e74c3c;
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+  }
+  
+  .access-link-container {
+    display: flex;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  
+  .access-link {
+    flex: 1;
+    border: 1px solid #ddd;
+    border-radius: 4px 0 0 4px;
+    padding: 10px;
+    font-size: 0.9rem;
+    color: #34495e;
+  }
+  
+  .copy-button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 0 4px 4px 0;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+  }
+  
+  .copy-button:hover {
+    background-color: #2980b9;
+  }
+  
+  .copy-button.copied {
+    background-color: #27ae60;
+  }
+  
+  .security-note {
+    color: #7f8c8d;
+    font-size: 0.85rem;
+    font-style: italic;
+    margin-top: 10px;
+  }
+  
+  .loading-indicator {
+    padding: 30px;
+    color: #7f8c8d;
+  }
+  
+  .error-message {
+    color: #e74c3c;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .retry-button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 15px;
+    margin-top: 10px;
+    cursor: pointer;
+  }
+  
+  .retry-button:hover {
+    background-color: #2980b9;
+  }
+  
+  .qr-footer {
+    margin-top: 10px;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+    width: 100%;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 576px) {
+    .qr-modal {
+      width: 95%;
+    }
+    
+    .qr-header h2 {
+      font-size: 1.1rem;
+    }
+    
+    .qr-code-image {
+      max-width: 200px;
+    }
+    
+    .access-link-container {
+      flex-direction: column;
+    }
+    
+    .access-link {
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+    
+    .copy-button {
+      border-radius: 4px;
+      width: 100%;
+    }
+  }
+  /* Add these styles to your PatientAccessQR.css file (or create a new one) */
+
+.registration-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .form-group label {
+    font-weight: 500;
+    color: #333;
+    font-size: 0.9rem;
+  }
+  
+  .form-group input {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+  }
+  
+  .generate-button {
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  
+  .generate-button:hover {
+    background-color: #219653;
+  }
+  
+  .generate-button:disabled {
+    background-color: #95a5a6;
+    cursor: not-allowed;
+  }
+  
+  .error-message {
+    color: #e74c3c;
+    font-size: 0.9rem;
+    margin-top: 10px;
+  }

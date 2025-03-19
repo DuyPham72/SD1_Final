@@ -1,0 +1,131 @@
+.patient-access-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+    padding: 20px;
+  }
+  
+  .access-container {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px;
+    padding: 40px 30px;
+    text-align: center;
+  }
+  
+  .access-container h2 {
+    margin-top: 0;
+    color: #2c3e50;
+    margin-bottom: 15px;
+  }
+  
+  .access-container p {
+    color: #7f8c8d;
+    margin-bottom: 30px;
+    line-height: 1.5;
+  }
+  
+  .access-actions {
+    margin-top: 30px;
+  }
+  
+  /* Loading state */
+  .access-container.loading {
+    padding-top: 50px;
+    padding-bottom: 50px;
+  }
+  
+  .spinner {
+    margin: 0 auto 30px;
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top-color: #3498db;
+    animation: spin 1s ease-in-out infinite;
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  /* Error state */
+  .access-container.error {
+    border-top: 4px solid #e74c3c;
+  }
+  
+  .error-icon {
+    font-size: 40px;
+    margin-bottom: 20px;
+  }
+  
+  .back-to-login-button {
+    background-color: #7f8c8d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 12px 24px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .back-to-login-button:hover {
+    background-color: #6c7a89;
+  }
+  
+  /* Success state */
+  .access-container.success {
+    border-top: 4px solid #2ecc71;
+  }
+  
+  .success-icon {
+    font-size: 40px;
+    color: #2ecc71;
+    margin-bottom: 20px;
+  }
+  
+  .login-button {
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 12px 30px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-weight: 500;
+  }
+  
+  .login-button:hover {
+    background-color: #27ae60;
+  }
+  
+  .login-button:disabled {
+    background-color: #95a5a6;
+    cursor: not-allowed;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 576px) {
+    .access-container {
+      padding: 30px 20px;
+    }
+    
+    .spinner,
+    .error-icon,
+    .success-icon {
+      font-size: 30px;
+      margin-bottom: 15px;
+    }
+    
+    .login-button,
+    .back-to-login-button {
+      width: 100%;
+      padding: 10px 20px;
+    }
+  }

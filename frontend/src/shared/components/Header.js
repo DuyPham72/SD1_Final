@@ -1,9 +1,12 @@
+
 // src/shared/components/Header.js
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/AuthContext';
 import ModeIndicator from './ModeIndicator';
 import LoginModal from './LoginModal';
 import '../../styles/Header.css';
+import PatientAccessQR from './PatientAccessQR';
+import RegistrationQRGenerator from './RegistrationQRGenerator';
 
 export const Header = ({ 
   patient, 
@@ -19,6 +22,8 @@ export const Header = ({
 }) => {
   const { mode, isAuthenticated } = useAuth();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [showQRCode, setShowQRCode] = useState(false);
+  const [showRegQRCode, setShowRegQRCode] = useState(false);
   
   // Log state for debugging
   useEffect(() => {
@@ -37,6 +42,18 @@ export const Header = ({
     setTimeout(() => {
       console.log('After toggle - isNavOpen:', isNavOpen);
     }, 100);
+  };
+  
+  // Handle QR code button click
+  const handleQRCodeClick = (e) => {
+    e.preventDefault();
+    setShowQRCode(true);
+  };
+  
+  // Handle Registration QR button click
+  const handleRegQRClick = (e) => {
+    e.preventDefault();
+    setShowRegQRCode(true);
   };
   
   return (
@@ -69,6 +86,33 @@ export const Header = ({
       <h1 className="patient-header">Patient Name: {patient?.name}</h1>
       
       <div className="header-actions">
+        {/* QR Code Buttons - only visible in staff mode */}
+        {mode === 'staff' && (
+          <>
+            {/* Patient Access QR - only show when a patient is selected */}
+            {patient && (
+              <button 
+                className="qr-code-button"
+                onClick={handleQRCodeClick}
+                title="Generate patient access QR code"
+              >
+                <span className="qr-icon">🔗</span>
+                <span className="qr-text">Patient Access</span>
+              </button>
+            )}
+            
+            {/* New Patient Registration QR */}
+            <button 
+              className="reg-qr-button"
+              onClick={handleRegQRClick}
+              title="Generate registration QR code for new patients"
+            >
+              <span className="qr-icon">➕</span>
+              <span className="qr-text">New Patient</span>
+            </button>
+          </>
+        )}
+        
         <ModeIndicator />
         
         {mode === 'patient' && (
@@ -80,7 +124,7 @@ export const Header = ({
           </button>
         )}
         
-        {isAuthenticated && extraHeaderContent}
+        {mode === 'staff' && extraHeaderContent}
       </div>
       
       <div className="current-time">
@@ -96,6 +140,21 @@ export const Header = ({
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
       />
+      
+      {/* QR Code Modals */}
+      {showQRCode && (
+        <PatientAccessQR 
+          patient={patient} 
+          onClose={() => setShowQRCode(false)} 
+        />
+      )}
+      
+      {/* Registration QR Code Modal */}
+      {showRegQRCode && (
+        <RegistrationQRGenerator 
+          onClose={() => setShowRegQRCode(false)} 
+        />
+      )}
     </div>
   );
 };
