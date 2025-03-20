@@ -1,21 +1,22 @@
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
 
 /* Global styles to prevent scrolling throughout the entire site */
 
 /* Reset body and html to take full viewport with no scrolling */
-html, body {
+html,
+body {
   height: 100%;
   width: 100%;
   margin: 0;
@@ -184,7 +185,7 @@ html, body {
 }
 
 /* Truncate long text */
-.schedule-item .activity, 
+.schedule-item .activity,
 .schedule-item .notes,
 .feedback-comment,
 .patient-detail-content {
@@ -219,11 +220,12 @@ html, body {
   .content-container {
     flex-direction: column;
   }
-  
-  .left-column, .right-column {
+
+  .left-column,
+  .right-column {
     width: 100%;
   }
-  
+
   .left-column .info-card {
     max-height: 200px; /* Limit height on mobile */
   }
@@ -234,13 +236,12 @@ html, body {
   .header-bar {
     flex: 0 0 80px; /* Slightly taller header on large screens */
   }
-  
+
   .left-column {
     flex: 3;
   }
-  
+
   .right-column {
     flex: 4;
   }
 }
-

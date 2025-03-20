@@ -4,9 +4,10 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const Patient = require('./models/Patient');
 require('dotenv').config();
-
+const qrcode = require('qrcode');
+const crypto = require('crypto');
 const app = express();
-
+const registrationTokens = new Map();
 // CORS configuration
 app.use(cors({
   origin: 'http://localhost:3000',  // Your frontend URL
@@ -253,3 +254,70 @@ mongoose.connect(process.env.MONGODB_URI)
   .catch((error) => {
     console.error('MongoDB connection error:', error);
   });
+
+
+  // Add this endpoint to your server.js file
+app.post('/api/registration/create-qr', async (req, res) => {
+  try {
+    console.log("Registration QR request received with data:", req.body);
+    
+    // Generate a unique registration token
+    const registrationToken = crypto.randomBytes(16).toString('hex');
+    
+    // Store any pre-filled information (optional)
+    const prefilledData = req.body || {};
+    
+    // Save token with any pre-filled data (expires in 24 hours)
+    registrationTokens.set(registrationToken, {
+      data: prefilledData,
+      expiry: Date.now() + (24 * 60 * 60 * 1000)
+    });
+    
+    // Generate the registration URL
+    const baseUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const registrationUrl = `${baseUrl}/register/${registrationToken}`;
+    
+    console.log("Generated registration URL:", registrationUrl);
+    
+    // Generate QR code
+    const qrCodeDataUrl = await qrcode.toDataURL(registrationUrl);
+    
+    // Return registration link and QR code
+    res.json({
+      registrationUrl,
+      qrCodeDataUrl,
+      expiresIn: '24 hours'
+    });
+  } catch (error) {
+    console.error('Error generating registration QR:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Also add this validation endpoint
+app.get('/api/registration/validate/:token', (req, res) => {
+  try {
+    const token = req.params.token;
+    const registrationData = registrationTokens.get(token);
+    
+    if (!registrationData || registrationData.expiry < Date.now()) {
+      registrationTokens.delete(token); // Clean up expired tokens
+      return res.status(404).json({
+        valid: false,
+        message: 'Invalid or expired registration link'
+      });
+    }
+    
+    // Return pre-filled data if any
+    res.json({
+      valid: true,
+      prefilledData: registrationData.data
+    });
+  } catch (error) {
+    console.error('Error validating registration token:', error);
+    res.status(500).json({ 
+      valid: false, 
+      message: error.message 
+    });
+  }
+});
