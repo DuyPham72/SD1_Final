@@ -1,87 +1,13 @@
+// backend/models/Patient.js
+require('dotenv').config();
+console.log('Patient.js - ENCRYPTION_KEY:', process.env.ENCRYPTION_KEY ? 'Present' : 'Missing');
+console.log('Patient.js - SIGNING_KEY:', process.env.SIGNING_KEY ? 'Present' : 'Missing');
 const mongoose = require('mongoose');
+const encrypt = require('mongoose-encryption');
+const crypto = require('crypto');
 
-// Define the enhanced feedback schema with better validation
-const feedbackSchema = new mongoose.Schema({
-  id: {
-    type: String,
-    required: true
-  },
-  patientId: {
-    type: String,
-    required: true
-  },
-  patientName: {
-    type: String,
-    required: true
-  },
-  // Support both old and new rating formats
-  rating: {
-    type: Number,
-    required: true,
-    min: 0,
-    max: 5,
-    default: 0
-  },
-  // New detailed ratings object
-  ratings: {
-    overall: {
-      type: Number,
-      required: true,
-      min: 0,
-      max: 5,
-      default: 0
-    },
-    careQuality: {
-      type: Number,
-      required: true,
-      min: 0,
-      max: 5,
-      default: 0
-    },
-    staffResponsiveness: {
-      type: Number,
-      required: true,
-      min: 0,
-      max: 5,
-      default: 0
-    },
-    communication: {
-      type: Number,
-      required: true,
-      min: 0,
-      max: 5,
-      default: 0
-    },
-    cleanliness: {
-      type: Number,
-      required: true,
-      min: 0,
-      max: 5,
-      default: 0
-    },
-    mealQuality: {
-      type: Number,
-      required: true,
-      min: 0,
-      max: 5,
-      default: 0
-    }
-  },
-  comment: {
-    type: String,
-    default: ''
-  },
-  timestamp: {
-    type: Date,
-    default: Date.now
-  },
-  room: {
-    type: String
-  }
-});
-
-// Define the schedule schema
-const scheduleItemSchema = new mongoose.Schema({
+// Schemas
+const ScheduleItemSchema = new mongoose.Schema({
   time: {
     type: String,
     required: true
@@ -90,96 +16,182 @@ const scheduleItemSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  completed: {
-    type: Boolean,
-    default: false
-  },
   notes: {
     type: String,
     default: ''
+  },
+  completed: {
+    type: Boolean,
+    default: false
   }
+}, { timestamps: true });
+
+const FeedbackSchema = new mongoose.Schema({
+  id: {
+    type: String,
+    required: true
+  },
+  patientId: {
+    type: String,
+    required: true
+  },
+  patientIdentifier: { // Changed from patientName to comply with HIPAA
+    type: String,
+    required: true
+  },
+  rating: {
+    type: Number,
+    required: true,
+    min: 1,
+    max: 5
+  },
+  ratings: {
+    overall: {
+      type: Number,
+      min: 1,
+      max: 5
+    },
+    careQuality: {
+      type: Number,
+      min: 1,
+      max: 5
+    },
+    staffResponsiveness: {
+      type: Number,
+      min: 1,
+      max: 5
+    },
+    communication: {
+      type: Number,
+      min: 1,
+      max: 5
+    },
+    cleanliness: {
+      type: Number,
+      min: 1,
+      max: 5
+    },
+    mealQuality: {
+      type: Number,
+      min: 1,
+      max: 5
+    }
+  },
+  comment: {
+    type: String,
+    maxLength: 1000
+  },
+  timestamp: {
+    type: Date,
+    default: Date.now
+  },
+  room: {
+    type: String
+  }
+}, { timestamps: true });
+
+const CareTeamSchema = new mongoose.Schema({
+  primaryDoctor: {
+    type: String
+  },
+  primaryNurse: {
+    type: String
+  },
+  specialists: [{
+    type: String
+  }]
 });
 
-// Define the patient schema
-const patientSchema = new mongoose.Schema({
+const PreferencesSchema = new mongoose.Schema({
+  dietary: [{
+    type: String
+  }],
+  religious: {
+    type: String,
+    default: ''
+  },
+  language: {
+    type: String,
+    default: 'English'
+  },
+  entertainmentPreferences: [{
+    type: String
+  }]
+});
+
+// Main Patient Schema
+const PatientSchema = new mongoose.Schema({
   patientId: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
+    trim: true
   },
   name: {
     type: String,
-    required: true
+    required: true,
+    trim: true
   },
   room: {
     type: String,
     required: true
   },
-  careTeam: {
-    primaryDoctor: {
-      type: String,
-      required: true
-    },
-    primaryNurse: {
-      type: String,
-      required: true
-    },
-    specialists: [String]
-  },
-  preferences: {
-    dietary: [String],
-    religious: String,
-    language: {
-      type: String,
-      default: 'English'
-    },
-    entertainmentPreferences: [String]
-  },
-  schedule: [scheduleItemSchema],
-  feedback: [feedbackSchema], // Add feedback array to store patient feedback
+  careTeam: CareTeamSchema,
+  preferences: PreferencesSchema,
+  schedule: [ScheduleItemSchema],
+  feedback: [FeedbackSchema],
   lastUpdated: {
     type: Date,
     default: Date.now
+  },
+  // HIPAA audit fields
+  accessLog: [{
+    userId: String,
+    action: String,
+    timestamp: {
+      type: Date,
+      default: Date.now
+    },
+    ipAddress: String
+  }],
+  consentStatus: {
+    hasFeedbackConsent: {
+      type: Boolean,
+      default: false
+    },
+    lastUpdated: {
+      type: Date
+    }
   }
-});
+}, { timestamps: true });
 
-// Pre-save hook to ensure ratings are numbers
-patientSchema.pre('save', function(next) {
-  // Check if feedback exists
-  if (this.feedback && this.feedback.length > 0) {
+// Method to record access to patient data
+PatientSchema.methods.recordAccess = function(userId, action, ipAddress) {
+  this.accessLog.push({
+    userId,
+    action,
+    timestamp: new Date(),
+    ipAddress
+  });
+  return this.save();
+};
+
+// Create a reference field for patient instead of storing full name
+PatientSchema.pre('save', function(next) {
+  if (this.isNew && this.feedback && this.feedback.length > 0) {
     this.feedback.forEach(feedback => {
-      // Ensure rating is a number
-      if (feedback.rating !== undefined) {
-        feedback.rating = Number(feedback.rating);
-      }
-      
-      // Ensure ratings object properties are numbers
-      if (feedback.ratings) {
-        if (feedback.ratings.overall !== undefined) {
-          feedback.ratings.overall = Number(feedback.ratings.overall);
-        }
-        if (feedback.ratings.careQuality !== undefined) {
-          feedback.ratings.careQuality = Number(feedback.ratings.careQuality);
-        }
-        if (feedback.ratings.staffResponsiveness !== undefined) {
-          feedback.ratings.staffResponsiveness = Number(feedback.ratings.staffResponsiveness);
-        }
-        if (feedback.ratings.communication !== undefined) {
-          feedback.ratings.communication = Number(feedback.ratings.communication);
-        }
-        if (feedback.ratings.cleanliness !== undefined) {
-          feedback.ratings.cleanliness = Number(feedback.ratings.cleanliness);
-        }
-        if (feedback.ratings.mealQuality !== undefined) {
-          feedback.ratings.mealQuality = Number(feedback.ratings.mealQuality);
-        }
-      }
+      // Replace full patient name with identifier (e.g., initials or patient ID)
+      feedback.patientIdentifier = this.patientId;
     });
   }
   next();
 });
 
-// Create a model from the schema
-const Patient = mongoose.model('Patient', patientSchema);
+// TEMPORARY: Disable encryption while we fix the database
+// We'll implement encryption properly in production
+console.log('HIPAA-compliant encryption is temporarily disabled for development');
+console.log('⚠️ WARNING: Patient data is not encrypted. Do not use real patient data!');
+
+const Patient = mongoose.model('Patient', PatientSchema);
 
 module.exports = Patient;
