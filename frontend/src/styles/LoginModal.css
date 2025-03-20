@@ -175,16 +175,16 @@
     width: 95%;
     max-width: none;
   }
-  
+
   .modal-header h2 {
     font-size: 1.3rem;
   }
-  
+
   .form-actions {
     flex-direction: column-reverse;
     gap: 10px;
   }
-  
+
   .form-actions button {
     width: 100%;
   }
@@ -195,20 +195,20 @@
   .modal-container {
     max-width: 500px;
   }
-  
+
   .modal-header h2 {
     font-size: 1.8rem;
   }
-  
+
   .form-group label {
     font-size: 1.1rem;
   }
-  
+
   .form-group input {
     padding: 14px;
     font-size: 1.1rem;
   }
-  
+
   .form-actions button {
     padding: 12px 24px;
     font-size: 1.1rem;
@@ -220,49 +220,49 @@
   .modal-container {
     max-width: 700px;
   }
-  
+
   .modal-header {
     padding: 25px 30px;
   }
-  
+
   .modal-header h2 {
     font-size: 2.2rem;
   }
-  
+
   .close-button {
     font-size: 2.5rem;
   }
-  
+
   .login-form {
     padding: 30px;
   }
-  
+
   .form-group {
     margin-bottom: 30px;
   }
-  
+
   .form-group label {
     font-size: 1.4rem;
     margin-bottom: 12px;
   }
-  
+
   .form-group input {
     padding: 18px;
     font-size: 1.4rem;
     border-radius: 8px;
   }
-  
+
   .error-message {
     padding: 15px 20px;
     font-size: 1.2rem;
     margin-bottom: 25px;
   }
-  
+
   .form-actions {
     margin-top: 35px;
     gap: 20px;
   }
-  
+
   .form-actions button {
     padding: 18px 36px;
     font-size: 1.4rem;

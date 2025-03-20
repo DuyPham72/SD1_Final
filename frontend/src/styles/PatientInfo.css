@@ -1,23 +1,9 @@
 /* Optimized CSS for Patient Portal */
 
-/* Base styles */
-html, body {
-  height: 100%;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
+
 
 /* Common layout elements */
-.content-container {
-  display: flex;
-  gap: 20px;
-  padding: 20px;
-  height: calc(100vh - 80px);
-  overflow: hidden;
-}
+
 
 .left-column {
   display: flex;
@@ -50,11 +36,13 @@ html, body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.info-card.personal-info, .info-card.schedule {
+.info-card.personal-info,
+.info-card.schedule {
   border-left: 4px solid #3498db;
 }
 
-.info-card h2, .patient-feedback-tab h3 {
+.info-card h2,
+.patient-feedback-tab h3 {
   color: #2c3e50;
   font-size: 1.4rem;
   margin-top: 0;
@@ -160,7 +148,8 @@ html, body {
 }
 
 /* Buttons */
-.staff-login-button, .edit-information-button {
+.staff-login-button,
+.edit-information-button {
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -342,13 +331,15 @@ html, body {
   margin-right: 10px;
 }
 
-.patient-detail-item, .staff-item {
+.patient-detail-item,
+.staff-item {
   display: flex;
   align-items: center;
   margin-bottom: 12px;
 }
 
-.detail-icon, .staff-icon {
+.detail-icon,
+.staff-icon {
   font-size: 1.2rem;
   width: 30px;
   color: #3498db;
@@ -357,7 +348,8 @@ html, body {
   justify-content: center;
 }
 
-.detail-content, .staff-label {
+.detail-content,
+.staff-label {
   flex: 1;
   color: #333;
 }
@@ -472,7 +464,10 @@ html, body {
 }
 
 /* Star ratings */
-.stars, .overall-stars, .category-stars, .rating-stars {
+.stars,
+.overall-stars,
+.category-stars,
+.rating-stars {
   font-size: 1.6rem;
   margin: 10px 0;
   color: #ddd;
@@ -592,8 +587,14 @@ html, body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .feedback-header {
@@ -671,57 +672,58 @@ html, body {
     flex-wrap: wrap;
     padding: 10px 15px;
   }
-  
+
   .patient-header {
     max-width: 100%;
     width: 100%;
     order: 2;
     margin: 10px 0;
   }
-  
+
   .header-actions {
     order: 3;
     width: 100%;
     margin-right: 0;
     justify-content: space-between;
   }
-  
+
   .current-time {
     margin-top: 5px;
     order: 4;
     width: 100%;
     align-items: flex-start;
   }
-  
+
   .content-container {
     flex-direction: column;
   }
-  
-  .left-column, .right-column {
+
+  .left-column,
+  .right-column {
     width: 100%;
   }
-  
+
   .info-field {
     flex-direction: column;
   }
-  
+
   .info-field label {
     margin-bottom: 4px;
   }
-  
+
   .rating-categories-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .feedback-summary {
     flex-direction: column;
   }
-  
+
   .edit-information-button {
     font-size: 0.85rem;
     padding: 6px 12px;
   }
-  
+
   .nav-button {
     width: 28px;
     height: 28px;
@@ -734,7 +736,7 @@ html, body {
   .patient-header {
     max-width: 200px;
   }
-  
+
   .rating-categories-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -746,58 +748,59 @@ html, body {
     padding: 15px 25px;
     height: 80px;
   }
-  
+
   .menu-button {
     font-size: 1.8rem;
   }
-  
+
   .patient-selector {
     font-size: 1.1rem;
     min-width: 250px;
   }
-  
+
   .patient-header {
     font-size: 1.4rem;
   }
-  
+
   .current-time {
     min-width: 180px;
     font-size: 1rem;
   }
-  
-  
-  .info-card h2, .patient-feedback-tab h3 {
+
+  .info-card h2,
+  .patient-feedback-tab h3 {
     font-size: 1.6rem;
   }
-  
-  .detail-icon, .staff-icon {
+
+  .detail-icon,
+  .staff-icon {
     font-size: 1.4rem;
     width: 40px;
   }
-  
+
   .schedule-item {
     padding: 15px;
   }
-  
+
   .time {
     min-width: 100px;
   }
-  
+
   .edit-information-button {
     padding: 10px 20px;
     font-size: 1.1rem;
   }
-  
+
   .nav-button {
     width: 36px;
     height: 36px;
     font-size: 1.3rem;
   }
-  
+
   .sidebar {
     width: 280px;
   }
-  
+
   .main-content.sidebar-open {
     margin-left: 280px;
     width: calc(100% - 280px);
@@ -809,69 +812,74 @@ html, body {
   body {
     font-size: 18px;
   }
-  
+
   .header-bar {
     padding: 20px 40px;
     height: 100px;
   }
-  
-  .menu-button, .close-sidebar {
+
+  .menu-button,
+  .close-sidebar {
     font-size: 2.5rem;
   }
-  
+
   .patient-selector {
     font-size: 1.4rem;
     min-width: 350px;
   }
-  
+
   .patient-header {
     font-size: 2rem;
   }
-  
+
   .current-time {
     min-width: 220px;
     font-size: 1.3rem;
   }
-  
+
   .info-card {
     padding: 35px;
   }
-  
-  .info-card h2, .patient-feedback-tab h3 {
+
+  .info-card h2,
+  .patient-feedback-tab h3 {
     font-size: 2rem;
     margin-bottom: 25px;
   }
-  
+
   .time {
     min-width: 120px;
     font-size: 1.4rem;
   }
-  
-  .activity, .detail-content, .staff-label {
+
+  .activity,
+  .detail-content,
+  .staff-label {
     font-size: 1.4rem;
   }
-  
+
   .schedule-list::-webkit-scrollbar {
     width: 8px;
   }
-  
+
   .sidebar {
     width: 350px;
   }
-  
+
   .main-content.sidebar-open {
     margin-left: 350px;
     width: calc(100% - 350px);
   }
-  
+
   .big-rating {
     font-size: 5rem;
   }
-  
-  .stars, .overall-stars {
+
+  .stars,
+  .overall-stars {
     font-size: 2.6rem;
   }
-  
+
   .feedback-comment {
     -webkit-line-clamp: 6;
   }
@@ -946,7 +954,7 @@ html, body {
   .info-card.schedule {
     max-height: 350px;
   }
-  
+
   .info-card.personal-info {
     max-height: 200px;
   }
@@ -956,7 +964,7 @@ html, body {
   .info-card.schedule {
     max-height: 550px;
   }
-  
+
   .info-card.personal-info {
     max-height: 250px;
   }
@@ -965,7 +973,7 @@ html, body {
 /* Enhanced Button Styles for Patient Portal */
 
 /* Add Schedule Item Button */
-button[class*="add-schedule"], 
+button[class*="add-schedule"],
 button.add-schedule-button,
 .add-schedule-button,
 button[class*="Add Schedule Item"] {
@@ -1145,7 +1153,7 @@ button:focus {
     padding: 4px 8px;
     font-size: 0.8rem;
   }
-  
+
   button[class*="save"],
   .save-button,
   button[class*="Save Changes"],

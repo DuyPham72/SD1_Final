@@ -40,13 +40,12 @@
 .entertainment-icon {
   width: 120px;
   height: 120px;
-  background-color: white; 
-  border-radius: 20px; 
-  padding: 10px;  
-  object-fit: contain; 
+  background-color: white;
+  border-radius: 20px;
+  padding: 10px;
+  object-fit: contain;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
-
 
 .entertainment-icon:hover {
   transform: scale(1.1);

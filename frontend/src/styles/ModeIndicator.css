@@ -75,20 +75,20 @@
   .mode-indicator {
     padding: 6px 10px;
   }
-  
+
   .mode-icon {
     font-size: 1.3rem;
     margin-right: 8px;
   }
-  
+
   .mode-name {
     font-size: 0.8rem;
   }
-  
+
   .user-info {
     font-size: 0.7rem;
   }
-  
+
   .logout-button {
     padding: 1px 6px;
     font-size: 0.7rem;
@@ -100,19 +100,19 @@
   .mode-indicator {
     padding: 10px 15px;
   }
-  
+
   .mode-icon {
     font-size: 1.6rem;
   }
-  
+
   .mode-name {
     font-size: 1rem;
   }
-  
+
   .user-info {
     font-size: 0.85rem;
   }
-  
+
   .logout-button {
     padding: 3px 10px;
     font-size: 0.8rem;
@@ -125,21 +125,21 @@
     padding: 12px 18px;
     border-radius: 8px;
   }
-  
+
   .mode-icon {
     font-size: 1.8rem;
     margin-right: 12px;
   }
-  
+
   .mode-name {
     font-size: 1.1rem;
   }
-  
+
   .user-info {
     font-size: 0.95rem;
     margin-top: 4px;
   }
-  
+
   .logout-button {
     padding: 4px 12px;
     font-size: 0.9rem;
@@ -154,21 +154,21 @@
     border-radius: 12px;
     border-left-width: 5px;
   }
-  
+
   .mode-icon {
     font-size: 2.5rem;
     margin-right: 18px;
   }
-  
+
   .mode-name {
     font-size: 1.4rem;
   }
-  
+
   .user-info {
     font-size: 1.2rem;
     margin-top: 6px;
   }
-  
+
   .logout-button {
     padding: 6px 16px;
     font-size: 1.1rem;

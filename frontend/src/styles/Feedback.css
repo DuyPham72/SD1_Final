@@ -1,7 +1,8 @@
 /* Feedback.css */
 
 /* General styling */
-.loading, .error {
+.loading,
+.error {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -128,7 +129,7 @@
   transform: scale(1.1);
 }
 
-.rating-button.selected, 
+.rating-button.selected,
 .rating-button:active {
   color: #f1c40f;
   outline: none;
@@ -167,7 +168,8 @@ textarea:focus {
   text-align: center;
 }
 
-.submit-button, .reset-button {
+.submit-button,
+.reset-button {
   background-color: #3498db;
   color: white;
   border: none;
@@ -179,7 +181,8 @@ textarea:focus {
   min-width: 180px;
 }
 
-.submit-button:hover, .reset-button:hover {
+.submit-button:hover,
+.reset-button:hover {
   background-color: #2980b9;
 }
 
@@ -222,15 +225,15 @@ textarea:focus {
   .feedback-container {
     padding: 20px;
   }
-  
+
   .rating-category {
     flex-direction: column;
   }
-  
+
   .rating-stars {
     margin: 15px 0 0;
   }
-  
+
   .overall-stars {
     font-size: 1.8rem;
   }
@@ -248,43 +251,44 @@ textarea:focus {
   body {
     font-size: 18px;
   }
-  
+
   .feedback-container {
     max-width: 1000px;
     padding: 40px;
   }
-  
+
   .feedback-container h2 {
     font-size: 2.2rem;
   }
-  
+
   .feedback-intro {
     font-size: 1.3rem;
   }
-  
+
   .overall-rating-display h3 {
     font-size: 1.8rem;
   }
-  
+
   .overall-stars {
     font-size: 2.5rem;
   }
-  
+
   .rating-button {
     font-size: 2.2rem;
     padding: 0 8px;
   }
-  
+
   .rating-category-header label {
     font-size: 1.3rem;
   }
-  
-  .submit-button, .reset-button {
+
+  .submit-button,
+  .reset-button {
     padding: 15px 30px;
     font-size: 1.3rem;
     min-width: 220px;
   }
-  
+
   .success-icon {
     font-size: 5rem;
     width: 100px;
@@ -298,26 +302,27 @@ textarea:focus {
   body {
     font-size: 22px;
   }
-  
+
   .feedback-container {
     max-width: 1400px;
     padding: 60px;
   }
-  
+
   .feedback-container h2 {
     font-size: 2.8rem;
   }
-  
+
   .overall-stars {
     font-size: 3.5rem;
   }
-  
+
   .rating-button {
     font-size: 3rem;
     padding: 0 12px;
   }
-  
-  .submit-button, .reset-button {
+
+  .submit-button,
+  .reset-button {
     padding: 20px 40px;
     font-size: 1.6rem;
     min-width: 280px;
@@ -331,8 +336,9 @@ textarea:focus {
 }
 
 /* Ensuring contrast for accessibility */
-.rating-description, .rating-note {
-  color: #5d6d7e;  /* Darker than original for better contrast */
+.rating-description,
+.rating-note {
+  color: #5d6d7e; /* Darker than original for better contrast */
 }
 
 /* Responsive improvements for 13-inch screens */
@@ -343,78 +349,79 @@ textarea:focus {
   .content-container {
     padding: 5px 15px;
   }
-  
+
   .feedback-container {
     max-width: 100%;
     padding: 10px;
   }
-  
+
   /* Make headings more compact */
   .feedback-container h2 {
     font-size: 1.5rem;
     margin-bottom: 8px;
   }
-  
+
   .feedback-intro {
     margin-bottom: 15px;
     font-size: 0.95rem;
     line-height: 1.4;
   }
-  
+
   /* Make overall rating display more compact */
   .overall-rating-display {
     padding: 15px;
     margin-bottom: 15px;
   }
-  
+
   .overall-rating-display h3 {
     font-size: 1.2rem;
   }
-  
+
   .overall-stars {
     font-size: 1.5rem;
     margin: 5px 0;
   }
-  
+
   /* Optimize rating categories to fit better */
   .rating-categories {
     gap: 10px;
     margin-bottom: 15px;
   }
-  
+
   .rating-category {
     padding: 10px 15px;
   }
-  
+
   .rating-category-header label {
     font-size: 1rem;
   }
-  
+
   .rating-description {
     font-size: 0.8rem;
   }
-  
+
   .rating-button {
     font-size: 1.5rem;
     padding: 0 3px;
   }
-  
+
   /* Make form elements more compact */
   .form-group {
     margin-bottom: 15px;
   }
-  
+
   .form-group label {
     margin-bottom: 5px;
   }
-  
+
   textarea {
     padding: 8px;
     font-size: 0.9rem;
   }
-  
+
   /* Adjust buttons */
-  .submit-button, .reset-button {
+  .submit-button,
+  .reset-button {
     padding: 10px 20px;
     font-size: 1rem;
     min-width: 150px;
@@ -427,27 +434,27 @@ textarea:focus {
   .feedback-container h2 {
     font-size: 1.4rem;
   }
-  
+
   /* Keep rating categories side by side */
   .rating-category {
     flex-direction: row;
     align-items: center;
   }
-  
+
   .rating-stars {
     margin-left: 10px;
     flex-shrink: 0;
   }
-  
+
   /* Ensure text is readable but compact */
   .rating-description {
     margin: 2px 0 0;
     max-width: 85%;
   }
-  
+
   /* Ensure proper star sizing */
   .rating-button {
-    font-size: 1.4rem; 
+    font-size: 1.4rem;
   }
 }
 
@@ -457,11 +464,11 @@ textarea:focus {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .rating-stars {
     margin: 8px 0 0;
   }
-  
+
   .rating-description {
     max-width: 100%;
   }
@@ -472,20 +479,19 @@ textarea:focus {
 /* Improve content container for better scrolling */
 .content-container {
   height: calc(100vh - 70px); /* Slightly reduced height */
-  padding: 5px 10px;
+  padding: 1px 1px;
   justify-content: center;
 }
 
 /* Optimize spacing throughout the form */
 .feedback-container {
   max-height: none; /* Remove max-height constraint */
-  
 }
 
 /* Reduce vertical spacing */
 .feedback-container h2 {
   font-size: 1.4rem;
-  margin-bottom: 5px;
+  margin-bottom: 1px;
 }
 
 .feedback-intro {
@@ -561,7 +567,8 @@ textarea {
   margin-top: 10px;
 }
 
-.submit-button, .reset-button {
+.submit-button,
+.reset-button {
   padding: 8px 16px;
   font-size: 0.95rem;
   min-width: 140px;
@@ -572,11 +579,11 @@ textarea {
   .rating-category {
     padding: 6px 10px;
   }
-  
+
   .feedback-intro {
     margin-bottom: 8px;
   }
-  
+
   .overall-rating-display {
     margin-bottom: 8px;
     padding: 8px;

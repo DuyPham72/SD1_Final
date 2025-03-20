@@ -1,7 +1,8 @@
 /* MainDashboard.css */
 
 /* General styling */
-.loading, .error {
+.loading,
+.error {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -23,7 +24,8 @@
 }
 
 /* Panel styling for patient info and schedule */
-.patient-info-panel, .schedule-panel {
+.patient-info-panel,
+.schedule-panel {
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -48,17 +50,20 @@
 }
 
 /* Staff info styling */
-.staff-item, .patient-detail-item {
+.staff-item,
+.patient-detail-item {
   display: flex;
   align-items: center;
   margin-bottom: 15px;
 }
 
-.staff-item:last-child, .patient-detail-item:last-child {
+.staff-item:last-child,
+.patient-detail-item:last-child {
   margin-bottom: 0;
 }
 
-.staff-icon, .detail-icon {
+.staff-icon,
+.detail-icon {
   font-size: 1.5rem;
   margin-right: 15px;
   display: flex;
@@ -67,7 +72,8 @@
   width: 40px;
 }
 
-.staff-label, .detail-content {
+.staff-label,
+.detail-content {
   font-size: 1rem;
   color: #333;
 }
@@ -136,11 +142,11 @@
   .content-container {
     flex-direction: column;
   }
-  
+
   .patient-info-panel {
     max-width: none;
   }
-  
+
   .schedule-list {
     max-height: 400px;
   }
@@ -150,12 +156,12 @@
   body {
     font-size: 18px; /* Larger base font size */
   }
-  
+
   .content-container {
     max-width: 1800px;
     margin: 0 auto; /* Center content on very large screens */
   }
-  
+
   .info-card {
     padding: 30px; /* More padding on larger screens */
   }
