@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import '../../styles/PatientAccessQR.css';
+import React, { useState, useEffect, useCallback } from "react";
+import "../../styles/PatientAccessQR.css";
 
 function PatientAccessQR({ patient, onClose }) {
   const [loading, setLoading] = useState(true);
@@ -15,19 +15,24 @@ function PatientAccessQR({ patient, onClose }) {
       setLoading(true);
       setError(null);
 
-      const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
-      const response = await fetch(`${API_BASE_URL}/api/patients/${patient.patientId}/access-qr`);
+      const API_BASE_URL =
+        process.env.REACT_APP_API_URL || "http://localhost:5001";
+      const response = await fetch(
+        `${API_BASE_URL}/api/patients/${patient.patientId}/access-qr`
+      );
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => null);
-        throw new Error(errorData?.message || `Server returned ${response.status}`);
+        throw new Error(
+          errorData?.message || `Server returned ${response.status}`
+        );
       }
 
       const data = await response.json();
       setQrData(data);
     } catch (err) {
-      console.error('Error generating QR code:', err);
-      setError(err.message || 'Failed to generate QR code');
+      console.error("Error generating QR code:", err);
+      setError(err.message || "Failed to generate QR code");
     } finally {
       setLoading(false);
     }
@@ -41,15 +46,16 @@ function PatientAccessQR({ patient, onClose }) {
   // Handle link copying
   const copyLink = () => {
     if (!qrData?.accessUrl) return;
-    
-    navigator.clipboard.writeText(qrData.accessUrl)
+
+    navigator.clipboard
+      .writeText(qrData.accessUrl)
       .then(() => {
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       })
-      .catch(err => {
-        console.error('Failed to copy link:', err);
-        setError('Failed to copy link. Please try again.');
+      .catch((err) => {
+        console.error("Failed to copy link:", err);
+        setError("Failed to copy link. Please try again.");
       });
   };
 
@@ -58,60 +64,68 @@ function PatientAccessQR({ patient, onClose }) {
       <div className="qr-modal">
         <div className="qr-header">
           <h2>Patient Access QR Code</h2>
-          <button className="close-button" onClick={onClose}>×</button>
+          <button className="close-button" onClick={onClose}>
+            ×
+          </button>
         </div>
-        
+
         <div className="qr-content">
           {loading ? (
             <div className="loading-indicator">Generating QR code...</div>
           ) : error ? (
             <div className="error-message">
               <p>Error: {error}</p>
-              <button className="retry-button" onClick={generateQR}>Try Again</button>
+              <button className="retry-button" onClick={generateQR}>
+                Try Again
+              </button>
             </div>
           ) : qrData ? (
             <>
               <p className="qr-instructions">
-                Scan this QR code or use the link below to access your patient portal
+                Scan this QR code or use the link below to access your patient
+                portal
               </p>
-              
+
               <div className="qr-code-display">
-                <img 
-                  src={qrData.qrCodeDataUrl} 
-                  alt="Patient access QR code" 
+                <img
+                  src={qrData.qrCodeDataUrl}
+                  alt="Patient access QR code"
                   className="qr-code-image"
                 />
               </div>
-              
+
               <div className="expiry-note">
                 This code will expire in {qrData.expiresIn}
               </div>
-              
+
               <div className="access-link-container">
-                <input 
-                  type="text" 
-                  value={qrData.accessUrl} 
-                  readOnly 
+                <input
+                  type="text"
+                  value={qrData.accessUrl}
+                  readOnly
                   className="access-link"
                 />
-                <button 
-                  className={`copy-button ${copied ? 'copied' : ''}`} 
+                <button
+                  className={`copy-button ${copied ? "copied" : ""}`}
                   onClick={copyLink}
                 >
-                  {copied ? 'Copied!' : 'Copy Link'}
+                  {copied ? "Copied!" : "Copy Link"}
                 </button>
               </div>
-              
+
               <div className="qr-footer">
                 <p className="security-note">
-                  Share this link only with the patient. The link provides direct access to patient information.
+                  Share this link only with the patient. The link provides
+                  direct access to patient information.
                 </p>
               </div>
             </>
           ) : (
             <div className="error-message">
               <p>Unable to generate QR code</p>
-              <button className="retry-button" onClick={generateQR}>Try Again</button>
+              <button className="retry-button" onClick={generateQR}>
+                Try Again
+              </button>
             </div>
           )}
         </div>
