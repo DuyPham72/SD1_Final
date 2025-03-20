@@ -1,15 +1,15 @@
 // src/pages/Feedback.js - Modified with automatic overall rating calculation
-import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import '../styles/Feedback.css';
+import React, { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import "../styles/Feedback.css";
 import {
   usePatientData,
   useTimeUpdate,
   useNavigationState,
   useKeyboardNavigation,
   Layout,
-  Header
-} from '../shared';
+  Header,
+} from "../shared";
 
 // Rating category component
 const RatingCategory = ({ label, description, rating, onChange }) => {
@@ -24,10 +24,10 @@ const RatingCategory = ({ label, description, rating, onChange }) => {
           <button
             key={value}
             type="button"
-            className={`rating-button ${rating === value ? 'selected' : ''}`}
+            className={`rating-button ${rating === value ? "selected" : ""}`}
             onClick={() => onChange(value)}
           >
-            {value <= rating ? '★' : '☆'}
+            {value <= rating ? "★" : "☆"}
           </button>
         ))}
       </div>
@@ -37,27 +37,27 @@ const RatingCategory = ({ label, description, rating, onChange }) => {
 
 function Feedback() {
   const navigate = useNavigate();
-  const { 
-    patient, 
-    allPatients, 
-    selectedPatientId, 
-    loading, 
+  const {
+    patient,
+    allPatients,
+    selectedPatientId,
+    loading,
     handlePatientChange,
-    updatePatientData
+    updatePatientData,
   } = usePatientData();
   const currentTime = useTimeUpdate();
-  const { 
-    isNavOpen, 
-    setIsNavOpen, 
-    sidebarFocusIndex, 
+  const {
+    isNavOpen,
+    setIsNavOpen,
+    sidebarFocusIndex,
     setSidebarFocusIndex,
-    mainNavFocusIndex, 
-    setMainNavFocusIndex 
+    mainNavFocusIndex,
+    setMainNavFocusIndex,
   } = useNavigationState();
 
   const mainNavElementsRef = useRef({
     menuButton: null,
-    patientSelector: null
+    patientSelector: null,
   });
   const sidebarButtonsRef = useRef([]);
 
@@ -67,11 +67,11 @@ function Feedback() {
     staffResponsiveness: 3,
     communication: 3,
     cleanliness: 3,
-    mealQuality: 3
+    mealQuality: 3,
   });
   // Overall rating is calculated automatically
   const [overallRating, setOverallRating] = useState(3);
-  const [feedbackText, setFeedbackText] = useState('');
+  const [feedbackText, setFeedbackText] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -80,29 +80,32 @@ function Feedback() {
     // Convert value to number explicitly
     const numValue = Number(value);
     console.log(`Updating ${category} rating to:`, numValue);
-    
-    setCategoryRatings(prev => {
+
+    setCategoryRatings((prev) => {
       const updatedRatings = {
         ...prev,
-        [category]: numValue
+        [category]: numValue,
       };
-      
+
       // Recalculate overall rating
       calculateOverallRating(updatedRatings);
-      
+
       return updatedRatings;
     });
   };
-  
+
   // Calculate overall rating from category ratings
   const calculateOverallRating = (ratings = categoryRatings) => {
-    const sum = Object.values(ratings).reduce((total, rating) => total + rating, 0);
+    const sum = Object.values(ratings).reduce(
+      (total, rating) => total + rating,
+      0
+    );
     const average = sum / Object.values(ratings).length;
     const roundedAverage = Math.round(average * 10) / 10; // Round to 1 decimal place
     console.log(`Calculated overall rating: ${roundedAverage} from:`, ratings);
     setOverallRating(roundedAverage);
   };
-  
+
   // Calculate initial overall rating on component mount
   useEffect(() => {
     calculateOverallRating();
@@ -118,14 +121,14 @@ function Feedback() {
     setMainNavFocusIndex,
     mainNavElementsRef,
     sidebarButtonsRef,
-    navigate
+    navigate,
   });
 
   // Handle feedback submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
-    
+
     // Create feedback object with timestamp and patient info
     // Use calculated overall rating
     const newFeedback = {
@@ -141,24 +144,34 @@ function Feedback() {
         staffResponsiveness: Number(categoryRatings.staffResponsiveness),
         communication: Number(categoryRatings.communication),
         cleanliness: Number(categoryRatings.cleanliness),
-        mealQuality: Number(categoryRatings.mealQuality)
+        mealQuality: Number(categoryRatings.mealQuality),
       },
       comment: feedbackText,
       timestamp: new Date().toISOString(),
-      room: patient.room
+      room: patient.room,
     };
-    
+
     console.log("New feedback with calculated overall rating:", newFeedback);
-    console.log("Rating value type:", typeof newFeedback.rating, "value:", newFeedback.rating);
-    console.log("Overall rating value type:", typeof newFeedback.ratings.overall, "value:", newFeedback.ratings.overall);
-    
+    console.log(
+      "Rating value type:",
+      typeof newFeedback.rating,
+      "value:",
+      newFeedback.rating
+    );
+    console.log(
+      "Overall rating value type:",
+      typeof newFeedback.ratings.overall,
+      "value:",
+      newFeedback.ratings.overall
+    );
+
     // Update patient data with new feedback
     // If patient doesn't have a feedback array yet, create one
     const updatedPatient = {
       ...patient,
-      feedback: [...(patient.feedback || []), newFeedback]
+      feedback: [...(patient.feedback || []), newFeedback],
     };
-    
+
     try {
       // Save to backend
       const result = await updatePatientData(updatedPatient);
@@ -166,7 +179,7 @@ function Feedback() {
       setSubmitting(false);
       setSubmitted(true);
     } catch (error) {
-      console.error('Error submitting feedback:', error);
+      console.error("Error submitting feedback:", error);
       setSubmitting(false);
     }
   };
@@ -178,16 +191,16 @@ function Feedback() {
       staffResponsiveness: 3,
       communication: 3,
       cleanliness: 3,
-      mealQuality: 3
+      mealQuality: 3,
     });
     calculateOverallRating({
       careQuality: 3,
       staffResponsiveness: 3,
       communication: 3,
       cleanliness: 3,
-      mealQuality: 3
+      mealQuality: 3,
     });
-    setFeedbackText('');
+    setFeedbackText("");
     setSubmitted(false);
   };
 
@@ -195,9 +208,9 @@ function Feedback() {
   if (!patient) return <div className="error">No patient data available</div>;
 
   const navItems = [
-    { icon: '🏠', text: 'Home', path: '/' },
-    { icon: '🎮', text: 'Entertainment', path: '/entertainment' },
-    { icon: '📝', text: 'Patient Feedback', path: '/feedback' }
+    { icon: "🏠", text: "Home", path: "/" },
+    { icon: "🎮", text: "Entertainment", path: "/entertainment" },
+    { icon: "📝", text: "Patient Feedback", path: "/feedback" },
   ];
 
   return (
@@ -224,14 +237,18 @@ function Feedback() {
         <div className="feedback-container">
           <h2>Your Feedback Matters</h2>
           <p className="feedback-intro">
-            Thank you for taking the time to provide feedback about your stay. Your input helps us improve our services.
+            Thank you for taking the time to provide feedback about your stay.
+            Your input helps us improve our services.
           </p>
-          
+
           {submitted ? (
             <div className="feedback-success">
               <div className="success-icon">✓</div>
               <h3>Thank You For Your Feedback</h3>
-              <p>Your feedback has been submitted successfully and will help us improve our services.</p>
+              <p>
+                Your feedback has been submitted successfully and will help us
+                improve our services.
+              </p>
               <button onClick={handleReset} className="reset-button">
                 Submit Another Feedback
               </button>
@@ -243,8 +260,13 @@ function Feedback() {
                 <h3>Overall Rating: {overallRating.toFixed(1)}</h3>
                 <div className="overall-stars">
                   {[1, 2, 3, 4, 5].map((value) => (
-                    <span key={value} className={`star ${value <= Math.round(overallRating) ? 'filled' : ''}`}>
-                      {value <= Math.round(overallRating) ? '★' : '☆'}
+                    <span
+                      key={value}
+                      className={`star ${
+                        value <= Math.round(overallRating) ? "filled" : ""
+                      }`}
+                    >
+                      {value <= Math.round(overallRating) ? "★" : "☆"}
                     </span>
                   ))}
                 </div>
@@ -252,44 +274,46 @@ function Feedback() {
                   (Calculated from your category ratings below)
                 </p>
               </div>
-              
+
               <div className="rating-categories">
-                <RatingCategory 
+                <RatingCategory
                   label="Quality of Care"
                   description="The medical treatments and care received"
                   rating={categoryRatings.careQuality}
-                  onChange={(value) => updateRating('careQuality', value)}
+                  onChange={(value) => updateRating("careQuality", value)}
                 />
-                
-                <RatingCategory 
+
+                <RatingCategory
                   label="Staff Responsiveness"
                   description="How quickly staff responded to your needs"
                   rating={categoryRatings.staffResponsiveness}
-                  onChange={(value) => updateRating('staffResponsiveness', value)}
+                  onChange={(value) =>
+                    updateRating("staffResponsiveness", value)
+                  }
                 />
-                
-                <RatingCategory 
+
+                <RatingCategory
                   label="Communication"
                   description="How well staff explained procedures and treatments"
                   rating={categoryRatings.communication}
-                  onChange={(value) => updateRating('communication', value)}
+                  onChange={(value) => updateRating("communication", value)}
                 />
-                
-                <RatingCategory 
+
+                <RatingCategory
                   label="Room Cleanliness"
                   description="The cleanliness and maintenance of your room"
                   rating={categoryRatings.cleanliness}
-                  onChange={(value) => updateRating('cleanliness', value)}
+                  onChange={(value) => updateRating("cleanliness", value)}
                 />
-                
-                <RatingCategory 
+
+                <RatingCategory
                   label="Meal Quality"
                   description="The quality of meals provided during your stay"
                   rating={categoryRatings.mealQuality}
-                  onChange={(value) => updateRating('mealQuality', value)}
+                  onChange={(value) => updateRating("mealQuality", value)}
                 />
               </div>
-              
+
               <div className="form-group">
                 <label htmlFor="feedback-text">Additional Comments:</label>
                 <textarea
@@ -300,14 +324,14 @@ function Feedback() {
                   placeholder="Please share any other thoughts about your hospital experience..."
                 ></textarea>
               </div>
-              
+
               <div className="form-actions">
-                <button 
-                  type="submit" 
-                  className="submit-button" 
+                <button
+                  type="submit"
+                  className="submit-button"
                   disabled={submitting}
                 >
-                  {submitting ? 'Submitting...' : 'Submit Feedback'}
+                  {submitting ? "Submitting..." : "Submit Feedback"}
                 </button>
               </div>
             </form>

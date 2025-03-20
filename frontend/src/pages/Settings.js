@@ -1,6 +1,6 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import '../styles/Settings.css';
+import React, { useRef, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import "../styles/Settings.css";
 import {
   usePatientData,
   useTimeUpdate,
@@ -8,39 +8,45 @@ import {
   useKeyboardNavigation,
   Layout,
   Header,
-} from '../shared';
+} from "../shared";
 
 function Settings() {
   const navigate = useNavigate();
-  const { patient, allPatients, selectedPatientId, loading, handlePatientChange } = usePatientData();
+  const {
+    patient,
+    allPatients,
+    selectedPatientId,
+    loading,
+    handlePatientChange,
+  } = usePatientData();
   const currentTime = useTimeUpdate();
-  const { 
-    isNavOpen, 
-    setIsNavOpen, 
-    sidebarFocusIndex, 
+  const {
+    isNavOpen,
+    setIsNavOpen,
+    sidebarFocusIndex,
     setSidebarFocusIndex,
-    mainNavFocusIndex, 
-    setMainNavFocusIndex 
+    mainNavFocusIndex,
+    setMainNavFocusIndex,
   } = useNavigationState();
 
   const [isDarkMode, setIsDarkMode] = useState(() => {
-    return localStorage.getItem('darkMode') === 'true';
+    return localStorage.getItem("darkMode") === "true";
   });
 
   const mainNavElementsRef = useRef({
     menuButton: null,
     patientSelector: null,
-    darkModeToggle: null
+    darkModeToggle: null,
   });
   const sidebarButtonsRef = useRef([]);
 
   useEffect(() => {
     if (isDarkMode) {
-      document.body.classList.add('dark-mode');
-      localStorage.setItem('darkMode', 'true');
+      document.body.classList.add("dark-mode");
+      localStorage.setItem("darkMode", "true");
     } else {
-      document.body.classList.remove('dark-mode');
-      localStorage.setItem('darkMode', 'false');
+      document.body.classList.remove("dark-mode");
+      localStorage.setItem("darkMode", "false");
     }
   }, [isDarkMode]);
 
@@ -53,12 +59,11 @@ function Settings() {
     setMainNavFocusIndex,
     mainNavElementsRef,
     sidebarButtonsRef,
-    navigate
+    navigate,
   });
 
   if (loading) return <div className="loading">Loading...</div>;
   if (!patient) return <div className="error">No patient data available</div>;
-
 
   return (
     <Layout
@@ -85,13 +90,15 @@ function Settings() {
           <div className="settings-section">
             <div className="setting-option">
               <label htmlFor="dark-mode-toggle">Dark Mode</label>
-              <button 
-                ref={el => mainNavElementsRef.current.darkModeToggle = el}
+              <button
+                ref={(el) => (mainNavElementsRef.current.darkModeToggle = el)}
                 id="dark-mode-toggle"
-                className={`toggle-button ${mainNavFocusIndex === 2 ? 'focused' : ''} ${isDarkMode ? 'active' : ''}`}
+                className={`toggle-button ${
+                  mainNavFocusIndex === 2 ? "focused" : ""
+                } ${isDarkMode ? "active" : ""}`}
                 onClick={() => setIsDarkMode(!isDarkMode)}
               >
-                {isDarkMode ? '🌙 Dark' : '☀️ Light'}
+                {isDarkMode ? "🌙 Dark" : "☀️ Light"}
               </button>
             </div>
           </div>

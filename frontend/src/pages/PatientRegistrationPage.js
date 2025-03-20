@@ -1,61 +1,66 @@
 // src/pages/PatientRegistrationPage.js
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '../shared/hooks/AuthContext';
-import '../styles/PatientRegistrationPage.css';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useAuth } from "../shared/hooks/AuthContext";
+import "../styles/PatientRegistrationPage.css";
 
 function PatientRegistrationPage() {
   const { token } = useParams();
   const navigate = useNavigate();
   const { login } = useAuth();
-  
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [validToken, setValidToken] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
-  
+  const [successMessage, setSuccessMessage] = useState("");
+
   const [formData, setFormData] = useState({
-    name: '',
-    language: 'English',
-    dietary: '',
-    religious: '',
-    doctor: '',
-    nurse: '',
-    room: ''
+    name: "",
+    language: "English",
+    dietary: "",
+    religious: "",
+    doctor: "",
+    nurse: "",
+    room: "",
   });
 
   // Validate token and get any prefilled data
   useEffect(() => {
     async function validateToken() {
       if (!token) {
-        setError('No registration token provided');
+        setError("No registration token provided");
         setLoading(false);
         return;
       }
 
       try {
-        const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
-        const response = await fetch(`${API_BASE_URL}/api/registration/validate/${token}`);
-        
+        const API_BASE_URL =
+          process.env.REACT_APP_API_URL || "http://localhost:5001";
+        const response = await fetch(
+          `${API_BASE_URL}/api/registration/validate/${token}`
+        );
+
         const data = await response.json();
-        
+
         if (!response.ok || !data.valid) {
-          throw new Error(data.message || 'Invalid or expired registration link');
+          throw new Error(
+            data.message || "Invalid or expired registration link"
+          );
         }
-        
+
         setValidToken(true);
-        
+
         // Pre-fill form with any provided data
         if (data.prefilledData) {
-          setFormData(prev => ({
+          setFormData((prev) => ({
             ...prev,
-            ...data.prefilledData
+            ...data.prefilledData,
           }));
         }
       } catch (err) {
-        console.error('Token validation error:', err);
-        setError(err.message || 'Failed to validate registration link');
+        console.error("Token validation error:", err);
+        setError(err.message || "Failed to validate registration link");
       } finally {
         setLoading(false);
       }
@@ -67,51 +72,56 @@ function PatientRegistrationPage() {
   // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.name) {
-      setError('Name is required');
+      setError("Name is required");
       return;
     }
-    
+
     try {
       setSubmitting(true);
       setError(null);
-      
-      const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
-      const response = await fetch(`${API_BASE_URL}/api/registration/submit/${token}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      });
-      
+
+      const API_BASE_URL =
+        process.env.REACT_APP_API_URL || "http://localhost:5001";
+      const response = await fetch(
+        `${API_BASE_URL}/api/registration/submit/${token}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
+
       const result = await response.json();
-      
+
       if (!response.ok || !result.success) {
-        throw new Error(result.message || 'Registration failed');
+        throw new Error(result.message || "Registration failed");
       }
-      
-      setSuccessMessage('Registration successful! Redirecting to your dashboard...');
-      
+
+      setSuccessMessage(
+        "Registration successful! Redirecting to your dashboard..."
+      );
+
       // Log in the new patient
       setTimeout(async () => {
-        await login('patient', result.patient.patientId);
-        navigate('/');
+        await login("patient", result.patient.patientId);
+        navigate("/");
       }, 2000);
-      
     } catch (err) {
-      console.error('Registration error:', err);
-      setError(err.message || 'Failed to complete registration');
+      console.error("Registration error:", err);
+      setError(err.message || "Failed to complete registration");
       setSubmitting(false);
     }
   };
@@ -134,10 +144,7 @@ function PatientRegistrationPage() {
           <div className="error-icon">⚠️</div>
           <h2>Registration Error</h2>
           <p>{error}</p>
-          <button 
-            className="back-button"
-            onClick={() => navigate('/')}
-          >
+          <button className="back-button" onClick={() => navigate("/")}>
             Back to Home
           </button>
         </div>
@@ -162,7 +169,7 @@ function PatientRegistrationPage() {
       <div className="registration-container">
         <h2>New Patient Registration</h2>
         <p>Please complete your information below</p>
-        
+
         <form onSubmit={handleSubmit} className="registration-form">
           <div className="form-group">
             <label htmlFor="name">Full Name*</label>
@@ -175,7 +182,7 @@ function PatientRegistrationPage() {
               required
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="language">Preferred Language</label>
             <select
@@ -192,7 +199,7 @@ function PatientRegistrationPage() {
               <option value="Other">Other</option>
             </select>
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="dietary">Dietary Restrictions</label>
             <input
@@ -204,7 +211,7 @@ function PatientRegistrationPage() {
               placeholder="e.g., Vegetarian, Gluten-free, No peanuts"
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="religious">Religious Preferences</label>
             <input
@@ -215,28 +222,34 @@ function PatientRegistrationPage() {
               onChange={handleInputChange}
             />
           </div>
-          
+
           {/* Read-only fields if pre-filled by staff */}
           {formData.doctor && (
             <div className="form-group">
               <label>Assigned Doctor</label>
-              <input type="text" value={formData.doctor} readOnly className="readonly-field" />
+              <input
+                type="text"
+                value={formData.doctor}
+                readOnly
+                className="readonly-field"
+              />
             </div>
           )}
-          
+
           {formData.nurse && (
             <div className="form-group">
               <label>Assigned Nurse</label>
-              <input type="text" value={formData.nurse} readOnly className="readonly-field" />
+              <input
+                type="text"
+                value={formData.nurse}
+                readOnly
+                className="readonly-field"
+              />
             </div>
           )}
-          
-          <button 
-            type="submit" 
-            className="submit-button"
-            disabled={submitting}
-          >
-            {submitting ? 'Processing...' : 'Complete Registration'}
+
+          <button type="submit" className="submit-button" disabled={submitting}>
+            {submitting ? "Processing..." : "Complete Registration"}
           </button>
         </form>
       </div>

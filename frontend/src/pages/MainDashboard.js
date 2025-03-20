@@ -1,7 +1,7 @@
-import React, { useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import '../styles/MainDashboard.css';
-import '../styles/Header.css';
+import React, { useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import "../styles/MainDashboard.css";
+import "../styles/Header.css";
 import {
   usePatientData,
   useTimeUpdate,
@@ -9,24 +9,30 @@ import {
   useKeyboardNavigation,
   Layout,
   Header,
-} from '../shared';
+} from "../shared";
 
 function MainDashboard() {
   const navigate = useNavigate();
-  const { patient, allPatients, selectedPatientId, loading, handlePatientChange } = usePatientData();
+  const {
+    patient,
+    allPatients,
+    selectedPatientId,
+    loading,
+    handlePatientChange,
+  } = usePatientData();
   const currentTime = useTimeUpdate();
-  const { 
-    isNavOpen, 
-    setIsNavOpen, 
-    sidebarFocusIndex, 
+  const {
+    isNavOpen,
+    setIsNavOpen,
+    sidebarFocusIndex,
     setSidebarFocusIndex,
-    mainNavFocusIndex, 
-    setMainNavFocusIndex 
+    mainNavFocusIndex,
+    setMainNavFocusIndex,
   } = useNavigationState();
 
   const mainNavElementsRef = useRef({
     menuButton: null,
-    patientSelector: null
+    patientSelector: null,
   });
   const sidebarButtonsRef = useRef([]);
 
@@ -53,42 +59,41 @@ function MainDashboard() {
             }, 10);
           }
         }
-      }
-    }
+      },
+    },
   });
 
   // Function to check if a schedule item is in the past
   const isTimeInPast = (scheduleTime) => {
     if (!scheduleTime) return false;
-    
-    const [timePart, ampm] = scheduleTime.split(' ');
-    const [hourStr, minuteStr] = timePart.split(':');
-    
+
+    const [timePart, ampm] = scheduleTime.split(" ");
+    const [hourStr, minuteStr] = timePart.split(":");
+
     let hour = parseInt(hourStr, 10);
     const minute = parseInt(minuteStr, 10);
-    
-    if (ampm === 'PM' && hour < 12) {
+
+    if (ampm === "PM" && hour < 12) {
       hour += 12;
-    } else if (ampm === 'AM' && hour === 12) {
+    } else if (ampm === "AM" && hour === 12) {
       hour = 0;
     }
-    
+
     const now = new Date();
     const currentHour = now.getHours();
     const currentMinute = now.getMinutes();
-    
+
     if (currentHour > hour) {
       return true;
     } else if (currentHour === hour && currentMinute > minute) {
       return true;
     }
-    
+
     return false;
   };
 
   if (loading) return <div className="loading">Loading...</div>;
   if (!patient) return <div className="error">No patient data available</div>;
-
 
   return (
     <Layout
@@ -116,12 +121,16 @@ function MainDashboard() {
           <div className="info-card">
             <div className="staff-item">
               <span className="staff-icon">👨‍⚕️</span>
-              <span className="staff-label">Physician: {patient.careTeam.primaryDoctor}</span>
+              <span className="staff-label">
+                Physician: {patient.careTeam.primaryDoctor}
+              </span>
             </div>
-            
+
             <div className="staff-item">
               <span className="staff-icon">👩‍⚕️</span>
-              <span className="staff-label">Nurse: {patient.careTeam.primaryNurse}</span>
+              <span className="staff-label">
+                Nurse: {patient.careTeam.primaryNurse}
+              </span>
             </div>
           </div>
 
@@ -131,15 +140,19 @@ function MainDashboard() {
               <span className="detail-icon">🏠</span>
               <span className="detail-content">Room: {patient.room}</span>
             </div>
-            
+
             <div className="patient-detail-item">
               <span className="detail-icon">🍽️</span>
-              <span className="detail-content">Dietary: {patient.preferences.dietary.join(', ')}</span>
+              <span className="detail-content">
+                Dietary: {patient.preferences.dietary.join(", ")}
+              </span>
             </div>
-            
+
             <div className="patient-detail-item">
               <span className="detail-icon">🗣️</span>
-              <span className="detail-content">Language: {patient.preferences.language}</span>
+              <span className="detail-content">
+                Language: {patient.preferences.language}
+              </span>
             </div>
           </div>
         </div>
@@ -151,9 +164,11 @@ function MainDashboard() {
             <div className="schedule-list">
               {patient.schedule && patient.schedule.length > 0 ? (
                 patient.schedule.map((item, index) => (
-                  <div 
-                    key={index} 
-                    className={`schedule-item ${isTimeInPast(item.time) ? 'past-activity' : ''}`}
+                  <div
+                    key={index}
+                    className={`schedule-item ${
+                      isTimeInPast(item.time) ? "past-activity" : ""
+                    }`}
                   >
                     <div className="time">{item.time}</div>
                     <div className="activity">
@@ -163,7 +178,9 @@ function MainDashboard() {
                   </div>
                 ))
               ) : (
-                <div className="no-schedule">No scheduled activities for today</div>
+                <div className="no-schedule">
+                  No scheduled activities for today
+                </div>
               )}
             </div>
           </div>
