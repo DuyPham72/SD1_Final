@@ -9,7 +9,7 @@ import {
   Layout,
   Header,
 } from "../shared";
-import { useAuth } from "../shared/hooks/AuthContext"; // Make sure this path is correct
+import { useAuth } from "../shared/hooks/AuthContext";
 import PatientFeedbackTab from "../shared/components/PatientFeedbackTab";
 
 // Custom hook for form state management
@@ -216,6 +216,31 @@ function PatientInfo() {
     getFieldValue,
   } = usePatientForm(patient, setPatient);
 
+  // Function to sort schedule by time
+  const sortScheduleByTime = useCallback((schedule) => {
+    return [...schedule].sort((a, b) => {
+      // Handle empty time strings
+      if (!a.time) return 1;
+      if (!b.time) return -1;
+      
+      // Convert times to 24-hour format for proper sorting
+      const getTimeValue = (timeStr) => {
+        let [time, modifier] = timeStr.split(' ');
+        if (!time || !modifier) return -1;
+        
+        let [hours, minutes] = time.split(':').map(Number);
+        
+        // Convert to 24 hour format
+        if (modifier === 'PM' && hours < 12) hours += 12;
+        if (modifier === 'AM' && hours === 12) hours = 0;
+        
+        return hours * 60 + (minutes || 0); // Return minutes since midnight
+      };
+      
+      return getTimeValue(a.time) - getTimeValue(b.time);
+    });
+  }, []);
+
   // Use the nurse-selected patient ONLY in staff mode
   useEffect(() => {
     // Only apply nurse selection in staff mode
@@ -276,25 +301,38 @@ function PatientInfo() {
     });
   }, [initializeForm]);
 
-  // Handle save button click
+  // Handle save button click - UPDATED to sort only when saving
   const handleSave = useCallback(() => {
-    saveForm(editingScheduleItem, setEditingScheduleItem, () => {
-      // Reset navigation on successful save
-      setFocusedInputIndex(null);
-      setFocusedScheduleIndex(null);
-      setNavigationSection("main");
-      setMainNavFocusIndex(2);
+    if (editedData && editedData.schedule) {
+      // Sort schedule before saving
+      setEditedData(prev => ({
+        ...prev,
+        schedule: sortScheduleByTime(prev.schedule)
+      }));
+    }
 
-      // Focus edit button after save
-      requestAnimationFrame(() => {
-        mainNavElementsRef.current.editButton?.focus();
+    // Wait a brief moment to ensure the sorting is applied before saving
+    setTimeout(() => {
+      saveForm(editingScheduleItem, setEditingScheduleItem, () => {
+        // Reset navigation on successful save
+        setFocusedInputIndex(null);
+        setFocusedScheduleIndex(null);
+        setNavigationSection("main");
+        setMainNavFocusIndex(2);
+
+        // Focus edit button after save
+        requestAnimationFrame(() => {
+          mainNavElementsRef.current.editButton?.focus();
+        });
       });
-    });
+    }, 50);
   }, [
     saveForm,
     editingScheduleItem,
     setEditingScheduleItem,
     setMainNavFocusIndex,
+    editedData,
+    sortScheduleByTime,
   ]);
 
   // Schedule item editing functions
@@ -306,19 +344,25 @@ function PatientInfo() {
     });
   }, []);
 
+  // UPDATED to not sort when updating fields
   const handleItemUpdate = useCallback(
     (index, field, value) => {
-      setEditedData((prev) => ({
-        ...prev,
-        schedule: prev.schedule.map((item, i) =>
+      setEditedData((prev) => {
+        const updatedSchedule = prev.schedule.map((item, i) => 
           i === index ? { ...item, [field]: value } : item
-        ),
-      }));
+        );
+        
+        // Do NOT sort when updating fields
+        return {
+          ...prev,
+          schedule: updatedSchedule,
+        };
+      });
     },
     [setEditedData]
   );
 
-  // Add new schedule item
+  // UPDATED to not sort when adding new items
   const handleAddScheduleItem = useCallback(() => {
     if (!editing || !editedData) return;
 
@@ -330,7 +374,7 @@ function PatientInfo() {
       completed: false,
     };
 
-    // Add to schedule array
+    // Add to schedule array WITHOUT sorting
     setEditedData((prev) => ({
       ...prev,
       schedule: [...prev.schedule, newItem],
