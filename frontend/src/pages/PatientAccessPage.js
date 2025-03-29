@@ -26,7 +26,7 @@ function PatientAccessPage() {
         const API_BASE_URL =
           process.env.REACT_APP_API_URL || "http://localhost:5001";
         const response = await fetch(
-          `${API_BASE_URL}/api/validate-access/${token}`
+          `${API_BASE_URL}/api/patient-access/validate/${token}`
         );
 
         const data = await response.json();
@@ -49,19 +49,24 @@ function PatientAccessPage() {
 
   // Handle patient login
   const handlePatientLogin = async () => {
-    if (!patientData || !patientData.patientId) return;
-
+    if (!patientData) return;
+  
     try {
       setLoggingIn(true);
-
+  
       // Set patient mode
       setMode("patient");
-
-      // Login the patient
-      await login("patient", patientData.patientId);
-
-      // Navigate to main dashboard
-      navigate("/");
+      
+      // Check if we have the correct patient data structure
+      console.log("Patient data:", patientData);
+      
+      // Login should use the patient data from the validation response
+      // The server returns { valid: true, patient: {...} }
+      await login("patient", patientData.patient.patientId);
+      
+      // After successful login, navigate to the dashboard
+      // Make sure this route exists in your router configuration
+      navigate("/dashboard");
     } catch (err) {
       console.error("Login error:", err);
       setError("Failed to log in. Please try again.");

@@ -324,3 +324,197 @@ app.get('/api/registration/validate/:token', (req, res) => {
     });
   }
 });
+
+// Add this endpoint for Patient Access QR functionality
+app.get('/api/patients/:patientId/access-qr', async (req, res) => {
+  try {
+    // Check if patient exists
+    const patient = await Patient.findOne({ patientId: req.params.patientId });
+    if (!patient) {
+      return res.status(404).json({ message: 'Patient not found' });
+    }
+    
+    // Generate a unique access token
+    const accessToken = crypto.randomBytes(16).toString('hex');
+    
+    // Store the token with expiration (24 hours)
+    if (!global.patientAccessTokens) {
+      global.patientAccessTokens = new Map();
+    }
+    
+    global.patientAccessTokens.set(accessToken, {
+      patientId: req.params.patientId,
+      expiry: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
+    });
+    
+    // Generate the access URL
+    const baseUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const accessUrl = `${baseUrl}/patient-access/${accessToken}`;
+    
+    // Generate QR code
+    const qrCodeDataUrl = await qrcode.toDataURL(accessUrl);
+    
+    // Return the data
+    res.json({
+      accessUrl,
+      qrCodeDataUrl,
+      expiresIn: '24 hours'
+    });
+  } catch (error) {
+    console.error('Error generating patient access QR:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Add validation endpoint for patient access tokens
+app.get('/api/patient-access/validate/:token', async (req, res) => {
+  try {
+    const token = req.params.token;
+    
+    if (!global.patientAccessTokens) {
+      return res.status(404).json({
+        valid: false,
+        message: 'Invalid or expired access token'
+      });
+    }
+    
+    const accessData = global.patientAccessTokens.get(token);
+    
+    if (!accessData || accessData.expiry < Date.now()) {
+      global.patientAccessTokens.delete(token); // Clean up expired tokens
+      return res.status(404).json({
+        valid: false,
+        message: 'Invalid or expired access token'
+      });
+    }
+    
+    // Find the patient data
+    const patient = await Patient.findOne({ patientId: accessData.patientId });
+    if (!patient) {
+      return res.status(404).json({
+        valid: false,
+        message: 'Patient not found'
+      });
+    }
+    
+    // Return the patient data
+    res.json({
+      valid: true,
+      patient: patient
+    });
+  } catch (error) {
+    console.error('Error validating access token:', error);
+    res.status(500).json({ 
+      valid: false, 
+      message: error.message 
+    });
+  }
+});
+
+// Add this endpoint to your server.js file
+// Add this endpoint to your server.js file
+app.post('/api/registration/submit/:token', async (req, res) => {
+  try {
+    const token = req.params.token;
+    const registrationData = registrationTokens.get(token);
+    
+    if (!registrationData || registrationData.expiry < Date.now()) {
+      registrationTokens.delete(token); // Clean up expired tokens
+      return res.status(404).json({
+        success: false,
+        message: 'Invalid or expired registration link'
+      });
+    }
+    
+    // Get form data from request body
+    const formData = req.body;
+    
+    // Validate required fields
+    if (!formData.name) {
+      return res.status(400).json({
+        success: false,
+        message: 'Name is required'
+      });
+    }
+    
+    // Generate initials from the name using the function you've added
+    const initialsName = getInitialsFromName(formData.name);
+    console.log(`Converting name "${formData.name}" to initials: "${initialsName}"`);
+    
+    // Generate a unique patient ID
+    const patientId = crypto.randomBytes(8).toString('hex');
+    
+    // Create new patient object
+    const newPatient = new Patient({
+      patientId,
+      name: initialsName, // Use initials instead of full name
+      careTeam: {
+        primaryDoctor: formData.doctor || "",
+        primaryNurse: formData.nurse || ""
+      },
+      room: formData.room || "Unassigned", // Default value to satisfy required field
+      preferences: {
+        language: formData.language || "English",
+        dietary: formData.dietary ? formData.dietary.split(',').map(item => item.trim()) : [],
+        religious: formData.religious || ""
+      },
+      // Initialize empty schedule, feedback, etc.
+      schedule: [],
+      feedback: [],
+      lastUpdated: Date.now()
+    });
+    
+    // Log the patient object before saving
+    console.log("Attempting to save new patient with data:", {
+      patientId: newPatient.patientId,
+      name: newPatient.name,
+      room: newPatient.room,
+      preferences: newPatient.preferences
+    });
+    
+    // Save the new patient to the database
+    const savedPatient = await newPatient.save();
+    console.log("Patient saved successfully with ID:", savedPatient.patientId);
+    
+    // Remove the used token
+    registrationTokens.delete(token);
+    
+    // Return success with the new patient data
+    res.status(201).json({
+      success: true,
+      message: 'Patient registered successfully',
+      patient: savedPatient
+    });
+    
+  } catch (error) {
+    console.error('Error processing registration:', error);
+    console.error('Full error details:', error);
+    
+    // Check for MongoDB validation errors
+    if (error.name === 'ValidationError') {
+      const validationErrors = Object.keys(error.errors).map(field => ({
+        field,
+        message: error.errors[field].message
+      }));
+      console.error('Validation errors:', validationErrors);
+    }
+    
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to complete registration'
+    });
+  }
+});
+// Add this function to your server.js file
+function getInitialsFromName(fullName) {
+  if (!fullName) return '';
+  
+  // Split the name by spaces
+  const nameParts = fullName.split(' ').filter(part => part.length > 0);
+  
+  // Get the first letter of each part and join with periods
+  const initials = nameParts.map(part => part[0].toUpperCase()).join('.');
+  
+  // Add periods after each letter
+  return initials.length > 0 ? initials + '.' : '';
+}

@@ -80,32 +80,68 @@
   min-width: 300px;
 }
 
+/* Horizontal layout for category ratings with score next to title */
 .rating-categories-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
 .category-rating-item {
-  background-color: #f8f9fa;
-  padding: 12px;
-  border-radius: 8px;
+  background-color: var(--bg-light);
+  padding: 6px 8px;
+  border-radius: var(--border-radius);
   display: flex;
   flex-direction: column;
 }
 
+/* Make the name and score appear on the same line */
 .category-name {
   font-weight: 600;
+  font-size: 0.9rem;
   color: #555;
-  margin-bottom: 5px;
+  margin-bottom: 2px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
+/* Position the score at the end of the category name line */
+.category-name::after {
+  content: attr(data-score);
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+/* Hide the actual score element but keep it for screen readers */
+.category-score {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Keep stars visible but more compact */
 .category-stars {
-  font-size: 1.2rem;
-  margin: 5px 0;
-  color: #ddd;
+  font-size: 1rem;
+  display: flex;
+  margin: 0;
 }
 
+/* Individual feedback section */
+.individual-feedback {
+  flex: 3;
+  min-height: 160px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #eee;
+}
 .category-score {
   font-size: 1.2rem;
   font-weight: 600;
@@ -118,13 +154,23 @@
   flex: 1;
   overflow-y: auto;
 }
+.feedback-carousel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-height: 300px; /* Set a maximum height */
+}
+
 
 .feedback-item {
-  background-color: #f8f9fa;
-  border-radius: 8px;
-  padding: 10px;
-  margin-bottom: 15px;
+  overflow-y: auto; /* Make individual items scrollable */
+  flex: 1;
+  padding: 12px;
+  background-color: var(--bg-light);
+  border-radius: var(--border-radius);
 }
+
 
 .feedback-header {
   display: flex;
@@ -144,10 +190,12 @@
 }
 
 .feedback-comment {
-  margin-top: 15px;
+  overflow-y: auto;
+  max-height: 150px; /* Allow scrolling for very long comments */
   font-style: italic;
   color: #555;
   line-height: 1.5;
+  margin-top: 15px;
 }
 
 /* Detailed ratings */
@@ -450,6 +498,11 @@
 .category-ratings {
   flex: 2;
   min-width: 280px;
+}
+.category-ratings h4 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-size: 1rem;
 }
 
 .category-rating-item {

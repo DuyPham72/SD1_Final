@@ -132,6 +132,10 @@ const PatientSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+  fullNameHash: {
+    type: String,
+    trim: true
+  },
   room: {
     type: String,
     required: true
