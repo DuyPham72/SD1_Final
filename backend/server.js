@@ -10,7 +10,7 @@ const app = express();
 const registrationTokens = new Map();
 // CORS configuration
 app.use(cors({
-  origin: 'http://localhost:3000',  // Your frontend URL
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',  // Your frontend URL
   credentials: true
 }));
 
