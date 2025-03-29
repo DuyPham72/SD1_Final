@@ -13,7 +13,7 @@ node_modules/
 # Build files
 /build
 /dist
-/frontend/build
+# /frontend/build
 /frontend/dist
 
 # Misc
