@@ -16,6 +16,9 @@ app.use(cors({
 
 app.use(express.json());
 
+app.get('/favicon.ico', (req, res) => res.status(204).end());
+app.get('/favicon.png', (req, res) => res.status(204).end());
+
 // Test route
 app.get('/test', async (req, res) => {
   res.json({ message: 'Server is running' });
