@@ -6,6 +6,7 @@ import LoginModal from "./LoginModal";
 import "../../styles/Header.css";
 import PatientAccessQR from "./PatientAccessQR";
 import RegistrationQRGenerator from "./RegistrationQRGenerator";
+import FeedbackQR from "./FeedbackQR"; // Import the FeedbackQR component
 
 export const Header = ({
   patient,
@@ -19,10 +20,12 @@ export const Header = ({
   mainNavFocusIndex,
   extraHeaderContent,
 }) => {
-  const { mode, isAuthenticated } = useAuth();
+  const { mode, isAuthenticated, isDualScreen, enableDualScreen } = useAuth();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [showQRCode, setShowQRCode] = useState(false);
   const [showRegQRCode, setShowRegQRCode] = useState(false);
+  const [showFeedbackQRCode, setShowFeedbackQRCode] = useState(false); // New state for feedback QR
+  const [isDualScreenLogin, setIsDualScreenLogin] = useState(false);
 
   // Log state for debugging
   useEffect(() => {
@@ -53,6 +56,25 @@ export const Header = ({
   const handleRegQRClick = (e) => {
     e.preventDefault();
     setShowRegQRCode(true);
+  };
+  
+  // Handle Feedback QR button click
+  const handleFeedbackQRClick = (e) => {
+    e.preventDefault();
+    setShowFeedbackQRCode(true);
+  };
+
+  // Handle enabling dual screen mode
+  const handleEnableDualScreen = (e) => {
+    e.preventDefault();
+    console.log("Dual screen button clicked");
+    
+    // Staff is already authenticated, so enable dual screen immediately
+    if (typeof enableDualScreen === 'function') {
+      enableDualScreen();
+    } else {
+      console.error("enableDualScreen is not a function");
+    }
   };
 
   return (
@@ -87,6 +109,28 @@ export const Header = ({
       <h1 className="patient-header">Patient Name: {patient?.name}</h1>
 
       <div className="header-actions">
+        {/* Dual Screen Mode Button - only visible in staff mode and not already in dual screen mode */}
+        {mode === "staff" && !isDualScreen && (
+          <button
+            className="dual-screen-button"
+            onClick={handleEnableDualScreen}
+            title="Enable dual screen mode (staff view on this screen, patient view on second screen)"
+          >
+            <span className="dual-screen-icon">🖥️</span>
+            <span className="dual-screen-text">Dual Screen</span>
+          </button>
+        )}
+        
+        {/* Feedback QR Button - visible in all modes */}
+        <button
+          className="feedback-qr-button"
+          onClick={handleFeedbackQRClick}
+          title="Generate QR code for patients to submit feedback on their own device"
+        >
+          <span className="qr-icon">📱</span>
+          <span className="qr-text">Feedback QR</span>
+        </button>
+
         {/* QR Code Buttons - only visible in staff mode */}
         {mode === "staff" && (
           <>
@@ -116,7 +160,8 @@ export const Header = ({
 
         <ModeIndicator />
 
-        {mode === "patient" && (
+        {/* Only show Staff Login button in patient mode when not in dual screen mode */}
+        {mode === "patient" && !isDualScreen && (
           <button
             className="staff-login-button"
             onClick={() => setIsLoginModalOpen(true)}
@@ -139,7 +184,12 @@ export const Header = ({
 
       <LoginModal
         isOpen={isLoginModalOpen}
-        onClose={() => setIsLoginModalOpen(false)}
+        onClose={() => {
+          setIsLoginModalOpen(false);
+          setIsDualScreenLogin(false);
+        }}
+        isDualScreenLogin={isDualScreenLogin}
+        onDualScreenEnable={enableDualScreen}
       />
 
       {/* QR Code Modals */}
@@ -153,6 +203,14 @@ export const Header = ({
       {/* Registration QR Code Modal */}
       {showRegQRCode && (
         <RegistrationQRGenerator onClose={() => setShowRegQRCode(false)} />
+      )}
+      
+      {/* Feedback QR Code Modal */}
+      {showFeedbackQRCode && (
+        <FeedbackQR
+          patient={patient}
+          onClose={() => setShowFeedbackQRCode(false)}
+        />
       )}
     </div>
   );

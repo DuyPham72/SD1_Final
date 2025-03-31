@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from "react";
 import "../../styles/LoginModal.css";
 import { useAuth } from "../hooks/AuthContext";
 
-const LoginModal = ({ isOpen, onClose }) => {
+const LoginModal = ({ isOpen, onClose, isDualScreenLogin = false, onDualScreenEnable }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -54,12 +54,20 @@ const LoginModal = ({ isOpen, onClose }) => {
     // In a real application, this would make an API call to validate
     setTimeout(() => {
       if (username === "staff" && password === "password") {
+        // Log in the staff user
         loginStaff({
           id: 1,
           username: "staff",
           name: "Staff Member",
           role: "nurse",
         });
+        
+        // If this is a dual screen login, also enable dual screen mode
+        if (isDualScreenLogin && typeof onDualScreenEnable === 'function') {
+          console.log("Enabling dual screen mode after successful login");
+          onDualScreenEnable();
+        }
+        
         onClose();
       } else {
         setError("Invalid username or password");
@@ -81,7 +89,7 @@ const LoginModal = ({ isOpen, onClose }) => {
     <div className="modal-overlay" onKeyDown={handleKeyDown}>
       <div className="modal-container" ref={modalRef}>
         <div className="modal-header">
-          <h2>Staff Login</h2>
+          <h2>{isDualScreenLogin ? "Dual Screen Authentication" : "Staff Login"}</h2>
           <button className="close-button" onClick={onClose}>
             ×
           </button>
@@ -89,6 +97,12 @@ const LoginModal = ({ isOpen, onClose }) => {
 
         <form onSubmit={handleSubmit} className="login-form">
           {error && <div className="error-message">{error}</div>}
+          
+          {isDualScreenLogin && (
+            <p className="dual-screen-info">
+              Please authenticate to enable dual screen mode. This will display the staff interface on this screen.
+            </p>
+          )}
 
           <div className="form-group">
             <label htmlFor="username">Username:</label>
@@ -118,7 +132,7 @@ const LoginModal = ({ isOpen, onClose }) => {
               Cancel
             </button>
             <button type="submit" className="login-button" disabled={loading}>
-              {loading ? "Logging in..." : "Login"}
+              {loading ? "Logging in..." : isDualScreenLogin ? "Enable Dual Screen" : "Login"}
             </button>
           </div>
         </form>
