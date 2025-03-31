@@ -589,3 +589,255 @@ textarea {
     padding: 8px;
   }
 }
+
+/* Add these styles to your existing Feedback.css file */
+
+.standalone-feedback-page {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #f5f5f5;
+  height: auto;
+  min-height: 100vh;
+  overflow-y: auto; /* Enable vertical scrolling */
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+.simple-header {
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.content-container {
+  overflow-y: auto;
+  padding-bottom: 120px; /* Add bottom padding for iOS scrolling */
+}
+textarea, input, select, button {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.simple-header h1 {
+  font-size: 1.5rem;
+  margin: 0;
+  color: #333;
+}
+body {
+  -webkit-text-size-adjust: 100%; /* Prevent font scaling */
+  overscroll-behavior: none; /* Prevent pull-to-refresh */
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+
+.patient-info-box {
+  background-color: #e9f7fc;
+  border: 1px solid #c5e8f3;
+  border-radius: 5px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.patient-info-box p {
+  margin: 5px 0;
+  font-size: 16px;
+}
+
+.loading-container, 
+.error-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  flex-direction: column;
+  padding: 20px;
+  text-align: center;
+}
+
+.loading, 
+.error {
+  background-color: white;
+  padding: 20px 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  max-width: 400px;
+  width: 100%;
+}
+
+.error {
+  color: #d32f2f;
+  border-left: 4px solid #d32f2f;
+}
+
+/* Responsive styles for mobile devices */
+@media (max-width: 768px) {
+  .feedback-container {
+    padding: 15px;
+  }
+  
+  .rating-category {
+    padding: 12px;
+  }
+  
+  .rating-button {
+    font-size: 1.8rem;
+    width: 40px;
+    height: 40px;
+    margin: 0 2px;
+  }
+  
+  .overall-stars .star {
+    font-size: 1.8rem;
+    margin: 0 2px;
+  }
+  
+  .submit-button {
+    width: 100%;
+    padding: 12px;
+  }
+  
+  .feedback-form {
+    padding-bottom: 50px;
+  }
+  
+  .simple-header {
+    padding: 10px;
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .simple-header h1 {
+    margin-bottom: 8px;
+  }
+  
+  .overall-rating-display h3 {
+    font-size: 1.3rem;
+  }
+  
+  textarea {
+    min-height: 100px;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 480px) {
+  .rating-button {
+    font-size: 1.6rem;
+    width: 36px;
+    height: 36px;
+    margin: 0 1px;
+  }
+  
+  .overall-stars .star {
+    font-size: 1.6rem;
+  }
+  
+  .rating-category-header label {
+    font-size: 1rem;
+  }
+  
+  .rating-description {
+    font-size: 0.8rem;
+  }
+  
+  .feedback-intro {
+    font-size: 0.9rem;
+  }
+}
+
+/* Key fixes to apply to your Feedback.css file for mobile scrolling */
+
+/* CRITICAL FIX: Remove the overflow hidden that's preventing scrolling */
+.content-container {
+  height: auto !important; /* Override fixed height */
+  overflow: visible !important; /* Allow content to flow */
+  padding: 10px 20px;
+  padding-bottom: 120px; /* Extra padding at bottom for iOS */
+}
+
+/* CRITICAL FIX: Remove max-height and overflow hidden */
+.feedback-container {
+  max-height: none !important; /* Remove height limit */
+  overflow: visible !important; /* Allow content to flow */
+  display: flex;
+  flex-direction: column;
+}
+
+/* CRITICAL FIX: Make standalone page scrollable */
+.standalone-feedback-page {
+  height: auto !important;
+  overflow-y: auto !important; /* Enable vertical scrolling */
+  -webkit-overflow-scrolling: touch !important; /* Smooth scrolling on iOS */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Keep header at top */
+.simple-header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 100 !important;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: #ffffff;
+}
+
+/* Make form elements properly sized for mobile */
+@media (max-width: 768px) {
+  .rating-button {
+    min-width: 44px !important; /* Larger tap target */
+    min-height: 44px !important;
+    margin: 0 3px !important;
+    font-size: 24px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  /* Force vertical layout for categories */
+  .rating-category {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    padding: 12px !important;
+  }
+  
+  .rating-stars {
+    margin: 10px 0 0 !important;
+    align-self: center !important;
+  }
+  
+  /* Make sure the submit button is visible */
+  .form-actions {
+    margin-top: 20px !important;
+    margin-bottom: 40px !important;
+  }
+}
+
+/* Make sure body is properly set for mobile */
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+  height: auto !important;
+  overflow-x: hidden !important; /* Prevent horizontal scrolling */
+  overflow-y: auto !important; /* Allow vertical scrolling */
+  min-height: 100vh !important;
+}
+
+/* Remove any hidden overflow from parents */
+#root, [id="root"] {
+  overflow: visible !important;
+  height: auto !important;
+  min-height: 100vh !important;
+}
+
+/* Ensure proper spacing at the bottom of forms */
+.feedback-form {
+  margin-bottom: 50px !important;
+}

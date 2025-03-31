@@ -9,12 +9,21 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [mode, setModeState] = useState(() => {
-    // Initialize from localStorage if available
+    // Check URL query parameter for mode first
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlMode = urlParams.get('mode');
+    if (urlMode === 'staff' || urlMode === 'patient') {
+      return urlMode;
+    }
+    // Otherwise initialize from localStorage if available
     return localStorage.getItem('mode') || 'patient';
   });
+  
   const [user, setUser] = useState(null);
   const [lastActivity, setLastActivity] = useState(Date.now());
   const [timeoutId, setTimeoutId] = useState(null);
+  const [patientWindow, setPatientWindow] = useState(null);
+  const [isDualScreen, setIsDualScreen] = useState(false);
   
   // Store nurse-selected patient ID
   const [nurseSelectedPatientId, setNurseSelectedPatientId] = useState(() => {
@@ -27,6 +36,175 @@ export const AuthProvider = ({ children }) => {
   });
   
   const navigate = useNavigate();
+  
+  // Initialize dual screen mode on load
+  useEffect(() => {
+    // Check if we should initialize dual screen mode
+    const urlParams = new URLSearchParams(window.location.search);
+    const dualScreen = urlParams.get('dualScreen') === 'true';
+    
+    if (dualScreen) {
+      // This window is involved in dual screen mode
+      setIsDualScreen(true);
+      
+      if (urlParams.get('fromStaffScreen') === 'true') {
+        // This is the patient window opened from staff screen
+        console.log("Initializing as patient window in dual screen mode");
+        setModeState('patient');
+        localStorage.setItem('mode', 'patient');
+        
+        // When this window closes, notify the opener (staff screen)
+        window.addEventListener('beforeunload', () => {
+          try {
+            if (window.opener) {
+              window.opener.postMessage({ type: 'patientWindowClosed' }, window.location.origin);
+            }
+            localStorage.removeItem('patientWindowOpened');
+          } catch (e) {
+            console.error("Error cleaning up on window close:", e);
+          }
+        });
+      } else {
+        // This is the staff screen that opened the patient window
+        console.log("Initializing as staff window in dual screen mode");
+        setModeState('staff');
+        localStorage.setItem('mode', 'staff');
+        
+        // Check if patient window is still open
+        const checkWindowInterval = setInterval(() => {
+          if (!localStorage.getItem('patientWindowOpened')) {
+            console.log("Patient window is closed, resetting dual screen mode");
+            clearInterval(checkWindowInterval);
+            setIsDualScreen(false);
+          }
+        }, 1000);
+        
+        window.dualScreenCheckInterval = checkWindowInterval;
+      }
+    }
+    
+    // Set up message passing between windows for synchronization
+    window.addEventListener('message', handleWindowMessage);
+    
+    // Cleanup function
+    return () => {
+      window.removeEventListener('message', handleWindowMessage);
+      
+      // Clear the interval if it exists
+      if (window.dualScreenCheckInterval) {
+        clearInterval(window.dualScreenCheckInterval);
+        window.dualScreenCheckInterval = null;
+      }
+    };
+  }, []);
+  
+  // Handle messages between windows
+  const handleWindowMessage = (event) => {
+    // Only accept messages from our own domain
+    if (event.origin !== window.location.origin) return;
+    
+    console.log('Received window message:', event.data);
+    
+    // Handle different message types
+    if (event.data.type === 'patientSelect') {
+      console.log('Received patient selection update:', event.data.patientId);
+      
+      // Check if this is a new message with a newer timestamp
+      const lastTimestamp = parseInt(localStorage.getItem('lastMessageTimestamp') || '0');
+      const newTimestamp = event.data.timestamp || Date.now();
+      
+      if (newTimestamp <= lastTimestamp) {
+        console.log('Ignoring outdated message');
+        return;
+      }
+      
+      // Update the timestamp
+      localStorage.setItem('lastMessageTimestamp', newTimestamp.toString());
+      
+      // Update both the state and localStorage
+      setNurseSelectedPatientId(event.data.patientId);
+      localStorage.setItem('nurseSelectedPatientId', event.data.patientId);
+      localStorage.setItem('selectedPatientId', event.data.patientId);
+      localStorage.setItem('patientChangeTimestamp', Date.now().toString());
+      
+      // If we're in patient mode, trigger a UI refresh
+      if (mode === 'patient') {
+        console.log('Patient screen updating to show:', event.data.patientId);
+        
+        // Dispatch a custom event to notify components
+        window.dispatchEvent(new CustomEvent('patientChanged', { 
+          detail: { 
+            patientId: event.data.patientId,
+            timestamp: newTimestamp,
+            forceRefresh: true 
+          }
+        }));
+        
+        // Reload the page if requested and this is a recent message
+        if (event.data.forceReload && (Date.now() - newTimestamp < 10000)) {
+          console.log('Force reloading patient page');
+          setTimeout(() => {
+            window.location.reload();
+          }, 100);
+        }
+      }
+    } else if (event.data.type === 'patientWindowClosed') {
+      // Patient window was closed, reset dual screen mode
+      console.log("Received notification that patient window was closed");
+      localStorage.removeItem('patientWindowOpened');
+      setIsDualScreen(false);
+    }
+  };
+  
+  // Function to update the nurse-selected patient
+  const updateNurseSelectedPatient = (patientId) => {
+    console.log('Saving nurse-selected patient:', patientId);
+    
+    // Update state
+    setNurseSelectedPatientId(patientId);
+    
+    // Update localStorage in all cases
+    localStorage.setItem('nurseSelectedPatientId', patientId);
+    localStorage.setItem('selectedPatientId', patientId);
+    
+    // Set a timestamp to help with sync detection
+    localStorage.setItem('patientChangeTimestamp', Date.now().toString());
+    
+    // If in dual screen mode and this is staff screen, sync with patient screen
+    if (isDualScreen && mode === 'staff') {
+      try {
+        // Try different approaches to message the patient window
+        
+        // Approach 1: Use the stored window reference
+        if (patientWindow && !patientWindow.closed) {
+          console.log('Sending patient update via window reference:', patientId);
+          patientWindow.postMessage({
+            type: 'patientSelect',
+            patientId: patientId,
+            timestamp: Date.now(),
+            forceReload: true
+          }, window.location.origin);
+        } 
+        // Approach 2: Try to find the window by name
+        else {
+          const windowByName = window.open('', 'patientView');
+          if (windowByName && !windowByName.closed) {
+            console.log('Sending patient update via window name:', patientId);
+            windowByName.postMessage({
+              type: 'patientSelect',
+              patientId: patientId,
+              timestamp: Date.now(),
+              forceReload: true
+            }, window.location.origin);
+          } else {
+            console.warn('Could not find patient window, using localStorage only');
+          }
+        }
+      } catch (error) {
+        console.error('Error sending message to patient window:', error);
+      }
+    }
+  };
   
   // Save nurse-selected patient to localStorage when it changes
   useEffect(() => {
@@ -89,10 +267,58 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('mode', newMode);
   };
   
-  // Function to update the nurse-selected patient
-  const updateNurseSelectedPatient = (patientId) => {
-    console.log('Saving nurse-selected patient:', patientId);
-    setNurseSelectedPatientId(patientId);
+  // Function to enable dual screen mode
+  const enableDualScreen = () => {
+    console.log("Enabling dual screen mode from staff view");
+    
+    // Set a flag in localStorage to indicate we're in dual screen mode
+    localStorage.setItem('patientWindowOpened', 'true');
+    setIsDualScreen(true);
+    
+    // Create the patient view window (opposite of what we had before)
+    const url = `${window.location.origin}/?mode=patient&fromStaffScreen=true&dualScreen=true`;
+    const newPatientWindow = window.open(url, 'patientView', 'width=1200,height=800');
+    
+    if (newPatientWindow) {
+      console.log("Opened patient window");
+      setPatientWindow(newPatientWindow);
+      
+      // Set up an interval to check if the window was closed
+      const checkWindowInterval = setInterval(() => {
+        if (newPatientWindow.closed) {
+          console.log("Patient window was closed, resetting dual screen mode");
+          clearInterval(checkWindowInterval);
+          localStorage.removeItem('patientWindowOpened');
+          
+          // Update state
+          setIsDualScreen(false);
+        }
+      }, 1000);
+      
+      // Store the interval ID for cleanup
+      window.dualScreenCheckInterval = checkWindowInterval;
+      
+      // Send the current patient ID to the new window
+      if (nurseSelectedPatientId) {
+        setTimeout(() => {
+          try {
+            console.log('Sending initial patient to new window:', nurseSelectedPatientId);
+            newPatientWindow.postMessage({
+              type: 'patientSelect',
+              patientId: nurseSelectedPatientId,
+              timestamp: Date.now(),
+              forceReload: true
+            }, window.location.origin);
+          } catch (error) {
+            console.error('Error sending initial patient to new window:', error);
+          }
+        }, 1000); // Give the window time to initialize
+      }
+    } else {
+      console.error("Failed to open patient window");
+      localStorage.removeItem('patientWindowOpened');
+      setIsDualScreen(false);
+    }
   };
   
   // Function to switch to staff mode and redirect to patient info
@@ -147,11 +373,19 @@ export const AuthProvider = ({ children }) => {
       setTimeoutId(null);
     }
     
-    // Redirect to main dashboard
-    navigate('/');
+    // If in dual screen mode and on staff screen, close patient window
+    if (isDualScreen && mode === 'staff' && patientWindow && !patientWindow.closed) {
+      try {
+        patientWindow.close();
+      } catch (error) {
+        console.error('Error closing patient window:', error);
+      }
+      localStorage.removeItem('patientWindowOpened');
+      setIsDualScreen(false);
+    }
     
-    // We don't clear nurseSelectedPatientId on logout
-    // so it can be restored when they log back in
+    // Navigate to main dashboard
+    navigate('/');
   };
   
   // Reset localStorage function for emergency recovery
@@ -161,12 +395,16 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('nurseSelectedPatientId');
     localStorage.removeItem('mode');
     localStorage.removeItem('selectedPatientId');
+    localStorage.removeItem('patientWindowOpened');
+    localStorage.removeItem('patientChangeTimestamp');
+    localStorage.removeItem('lastMessageTimestamp');
     
     // Reset state
     setModeState('patient');
     setUser(null);
     setNurseSelectedPatientId(null);
     setPatientId(null);
+    setIsDualScreen(false);
     
     // Force reload the page
     window.location.reload();
@@ -229,9 +467,10 @@ export const AuthProvider = ({ children }) => {
       user, 
       patientId,
       isAuthenticated: mode === 'staff' && user !== null,
-      nurseSelectedPatientId
+      nurseSelectedPatientId,
+      isDualScreen
     });
-  }, [mode, user, patientId, nurseSelectedPatientId]);
+  }, [mode, user, patientId, nurseSelectedPatientId, isDualScreen]);
 
   return (
     <AuthContext.Provider value={{
@@ -239,15 +478,17 @@ export const AuthProvider = ({ children }) => {
       user,
       patientId,
       isAuthenticated: mode === 'staff' && user !== null,
-      nurseSelectedPatientId,  // Expose the nurse-selected patient ID
-      updateNurseSelectedPatient, // Expose the function to update it
+      nurseSelectedPatientId,
+      isDualScreen,
+      updateNurseSelectedPatient,
+      enableDualScreen,
       loginStaff,
       loginPatient,
-      login,      // Add the generic login function
-      setMode,    // Add the setMode function
+      login,
+      setMode,
       logout,
       resetActivityTimer,
-      resetLocalStorage  // Add the reset function
+      resetLocalStorage
     }}>
       {children}
     </AuthContext.Provider>

@@ -1,12 +1,11 @@
-// src/pages/Feedback.js - Modified with automatic overall rating calculation
+// src/pages/Feedback.js - Modified to handle both in-app and QR code access
 import React, { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom"; // Add useParams for token
 import "../styles/Feedback.css";
 import {
   usePatientData,
   useTimeUpdate,
   useNavigationState,
-  useKeyboardNavigation,
   Layout,
   Header,
 } from "../shared";
@@ -37,14 +36,25 @@ const RatingCategory = ({ label, description, rating, onChange }) => {
 
 function Feedback() {
   const navigate = useNavigate();
+  const { token } = useParams(); // Get token from URL if present
+  
+  // Determine if this is QR code access or normal in-app access
+  const isQRCodeAccess = !!token;
+  
+  // State for QR code specific functionality
+  const [qrLoading, setQRLoading] = useState(isQRCodeAccess);
+  const [qrError, setQRError] = useState(null);
+  const [qrPatientData, setQRPatientData] = useState(null);
+  
   const {
     patient,
     allPatients,
     selectedPatientId,
-    loading,
+    loading: patientLoading,
     handlePatientChange,
     updatePatientData,
   } = usePatientData();
+  
   const currentTime = useTimeUpdate();
   const {
     isNavOpen,
@@ -74,6 +84,37 @@ function Feedback() {
   const [feedbackText, setFeedbackText] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  // If accessed via QR code, validate the token and get patient data
+  useEffect(() => {
+    if (!isQRCodeAccess) return;
+    
+    async function validateToken() {
+      try {
+        setQRLoading(true);
+        const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5001";
+        
+        console.log("Validating feedback token:", token);
+        const response = await fetch(`${API_BASE_URL}/api/feedback/validate/${token}`);
+        const data = await response.json();
+        
+        console.log("Token validation response:", data);
+        
+        if (data.valid) {
+          setQRPatientData(data.patientData);
+        } else {
+          setQRError("This feedback link is invalid or has expired.");
+        }
+      } catch (err) {
+        console.error("Error validating feedback token:", err);
+        setQRError("Failed to validate feedback link. Please try again.");
+      } finally {
+        setQRLoading(false);
+      }
+    }
+    
+    validateToken();
+  }, [token, isQRCodeAccess]);
 
   // Update individual rating and recalculate overall
   const updateRating = (category, value) => {
@@ -111,71 +152,74 @@ function Feedback() {
     calculateOverallRating();
   }, []);
 
-  // Hook up keyboard navigation
-  useKeyboardNavigation({
-    isNavOpen,
-    setIsNavOpen,
-    sidebarFocusIndex,
-    setSidebarFocusIndex,
-    mainNavFocusIndex,
-    setMainNavFocusIndex,
-    mainNavElementsRef,
-    sidebarButtonsRef,
-    navigate,
-  });
-
-  // Handle feedback submission
+  // Handle feedback submission - supports both normal and QR code flows
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
 
-    // Create feedback object with timestamp and patient info
-    // Use calculated overall rating
-    const newFeedback = {
-      id: Date.now().toString(),
-      patientId: patient.patientId,
-      patientName: patient.name,
-      // Set old-style single rating for compatibility
-      rating: Number(overallRating),
-      // Detailed ratings with calculated overall
-      ratings: {
-        overall: Number(overallRating),
-        careQuality: Number(categoryRatings.careQuality),
-        staffResponsiveness: Number(categoryRatings.staffResponsiveness),
-        communication: Number(categoryRatings.communication),
-        cleanliness: Number(categoryRatings.cleanliness),
-        mealQuality: Number(categoryRatings.mealQuality),
-      },
-      comment: feedbackText,
-      timestamp: new Date().toISOString(),
-      room: patient.room,
-    };
-
-    console.log("New feedback with calculated overall rating:", newFeedback);
-    console.log(
-      "Rating value type:",
-      typeof newFeedback.rating,
-      "value:",
-      newFeedback.rating
-    );
-    console.log(
-      "Overall rating value type:",
-      typeof newFeedback.ratings.overall,
-      "value:",
-      newFeedback.ratings.overall
-    );
-
-    // Update patient data with new feedback
-    // If patient doesn't have a feedback array yet, create one
-    const updatedPatient = {
-      ...patient,
-      feedback: [...(patient.feedback || []), newFeedback],
-    };
-
     try {
-      // Save to backend
-      const result = await updatePatientData(updatedPatient);
-      console.log("Response from server after saving feedback:", result);
+      const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5001";
+      
+      // Create feedback object with timestamp and patient info
+      const newFeedback = {
+        id: Date.now().toString(),
+        // Set old-style single rating for compatibility
+        rating: Number(overallRating),
+        // Detailed ratings with calculated overall
+        ratings: {
+          overall: Number(overallRating),
+          careQuality: Number(categoryRatings.careQuality),
+          staffResponsiveness: Number(categoryRatings.staffResponsiveness),
+          communication: Number(categoryRatings.communication),
+          cleanliness: Number(categoryRatings.cleanliness),
+          mealQuality: Number(categoryRatings.mealQuality),
+        },
+        comment: feedbackText,
+        timestamp: new Date().toISOString(),
+      };
+
+      // Different flow for QR code access vs. in-app
+      if (isQRCodeAccess) {
+        // QR code flow - If patient data is available from token
+        if (qrPatientData) {
+          newFeedback.patientId = qrPatientData.patientId;
+          newFeedback.patientName = qrPatientData.name;
+          newFeedback.room = qrPatientData.room;
+          
+          // Submit to patient-specific endpoint
+          await fetch(`${API_BASE_URL}/api/patients/${qrPatientData.patientId}/feedback`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newFeedback),
+          });
+        } else {
+          // Anonymous feedback
+          await fetch(`${API_BASE_URL}/api/feedback/submit`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newFeedback),
+          });
+        }
+      } else {
+        // Regular in-app flow - use patient from context
+        newFeedback.patientId = patient.patientId;
+        newFeedback.patientName = patient.name;
+        newFeedback.room = patient.room;
+
+        // Update patient data with new feedback
+        const updatedPatient = {
+          ...patient,
+          feedback: [...(patient.feedback || []), newFeedback],
+        };
+
+        // Save to backend
+        await updatePatientData(updatedPatient);
+      }
+      
       setSubmitting(false);
       setSubmitted(true);
     } catch (error) {
@@ -204,9 +248,71 @@ function Feedback() {
     setSubmitted(false);
   };
 
-  if (loading) return <div className="loading">Loading...</div>;
-  if (!patient) return <div className="error">No patient data available</div>;
+  // Loading states
+  if (isQRCodeAccess && qrLoading) {
+    return (
+      <div className="loading-container">
+        <div className="loading">Validating feedback link...</div>
+      </div>
+    );
+  }
+  
+  // Error states
+  if (isQRCodeAccess && qrError) {
+    return (
+      <div className="error-container">
+        <div className="error">{qrError}</div>
+      </div>
+    );
+  }
+  
+  if (!isQRCodeAccess && patientLoading) {
+    return <div className="loading">Loading...</div>;
+  }
+  
+  if (!isQRCodeAccess && !patient) {
+    return <div className="error">No patient data available</div>;
+  }
 
+  // Get current patient data (either from QR code or context)
+  const currentPatient = isQRCodeAccess ? qrPatientData : patient;
+
+  // For QR code access, render a simplified version without the Layout and Header
+  if (isQRCodeAccess) {
+    return (
+      <div className="standalone-feedback-page">
+        <div className="simple-header">
+          <h1>Hospital Patient Feedback</h1>
+          <div className="current-time">
+            {new Date().toLocaleDateString()} {new Date().toLocaleTimeString()}
+          </div>
+        </div>
+
+        <div className="content-container">
+          <div className="feedback-container">
+            <h2>Your Feedback Matters</h2>
+            
+            {currentPatient && (
+              <div className="patient-info-box">
+                <p><strong>Patient:</strong> {currentPatient.name}</p>
+                <p><strong>Room:</strong> {currentPatient.room}</p>
+              </div>
+            )}
+            
+            <p className="feedback-intro">
+              Thank you for taking the time to provide feedback about your stay.
+              Your input helps us improve our services.
+            </p>
+
+            {/* The rest of the form is the same for both modes */}
+            {renderFeedbackForm()}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // For regular in-app access, use the Layout and Header
   const navItems = [
     { icon: "🏠", text: "Home", path: "/" },
     { icon: "🎮", text: "Entertainment", path: "/entertainment" },
@@ -241,105 +347,111 @@ function Feedback() {
             Your input helps us improve our services.
           </p>
 
-          {submitted ? (
-            <div className="feedback-success">
-              <div className="success-icon">✓</div>
-              <h3>Thank You For Your Feedback</h3>
-              <p>
-                Your feedback has been submitted successfully and will help us
-                improve our services.
-              </p>
-              <button onClick={handleReset} className="reset-button">
-                Submit Another Feedback
-              </button>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="feedback-form">
-              {/* Show the calculated overall rating */}
-              <div className="overall-rating-display">
-                <h3>Overall Rating: {overallRating.toFixed(1)}</h3>
-                <div className="overall-stars">
-                  {[1, 2, 3, 4, 5].map((value) => (
-                    <span
-                      key={value}
-                      className={`star ${
-                        value <= Math.round(overallRating) ? "filled" : ""
-                      }`}
-                    >
-                      {value <= Math.round(overallRating) ? "★" : "☆"}
-                    </span>
-                  ))}
-                </div>
-                <p className="rating-note">
-                  (Calculated from your category ratings below)
-                </p>
-              </div>
-
-              <div className="rating-categories">
-                <RatingCategory
-                  label="Quality of Care"
-                  description="The medical treatments and care received"
-                  rating={categoryRatings.careQuality}
-                  onChange={(value) => updateRating("careQuality", value)}
-                />
-
-                <RatingCategory
-                  label="Staff Responsiveness"
-                  description="How quickly staff responded to your needs"
-                  rating={categoryRatings.staffResponsiveness}
-                  onChange={(value) =>
-                    updateRating("staffResponsiveness", value)
-                  }
-                />
-
-                <RatingCategory
-                  label="Communication"
-                  description="How well staff explained procedures and treatments"
-                  rating={categoryRatings.communication}
-                  onChange={(value) => updateRating("communication", value)}
-                />
-
-                <RatingCategory
-                  label="Room Cleanliness"
-                  description="The cleanliness and maintenance of your room"
-                  rating={categoryRatings.cleanliness}
-                  onChange={(value) => updateRating("cleanliness", value)}
-                />
-
-                <RatingCategory
-                  label="Meal Quality"
-                  description="The quality of meals provided during your stay"
-                  rating={categoryRatings.mealQuality}
-                  onChange={(value) => updateRating("mealQuality", value)}
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="feedback-text">Additional Comments:</label>
-                <textarea
-                  id="feedback-text"
-                  rows="5"
-                  value={feedbackText}
-                  onChange={(e) => setFeedbackText(e.target.value)}
-                  placeholder="Please share any other thoughts about your hospital experience..."
-                ></textarea>
-              </div>
-
-              <div className="form-actions">
-                <button
-                  type="submit"
-                  className="submit-button"
-                  disabled={submitting}
-                >
-                  {submitting ? "Submitting..." : "Submit Feedback"}
-                </button>
-              </div>
-            </form>
-          )}
+          {/* The rest of the form is the same for both modes */}
+          {renderFeedbackForm()}
         </div>
       </div>
     </Layout>
   );
+
+  // Helper function to render the feedback form (used by both modes)
+  function renderFeedbackForm() {
+    return submitted ? (
+      <div className="feedback-success">
+        <div className="success-icon">✓</div>
+        <h3>Thank You For Your Feedback</h3>
+        <p>
+          Your feedback has been submitted successfully and will help us
+          improve our services.
+        </p>
+        <button onClick={handleReset} className="reset-button">
+          Submit Another Feedback
+        </button>
+      </div>
+    ) : (
+      <form onSubmit={handleSubmit} className="feedback-form">
+        {/* Show the calculated overall rating */}
+        <div className="overall-rating-display">
+          <h3>Overall Rating: {overallRating.toFixed(1)}</h3>
+          <div className="overall-stars">
+            {[1, 2, 3, 4, 5].map((value) => (
+              <span
+                key={value}
+                className={`star ${
+                  value <= Math.round(overallRating) ? "filled" : ""
+                }`}
+              >
+                {value <= Math.round(overallRating) ? "★" : "☆"}
+              </span>
+            ))}
+          </div>
+          <p className="rating-note">
+            (Calculated from your category ratings below)
+          </p>
+        </div>
+
+        <div className="rating-categories">
+          <RatingCategory
+            label="Quality of Care"
+            description="The medical treatments and care received"
+            rating={categoryRatings.careQuality}
+            onChange={(value) => updateRating("careQuality", value)}
+          />
+
+          <RatingCategory
+            label="Staff Responsiveness"
+            description="How quickly staff responded to your needs"
+            rating={categoryRatings.staffResponsiveness}
+            onChange={(value) =>
+              updateRating("staffResponsiveness", value)
+            }
+          />
+
+          <RatingCategory
+            label="Communication"
+            description="How well staff explained procedures and treatments"
+            rating={categoryRatings.communication}
+            onChange={(value) => updateRating("communication", value)}
+          />
+
+          <RatingCategory
+            label="Room Cleanliness"
+            description="The cleanliness and maintenance of your room"
+            rating={categoryRatings.cleanliness}
+            onChange={(value) => updateRating("cleanliness", value)}
+          />
+
+          <RatingCategory
+            label="Meal Quality"
+            description="The quality of meals provided during your stay"
+            rating={categoryRatings.mealQuality}
+            onChange={(value) => updateRating("mealQuality", value)}
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="feedback-text">Additional Comments:</label>
+          <textarea
+            id="feedback-text"
+            rows="5"
+            value={feedbackText}
+            onChange={(e) => setFeedbackText(e.target.value)}
+            placeholder="Please share any other thoughts about your hospital experience..."
+          ></textarea>
+        </div>
+
+        <div className="form-actions">
+          <button
+            type="submit"
+            className="submit-button"
+            disabled={submitting}
+          >
+            {submitting ? "Submitting..." : "Submit Feedback"}
+          </button>
+        </div>
+      </form>
+    );
+  }
 }
 
 export default Feedback;

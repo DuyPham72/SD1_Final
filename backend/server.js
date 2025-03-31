@@ -518,3 +518,117 @@ function getInitialsFromName(fullName) {
   // Add periods after each letter
   return initials.length > 0 ? initials + '.' : '';
 }
+
+// Add this endpoint to your server.js file for feedback QR code functionality
+app.post('/api/feedback/create-qr', async (req, res) => {
+  try {
+    console.log("Feedback QR request received with data:", req.body);
+    
+    // Generate a unique feedback token
+    const feedbackToken = crypto.randomBytes(16).toString('hex');
+    
+    // Store the associated patient info if provided
+    const patientInfo = req.body.patientId ? { patientId: req.body.patientId } : null;
+    
+    // Initialize feedbackTokens if it doesn't exist
+    if (!global.feedbackTokens) {
+      global.feedbackTokens = new Map();
+    }
+    
+    // Save token with patient info (expires in 24 hours)
+    global.feedbackTokens.set(feedbackToken, {
+      patientInfo,
+      expiry: Date.now() + (24 * 60 * 60 * 1000)
+    });
+    
+    // Generate the feedback URL
+    const baseUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const feedbackUrl = `${baseUrl}/feedback/${feedbackToken}`;
+    
+    console.log("Generated feedback URL:", feedbackUrl);
+    
+    // Generate QR code
+    const qrCodeDataUrl = await qrcode.toDataURL(feedbackUrl);
+    
+    // Return feedback link and QR code
+    res.json({
+      feedbackUrl,
+      qrCodeDataUrl,
+      expiresIn: '24 hours'
+    });
+  } catch (error) {
+    console.error('Error generating feedback QR:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Add a validation endpoint for feedback tokens
+app.get('/api/feedback/validate/:token', async (req, res) => {
+  try {
+    const token = req.params.token;
+    
+    if (!global.feedbackTokens) {
+      return res.status(404).json({
+        valid: false,
+        message: 'Invalid or expired feedback token'
+      });
+    }
+    
+    const feedbackData = global.feedbackTokens.get(token);
+    
+    if (!feedbackData || feedbackData.expiry < Date.now()) {
+      global.feedbackTokens.delete(token); // Clean up expired tokens
+      return res.status(404).json({
+        valid: false,
+        message: 'Invalid or expired feedback token'
+      });
+    }
+    
+    // If there's associated patient info, fetch the patient data
+    let patientData = null;
+    if (feedbackData.patientInfo && feedbackData.patientInfo.patientId) {
+      const patient = await Patient.findOne({ 
+        patientId: feedbackData.patientInfo.patientId 
+      });
+      
+      if (patient) {
+        patientData = {
+          patientId: patient.patientId,
+          name: patient.name,
+          room: patient.room
+        };
+      }
+    }
+    
+    // Return validation result with optional patient data
+    res.json({
+      valid: true,
+      patientData
+    });
+  } catch (error) {
+    console.error('Error validating feedback token:', error);
+    res.status(500).json({ 
+      valid: false, 
+      message: error.message 
+    });
+  }
+});
+
+// Add a dedicated endpoint for submitting anonymous feedback (no patient ID)
+app.post('/api/feedback/submit', async (req, res) => {
+  try {
+    console.log("Received anonymous feedback submission");
+    console.log("Feedback data:", req.body);
+    
+    // Store anonymous feedback in a separate collection or handle as needed
+    // For now, we'll just return success
+    
+    res.status(201).json({
+      success: true,
+      message: 'Anonymous feedback submitted successfully'
+    });
+  } catch (error) {
+    console.error("Error saving anonymous feedback:", error);
+    res.status(400).json({ message: error.message });
+  }
+});

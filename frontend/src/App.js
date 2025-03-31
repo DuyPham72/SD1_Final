@@ -45,6 +45,7 @@ function AppWithRoutes() {
         <Route path="/entertainment" element={<Entertainment />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/feedback" element={<Feedback />} />
+        <Route path="/feedback/:token" element={<Feedback />} /> {/* Updated route - same component */}
         <Route path="/patient-access/:token" element={<PatientAccessPage />} />
         <Route path="/register/:token" element={<PatientRegistrationPage />} />
         {/* Default redirect based on mode */}
