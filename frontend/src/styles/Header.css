@@ -94,42 +94,89 @@
   background-color: #bdc3c7;
 }
 
+/*notification stuff*/
+.notification-icon {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.notification-popup {
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  background: white;
+  border: 1px solid #ccc;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  width: 250px;
+  z-index: 1000;
+}
+
+.notification-popup h3 {
+  margin: 0;
+  font-size: 16px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 5px;
+}
+
+.notification-popup ul {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0;
+}
+
+.notification-popup ul li {
+  padding: 5px 0;
+  font-size: 14px;
+}
+
+.notification-popup button {
+  display: block;
+  width: 100%;
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 5px;
+  cursor: pointer;
+}
+
+.notification-popup button:hover {
+  background: #0056b3;
+}
+
 /* Current time display */
 /* Updated fix for the date/time display */
 
 .current-time {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  min-width: 150px; /* Increased width for date/time */
-  margin-left: 20px;
-  margin-right: 20px; /* Add right margin to prevent edge cutting */
   white-space: nowrap;
-  position: relative; /* Add position relative */
-  right: 0; /* Ensure it stays aligned to the right */
-  font-size: 0.9rem; /* Slightly larger font */
-  padding-right: 5px; /* Add some padding on the right */
+  font-size: 14px;
+  color: #333;
+  min-width: 120px;
+  text-align: left;
 }
 /* Fix for header time display */
-.current-time {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  min-width: 120px; /* Ensure enough space for date/time */
-  white-space: nowrap; /* Prevent wrapping */
-  margin-left: 15px; /* Add some spacing */
-}
+
 
 
 /* Override any conflicting styles */
 .header-bar {
-  padding-right: 25px !important; /* Ensure enough padding on the right side */
-  overflow: visible !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  background-color: #f8f8f8;
+  border-bottom: 1px solid #ddd;
+  position: relative;
 }
 
 /* Adjust header actions position */
 .header-actions {
-  margin-right: 30px; /* More space between actions and time */
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 /* For TVs and larger screens */
