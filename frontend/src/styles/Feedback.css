@@ -870,7 +870,7 @@ html, body {
   max-height: none !important;
   overflow-y: auto !important;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: 100px; /* Extra padding at bottom */
+  padding-bottom: 0px; /* Extra padding at bottom */
 }
 
 .feedback-container {
