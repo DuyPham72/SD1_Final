@@ -162,7 +162,11 @@
 @media (max-width: 576px) {
   .qr-modal {
     width: 95%;
-    max-height: 80vh; /* Reduce height slightly on mobile */
+    margin: 10px auto;/* Reduce height slightly on mobile */
+  }
+  .patient-access-qr-container {
+    align-items: flex-start; /* Align to top instead of center */
+    padding: 20px 0; /* Add padding to top and bottom */
   }
 
   .qr-header h2 {
