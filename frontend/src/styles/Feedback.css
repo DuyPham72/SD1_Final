@@ -841,3 +841,107 @@ body {
 .feedback-form {
   margin-bottom: 50px !important;
 }
+
+/* Critical Mobile Scrolling Fixes */
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+.standalone-feedback-page {
+  height: 100%;
+  min-height: 100vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.content-container {
+  height: auto !important;
+  max-height: none !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 0px; /* Extra padding at bottom */
+}
+
+.feedback-container {
+  max-height: none !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+form {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Ensure all interactive elements are scrollable */
+.rating-categories,
+.overall-rating-display,
+.form-group,
+.form-actions {
+  overflow: visible;
+}
+
+/* Prevent text size adjustment */
+* {
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+}
+
+/* Additional touch improvements */
+textarea,
+input,
+select,
+button {
+  touch-action: manipulation;
+  -ms-touch-action: manipulation;
+}
+
+/* Ensure full viewport height on mobile */
+@media (max-width: 768px) {
+  .standalone-feedback-page {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      min-height: 100vh;
+      overflow-y: scroll;
+      -webkit-overflow-scrolling: touch;
+  }
+
+  .content-container {
+      padding: 10px;
+      overflow-y: scroll !important;
+      -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Prevent pull-to-refresh and bounce effects */
+body {
+  overscroll-behavior-y: none;
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+
+.standalone-feedback-page {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}

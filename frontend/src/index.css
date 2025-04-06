@@ -200,9 +200,9 @@ body {
   -webkit-line-clamp: 3; /* Show 3 lines for comments */
 }
 
-/* Patient info fields should not scroll */
+/* Patient info fields should scroll */
 .info-fields {
-  overflow: hidden;
+  overflow: auto;
 }
 
 /* Make sure sidebar doesn't cause scrolling */

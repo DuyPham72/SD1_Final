@@ -22,7 +22,8 @@
   gap: 20px;
   width: 100%;
   height: calc(100vh - 80px);
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .left-column {
@@ -38,6 +39,7 @@
   flex: 1;
   min-width: 35%;
   overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
 }
@@ -79,6 +81,7 @@
 .info-card.personal-info {
   flex: 1;
   max-height: 250px;
+  overflow: auto;
 }
 
 .info-field {
@@ -100,6 +103,7 @@
   max-height: 450px;
   display: flex;
   flex-direction: column;
+  overflow: auto;
 }
 
 .schedule-section {

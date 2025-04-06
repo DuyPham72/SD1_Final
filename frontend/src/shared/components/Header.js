@@ -7,6 +7,8 @@ import "../../styles/Header.css";
 import PatientAccessQR from "./PatientAccessQR";
 import RegistrationQRGenerator from "./RegistrationQRGenerator";
 import FeedbackQR from "./FeedbackQR"; // Import the FeedbackQR component
+import NotificationBadge from './NotificationBadge';
+
 
 export const Header = ({
   patient,
@@ -26,6 +28,8 @@ export const Header = ({
   const [showRegQRCode, setShowRegQRCode] = useState(false);
   const [showFeedbackQRCode, setShowFeedbackQRCode] = useState(false); // New state for feedback QR
   const [isDualScreenLogin, setIsDualScreenLogin] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+
 
   // Log state for debugging
   useEffect(() => {
@@ -51,6 +55,12 @@ export const Header = ({
     e.preventDefault();
     setShowQRCode(true);
   };
+
+  // notification click
+  const handleNotificationClick = () => {
+    setShowNotifications((prev) => !prev);
+  };
+  
 
   // Handle Registration QR button click
   const handleRegQRClick = (e) => {
@@ -160,6 +170,11 @@ export const Header = ({
 
         <ModeIndicator />
 
+        {/* Notification Button */}
+        {mode === "staff" && <NotificationBadge notifications={["Patient here", "Patient", "John"]} />}
+
+        {mode === "patient" && <NotificationBadge notifications={["Patient here", "Patient", "John"]} />}
+
         {/* Only show Staff Login button in patient mode when not in dual screen mode */}
         {mode === "patient" && !isDualScreen && (
           <button
@@ -169,6 +184,8 @@ export const Header = ({
             Staff Login
           </button>
         )}
+
+      
 
         {mode === "staff" && extraHeaderContent}
       </div>
@@ -181,6 +198,7 @@ export const Header = ({
           </>
         )}
       </div>
+
 
       <LoginModal
         isOpen={isLoginModalOpen}
