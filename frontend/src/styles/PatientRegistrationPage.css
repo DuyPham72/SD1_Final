@@ -1,14 +1,20 @@
 /* src/styles/PatientRegistrationPage.css */
-/* Fix excessive spacing and scrolling issues */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: auto !important;
+  position: relative;
+  -webkit-overflow-scrolling: touch;
+}
+
 .registration-page {
   display: flex;
-  justify-content: flex-start; /* Change from center to flex-start */
+  justify-content: center;
   align-items: center;
   min-height: 100vh;
   background-color: #f8f9fa;
-  padding: 10px; /* Reduce from 20px */
-  overflow-y: auto; /* Allow scrolling */
-  -webkit-overflow-scrolling: touch; /* For iOS */
+  padding: 20px;
 }
 
 .registration-container {
@@ -17,26 +23,24 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 600px;
-  padding: 20px; /* Reduce from 30px */
-  margin-top: 10px; /* Add this to reduce space at top */
+  padding: 30px;
 }
 
 .registration-container h2 {
   margin-top: 0;
   color: #2c3e50;
-  margin-bottom: 10px; /* Reduce from 15px */
+  margin-bottom: 15px;
 }
 
 .registration-container p {
   color: #7f8c8d;
-  margin-bottom: 15px; /* Reduce from 25px */
+  margin-bottom: 25px;
 }
 
 .registration-form {
   display: flex;
   flex-direction: column;
-  gap: 15px; /* Reduce from 20px */
-  overflow-y: visible; /* Ensure form can extend beyond container */
+  gap: 20px;
 }
 
 .form-group {
@@ -146,92 +150,22 @@
   margin-bottom: 20px;
 }
 
-/* Fix excessive spacing and scrolling issues */
-.registration-page {
-  display: flex;
-  justify-content: flex-start; /* Change from center to flex-start */
-  align-items: center;
-  min-height: 100vh;
-  background-color: #f8f9fa;
-  padding: 10px; /* Reduce from 20px */
-  overflow-y: auto; /* Allow scrolling */
-  -webkit-overflow-scrolling: touch; /* For iOS */
-}
-
-.registration-container {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 600px;
-  padding: 20px; /* Reduce from 30px */
-  margin-top: 10px; /* Add this to reduce space at top */
-}
-
-.registration-container h2 {
-  margin-top: 0;
-  color: #2c3e50;
-  margin-bottom: 10px; /* Reduce from 15px */
-}
-
-.registration-container p {
-  color: #7f8c8d;
-  margin-bottom: 15px; /* Reduce from 25px */
-}
-
-.registration-form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px; /* Reduce from 20px */
-  overflow-y: visible; /* Ensure form can extend beyond container */
-}
-
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .registration-container {
-    padding: 15px; /* Reduce further on tablets */
-  }
-  
-  .registration-page {
-    padding: 5px; /* Less padding on smaller screens */
+    padding: 20px;
   }
 }
 
 @media (max-width: 576px) {
-  .registration-page {
-    justify-content: flex-start; /* Ensure alignment to top */
-    align-items: center;
-    padding: 5px;
-  }
-  
-  .registration-container {
-    padding: 15px;
-    margin-top: 5px; /* Even less margin on mobile */
-  }
-  
   .registration-form {
-    gap: 12px; /* Further reduce gap on mobile */
+    gap: 15px;
   }
-  
-  .form-group {
-    gap: 5px; /* Tighter spacing in form groups */
-  }
-  
+
   .form-group input,
   .form-group select,
   .submit-button {
     padding: 10px;
     font-size: 14px;
-  }
-  
-  /* Reduce spacing in text elements */
-  .registration-container h2 {
-    font-size: 1.3rem;
-    margin-bottom: 8px;
-  }
-  
-  .registration-container p {
-    font-size: 0.9rem;
-    margin-bottom: 12px;
   }
 }
