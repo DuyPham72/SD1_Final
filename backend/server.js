@@ -10,7 +10,11 @@ const app = express();
 const registrationTokens = new Map();
 // CORS configuration
 app.use(cors({
-  origin: 'https://sd1-final-2usg.vercel.app/',  // Your frontend URL
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:1',
+    'https://sdl-final-2usg.vercel.app'
+  ],
   credentials: true
 }));
 

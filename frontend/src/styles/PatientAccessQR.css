@@ -21,6 +21,8 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  position: relative; /* Add this */
+  -webkit-overflow-scrolling: touch; 
 }
 
 .qr-header {
@@ -159,6 +161,7 @@
 @media (max-width: 576px) {
   .qr-modal {
     width: 95%;
+    max-height: 80vh; /* Reduce height slightly on mobile */
   }
 
   .qr-header h2 {
