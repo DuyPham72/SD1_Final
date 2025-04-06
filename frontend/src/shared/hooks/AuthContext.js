@@ -350,10 +350,13 @@ export const AuthProvider = ({ children }) => {
       if (userType === 'patient') {
         setPatientId(userId);
         setMode('patient');
+        localStorage.setItem('selectedPatientId', userId);
+        localStorage.setItem('nurseSelectedPatientId', userId);
       } else if (userType === 'staff') {
         setUser({ id: userId });
         setMode('staff');
         setLastActivity(Date.now());
+        localStorage.removeItem('nurseSelectedPatientId'); 
       }
       
       return true;

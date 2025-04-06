@@ -121,12 +121,19 @@ function PatientRegistrationPage() {
           await login("patient", result.patient.patientId);
           
           // Store the patient ID in localStorage to ensure it's available across components
+          localStorage.setItem('patientId', result.patient.patientId);
           localStorage.setItem('selectedPatientId', result.patient.patientId);
           localStorage.setItem('nurseSelectedPatientId', result.patient.patientId);
           
           // Add a timestamp for the change to trigger refresh mechanisms
           localStorage.setItem('patientChangeTimestamp', Date.now().toString());
-          
+          window.dispatchEvent(new CustomEvent('patientChanged', { 
+            detail: { 
+              patientId: result.patient.patientId,
+              timestamp: Date.now(),
+              forceRefresh: true 
+            }
+          }));
           // Navigate to main dashboard
           navigate("/");
         } catch (error) {
