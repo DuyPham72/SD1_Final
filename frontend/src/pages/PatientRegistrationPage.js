@@ -116,8 +116,24 @@ function PatientRegistrationPage() {
 
       // Log in the new patient
       setTimeout(async () => {
-        await login("patient", result.patient.patientId);
-        navigate("/");
+        try {
+          // Log in the patient with their new ID
+          await login("patient", result.patient.patientId);
+          
+          // Store the patient ID in localStorage to ensure it's available across components
+          localStorage.setItem('selectedPatientId', result.patient.patientId);
+          localStorage.setItem('nurseSelectedPatientId', result.patient.patientId);
+          
+          // Add a timestamp for the change to trigger refresh mechanisms
+          localStorage.setItem('patientChangeTimestamp', Date.now().toString());
+          
+          // Navigate to main dashboard
+          navigate("/");
+        } catch (error) {
+          console.error("Error during login:", error);
+          setError("Login failed after registration. Please try logging in manually.");
+          setSubmitting(false);
+        }
       }, 2000);
     } catch (err) {
       console.error("Registration error:", err);
