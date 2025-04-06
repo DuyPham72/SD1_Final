@@ -155,6 +155,18 @@ export const AuthProvider = ({ children }) => {
       setIsDualScreen(false);
     }
   };
+  const clearPatientSelection = () => {
+    console.log("Clearing patient selection");
+    
+    // Clear localStorage
+    localStorage.removeItem('nurseSelectedPatientId');
+    localStorage.removeItem('selectedPatientId');
+    localStorage.removeItem('patientChangeTimestamp');
+    
+    // Clear state
+    setNurseSelectedPatientId(null);
+  };
+  
   
   // Function to update the nurse-selected patient
   const updateNurseSelectedPatient = (patientId) => {
@@ -228,7 +240,7 @@ export const AuthProvider = ({ children }) => {
   // Validate that the selected patient exists
   useEffect(() => {
     const validateSelectedPatient = async () => {
-      if (!nurseSelectedPatientId) return;
+      if (mode !== 'patient' || !nurseSelectedPatientId) return;
       
       try {
         // Try to fetch the selected patient directly
@@ -350,13 +362,18 @@ export const AuthProvider = ({ children }) => {
       if (userType === 'patient') {
         setPatientId(userId);
         setMode('patient');
+        
+        // When logging in as patient, ensure this patient is selected
         localStorage.setItem('selectedPatientId', userId);
         localStorage.setItem('nurseSelectedPatientId', userId);
+        
       } else if (userType === 'staff') {
+        // When logging in as staff, clear any patient selection first
+        clearPatientSelection();
+        
         setUser({ id: userId });
         setMode('staff');
         setLastActivity(Date.now());
-        localStorage.removeItem('nurseSelectedPatientId'); 
       }
       
       return true;
@@ -505,3 +522,4 @@ export const useAuth = () => {
   }
   return context;
 };
+
