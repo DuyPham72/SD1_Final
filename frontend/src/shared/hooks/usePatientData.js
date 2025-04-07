@@ -1,4 +1,4 @@
-// usePatientData.js - Updated with localStorage persistence
+// usePatientData.js - Updated with improved caching and refresh logic
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from './AuthContext'; // Make sure this path is correct
 
@@ -95,16 +95,7 @@ export function usePatientData() {
       try {
         setLoading(true);
         
-        // Check if we have a cached version that's recent
-        const cachedPatient = patientCache[selectedPatientId];
-        
-        // Use the cached patient data if available and recent (less than 30 seconds old)
-        if (cachedPatient && (Date.now() - cachedPatient.timestamp < 30000)) {
-          setPatient(cachedPatient.data);
-          setLoading(false);
-          return;
-        }
-        
+        // Always fetch fresh data when explicitly requested
         const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
         const response = await fetch(`${API_BASE_URL}/api/patients/${selectedPatientId}`);
         
@@ -195,6 +186,17 @@ export function usePatientData() {
     localStorage.setItem(SELECTED_PATIENT_STORAGE_KEY, patientId);
   }, []);
 
+  // Function to invalidate cache for a specific patient or all patients
+  const invalidateCache = useCallback((patientId) => {
+    console.log('Invalidating cache for:', patientId || 'all patients');
+    if (patientId) {
+      delete patientCache[patientId];
+    } else {
+      patientCache = {}; // Clear entire cache
+    }
+    return true; // Return true so this can be chained with other operations
+  }, []);
+
   return { 
     patient, 
     setPatient: updatePatient,
@@ -205,12 +207,6 @@ export function usePatientData() {
     error,
     handlePatientChange,
     updatePatientData, // Add the function to update patient data on the server
-    invalidateCache: useCallback((patientId) => {
-      if (patientId) {
-        delete patientCache[patientId];
-      } else {
-        patientCache = {}; // Clear entire cache
-      }
-    }, [])
+    invalidateCache // Function to clear cache
   };
 }

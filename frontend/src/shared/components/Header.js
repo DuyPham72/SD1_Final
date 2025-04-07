@@ -6,7 +6,7 @@ import LoginModal from "./LoginModal";
 import "../../styles/Header.css";
 import PatientAccessQR from "./PatientAccessQR";
 import RegistrationQRGenerator from "./RegistrationQRGenerator";
-import FeedbackQR from "./FeedbackQR"; // Import the FeedbackQR component
+import FeedbackQR from "./FeedbackQR";
 
 export const Header = ({
   patient,
@@ -24,7 +24,7 @@ export const Header = ({
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [showQRCode, setShowQRCode] = useState(false);
   const [showRegQRCode, setShowRegQRCode] = useState(false);
-  const [showFeedbackQRCode, setShowFeedbackQRCode] = useState(false); // New state for feedback QR
+  const [showFeedbackQRCode, setShowFeedbackQRCode] = useState(false);
   const [isDualScreenLogin, setIsDualScreenLogin] = useState(false);
 
   // Log state for debugging
@@ -35,12 +35,8 @@ export const Header = ({
   // Handle hamburger button click with debug logs
   const handleMenuToggle = () => {
     console.log("Menu button clicked - current isNavOpen:", isNavOpen);
-
-    // Call onNavToggle and log the expected new state
     onNavToggle();
     console.log("Called onNavToggle - expected new state:", !isNavOpen);
-
-    // Check if state actually updated
     setTimeout(() => {
       console.log("After toggle - isNavOpen:", isNavOpen);
     }, 100);
@@ -69,7 +65,6 @@ export const Header = ({
     e.preventDefault();
     console.log("Dual screen button clicked");
     
-    // Staff is already authenticated, so enable dual screen immediately
     if (typeof enableDualScreen === 'function') {
       enableDualScreen();
     } else {
@@ -121,31 +116,33 @@ export const Header = ({
           </button>
         )}
         
-        {/* Feedback QR Button - visible in all modes */}
-        <button
-          className="feedback-qr-button"
-          onClick={handleFeedbackQRClick}
-          title="Generate QR code for patients to submit feedback on their own device"
-        >
-          <span className="qr-icon">📱</span>
-          <span className="qr-text">Feedback QR</span>
-        </button>
+        {/* MOVED: Patient Access QR - now only visible in patient mode */}
+        {mode === "patient" && patient && (
+          <button
+            className="qr-code-button"
+            onClick={handleQRCodeClick}
+            title="Generate patient access QR code"
+          >
+            <span className="qr-icon">🔗</span>
+            <span className="qr-text">Patient Access</span>
+          </button>
+        )}
+        
+        {/* MOVED: Feedback QR Button - now only visible in patient mode */}
+        {mode === "patient" && (
+          <button
+            className="feedback-qr-button"
+            onClick={handleFeedbackQRClick}
+            title="Generate QR code for patients to submit feedback on their own device"
+          >
+            <span className="qr-icon">📱</span>
+            <span className="qr-text">Feedback QR</span>
+          </button>
+        )}
 
-        {/* QR Code Buttons - only visible in staff mode */}
+        {/* Staff mode buttons */}
         {mode === "staff" && (
           <>
-            {/* Patient Access QR - only show when a patient is selected */}
-            {patient && (
-              <button
-                className="qr-code-button"
-                onClick={handleQRCodeClick}
-                title="Generate patient access QR code"
-              >
-                <span className="qr-icon">🔗</span>
-                <span className="qr-text">Patient Access</span>
-              </button>
-            )}
-
             {/* New Patient Registration QR */}
             <button
               className="reg-qr-button"
