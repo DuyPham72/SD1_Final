@@ -99,112 +99,137 @@ export const AuthProvider = ({ children }) => {
   }, []);
   
   // Handle messages between windows
-  const handleWindowMessage = (event) => {
-    // Only accept messages from our own domain
-    if (event.origin !== window.location.origin) return;
-    
-    console.log('Received window message:', event.data);
-    
-    // Handle different message types
-    if (event.data.type === 'patientSelect') {
-      console.log('Received patient selection update:', event.data.patientId);
-      
-      // Check if this is a new message with a newer timestamp
-      const lastTimestamp = parseInt(localStorage.getItem('lastMessageTimestamp') || '0');
-      const newTimestamp = event.data.timestamp || Date.now();
-      
-      if (newTimestamp <= lastTimestamp) {
-        console.log('Ignoring outdated message');
-        return;
-      }
-      
-      // Update the timestamp
-      localStorage.setItem('lastMessageTimestamp', newTimestamp.toString());
-      
-      // Update both the state and localStorage
-      setNurseSelectedPatientId(event.data.patientId);
-      localStorage.setItem('nurseSelectedPatientId', event.data.patientId);
-      localStorage.setItem('selectedPatientId', event.data.patientId);
-      localStorage.setItem('patientChangeTimestamp', Date.now().toString());
-      
-      // If we're in patient mode, trigger a UI refresh
-      if (mode === 'patient') {
-        console.log('Patient screen updating to show:', event.data.patientId);
-        
-        // Dispatch a custom event to notify components
-        window.dispatchEvent(new CustomEvent('patientChanged', { 
-          detail: { 
-            patientId: event.data.patientId,
-            timestamp: newTimestamp,
-            forceRefresh: true 
-          }
-        }));
-        
-        // Reload the page if requested and this is a recent message
-        if (event.data.forceReload && (Date.now() - newTimestamp < 10000)) {
-          console.log('Force reloading patient page');
-          setTimeout(() => {
-            window.location.reload();
-          }, 100);
-        }
-      }
-    } else if (event.data.type === 'patientWindowClosed') {
-      // Patient window was closed, reset dual screen mode
-      console.log("Received notification that patient window was closed");
-      localStorage.removeItem('patientWindowOpened');
-      setIsDualScreen(false);
-    }
-  };
+ // In AuthContext.js - handleWindowMessage function
+const handleWindowMessage = (event) => {
+  // Only accept messages from our own domain
+  if (event.origin !== window.location.origin) return;
   
-  // Function to update the nurse-selected patient
-  const updateNurseSelectedPatient = (patientId) => {
-    console.log('Saving nurse-selected patient:', patientId);
+  console.log('Received window message:', event.data);
+  
+  // Handle different message types
+  if (event.data.type === 'patientSelect') {
+    console.log('Received patient selection update:', event.data.patientId);
     
-    // Update state
-    setNurseSelectedPatientId(patientId);
+    // Check if this is a new message with a newer timestamp
+    const lastTimestamp = parseInt(localStorage.getItem('lastMessageTimestamp') || '0');
+    const newTimestamp = event.data.timestamp || Date.now();
     
-    // Update localStorage in all cases
-    localStorage.setItem('nurseSelectedPatientId', patientId);
-    localStorage.setItem('selectedPatientId', patientId);
+    if (newTimestamp <= lastTimestamp) {
+      console.log('Ignoring outdated message');
+      return;
+    }
     
-    // Set a timestamp to help with sync detection
+    // Update the timestamp
+    localStorage.setItem('lastMessageTimestamp', newTimestamp.toString());
+    
+    // If cache invalidation is requested, set the flag
+    if (event.data.invalidateCache) {
+      localStorage.setItem('invalidateCache', 'true');
+    }
+    
+    // Update both the state and localStorage
+    setNurseSelectedPatientId(event.data.patientId);
+    localStorage.setItem('nurseSelectedPatientId', event.data.patientId);
+    localStorage.setItem('selectedPatientId', event.data.patientId);
     localStorage.setItem('patientChangeTimestamp', Date.now().toString());
     
-    // If in dual screen mode and this is staff screen, sync with patient screen
-    if (isDualScreen && mode === 'staff') {
-      try {
-        // Try different approaches to message the patient window
-        
-        // Approach 1: Use the stored window reference
-        if (patientWindow && !patientWindow.closed) {
-          console.log('Sending patient update via window reference:', patientId);
-          patientWindow.postMessage({
+    // If we're in patient mode, trigger a UI refresh
+    if (mode === 'patient') {
+      console.log('Patient screen updating to show:', event.data.patientId);
+      
+      // Dispatch a custom event to notify components
+      window.dispatchEvent(new CustomEvent('patientChanged', { 
+        detail: { 
+          patientId: event.data.patientId,
+          timestamp: newTimestamp,
+          forceRefresh: true,
+          invalidateCache: event.data.invalidateCache || false  // Pass along the flag
+        }
+      }));
+      
+      // Reload the page if requested and this is a recent message
+      if (event.data.forceReload && (Date.now() - newTimestamp < 10000)) {
+        console.log('Force reloading patient page');
+        setTimeout(() => {
+          window.location.reload();
+        }, 100);
+      }
+    }
+  } else if (event.data.type === 'patientWindowClosed') {
+    // Patient window was closed, reset dual screen mode
+    console.log("Received notification that patient window was closed");
+    localStorage.removeItem('patientWindowOpened');
+    setIsDualScreen(false);
+  }
+};
+  const clearPatientSelection = () => {
+    console.log("Clearing patient selection");
+    
+    // Clear localStorage
+    localStorage.removeItem('nurseSelectedPatientId');
+    localStorage.removeItem('selectedPatientId');
+    localStorage.removeItem('patientChangeTimestamp');
+    
+    // Clear state
+    setNurseSelectedPatientId(null);
+  };
+  
+  
+  // Function to update the nurse-selected patient
+  // In AuthContext.js - updateNurseSelectedPatient function
+const updateNurseSelectedPatient = (patientId) => {
+  console.log('Saving nurse-selected patient:', patientId);
+  
+  // Update state
+  setNurseSelectedPatientId(patientId);
+  
+  // Update localStorage in all cases
+  localStorage.setItem('nurseSelectedPatientId', patientId);
+  localStorage.setItem('selectedPatientId', patientId);
+  
+  // Add a flag to indicate cache should be invalidated
+  localStorage.setItem('invalidateCache', 'true');
+  
+  // Set a timestamp to help with sync detection
+  localStorage.setItem('patientChangeTimestamp', Date.now().toString());
+  
+  // If in dual screen mode and this is staff screen, sync with patient screen
+  if (isDualScreen && mode === 'staff') {
+    try {
+      // Try different approaches to message the patient window
+      
+      // Approach 1: Use the stored window reference
+      if (patientWindow && !patientWindow.closed) {
+        console.log('Sending patient update via window reference:', patientId);
+        patientWindow.postMessage({
+          type: 'patientSelect',
+          patientId: patientId,
+          timestamp: Date.now(),
+          forceReload: true,
+          invalidateCache: true  // Add this flag
+        }, window.location.origin);
+      } 
+      // Approach 2: Try to find the window by name
+      else {
+        const windowByName = window.open('', 'patientView');
+        if (windowByName && !windowByName.closed) {
+          console.log('Sending patient update via window name:', patientId);
+          windowByName.postMessage({
             type: 'patientSelect',
             patientId: patientId,
             timestamp: Date.now(),
-            forceReload: true
+            forceReload: true,
+            invalidateCache: true  // Add this flag
           }, window.location.origin);
-        } 
-        // Approach 2: Try to find the window by name
-        else {
-          const windowByName = window.open('', 'patientView');
-          if (windowByName && !windowByName.closed) {
-            console.log('Sending patient update via window name:', patientId);
-            windowByName.postMessage({
-              type: 'patientSelect',
-              patientId: patientId,
-              timestamp: Date.now(),
-              forceReload: true
-            }, window.location.origin);
-          } else {
-            console.warn('Could not find patient window, using localStorage only');
-          }
+        } else {
+          console.warn('Could not find patient window, using localStorage only');
         }
-      } catch (error) {
-        console.error('Error sending message to patient window:', error);
       }
+    } catch (error) {
+      console.error('Error sending message to patient window:', error);
     }
-  };
+  }
+};
   
   // Save nurse-selected patient to localStorage when it changes
   useEffect(() => {
@@ -228,7 +253,7 @@ export const AuthProvider = ({ children }) => {
   // Validate that the selected patient exists
   useEffect(() => {
     const validateSelectedPatient = async () => {
-      if (!nurseSelectedPatientId) return;
+      if (mode !== 'patient' || !nurseSelectedPatientId) return;
       
       try {
         // Try to fetch the selected patient directly
@@ -245,7 +270,8 @@ export const AuthProvider = ({ children }) => {
           const patientsResponse = await fetch(`${API_BASE_URL}/api/patients`);
           if (patientsResponse.ok) {
             const patients = await patientsResponse.json();
-            if (patients && patients.length > 0) {
+            // Only set a default patient in patient mode, not in staff mode
+            if (mode !== 'staff' && patients && patients.length > 0) {
               console.log('Setting default patient to:', patients[0].patientId);
               setNurseSelectedPatientId(patients[0].patientId);
               localStorage.setItem('nurseSelectedPatientId', patients[0].patientId);
@@ -350,10 +376,23 @@ export const AuthProvider = ({ children }) => {
       if (userType === 'patient') {
         setPatientId(userId);
         setMode('patient');
+        
+        // When logging in as patient, ensure this patient is selected
+        localStorage.setItem('selectedPatientId', userId);
+        localStorage.setItem('nurseSelectedPatientId', userId);
+        
       } else if (userType === 'staff') {
+        // IMPORTANT: When logging in as staff, clear any patient selection first
+        localStorage.removeItem('nurseSelectedPatientId');
+        localStorage.removeItem('selectedPatientId');
+        localStorage.removeItem('patientChangeTimestamp');
+        
         setUser({ id: userId });
         setMode('staff');
         setLastActivity(Date.now());
+        
+        // Set nurse selected patient to null
+        setNurseSelectedPatientId(null);
       }
       
       return true;
@@ -502,3 +541,4 @@ export const useAuth = () => {
   }
   return context;
 };
+

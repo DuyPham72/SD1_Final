@@ -94,42 +94,89 @@
   background-color: #bdc3c7;
 }
 
+/*notification stuff*/
+.notification-icon {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.notification-popup {
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  background: white;
+  border: 1px solid #ccc;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  width: 250px;
+  z-index: 1000;
+}
+
+.notification-popup h3 {
+  margin: 0;
+  font-size: 16px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 5px;
+}
+
+.notification-popup ul {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0;
+}
+
+.notification-popup ul li {
+  padding: 5px 0;
+  font-size: 14px;
+}
+
+.notification-popup button {
+  display: block;
+  width: 100%;
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 5px;
+  cursor: pointer;
+}
+
+.notification-popup button:hover {
+  background: #0056b3;
+}
+
 /* Current time display */
 /* Updated fix for the date/time display */
 
 .current-time {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  min-width: 150px; /* Increased width for date/time */
-  margin-left: 20px;
-  margin-right: 20px; /* Add right margin to prevent edge cutting */
   white-space: nowrap;
-  position: relative; /* Add position relative */
-  right: 0; /* Ensure it stays aligned to the right */
-  font-size: 0.9rem; /* Slightly larger font */
-  padding-right: 5px; /* Add some padding on the right */
+  font-size: 14px;
+  color: #333;
+  min-width: 120px;
+  text-align: left;
 }
 /* Fix for header time display */
-.current-time {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  min-width: 120px; /* Ensure enough space for date/time */
-  white-space: nowrap; /* Prevent wrapping */
-  margin-left: 15px; /* Add some spacing */
-}
+
 
 
 /* Override any conflicting styles */
 .header-bar {
-  padding-right: 25px !important; /* Ensure enough padding on the right side */
-  overflow: visible !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  background-color: #f8f8f8;
+  border-bottom: 1px solid #ddd;
+  position: relative;
 }
 
 /* Adjust header actions position */
 .header-actions {
-  margin-right: 30px; /* More space between actions and time */
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 /* For TVs and larger screens */
@@ -415,4 +462,135 @@
     padding: 8px;
     margin-right: 10px;
   }
+}
+
+/* Add to your Header.css */
+
+/* Mobile-specific styles */
+/* Mobile patient mode specific styles */
+/* Reset specific mobile patient mode styles */
+/* Add this to the end of your Header.css file */
+
+/* MOBILE PATIENT MODE FIX - overrides all other styles */
+@media (max-width: 768px) {
+  /* Target only patient mode */
+  body[data-mode="patient"] .header-bar {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 8px 12px !important;
+    height: auto !important;
+    min-height: 60px !important;
+  }
+  
+  /* Menu button stays as is */
+  body[data-mode="patient"] .menu-button {
+    order: 0 !important;
+  }
+  
+  /* Patient name takes available space */
+  body[data-mode="patient"] .patient-header {
+    flex: 1 !important;
+    width: auto !important;
+    order: 0 !important;
+    margin: 0 !important;
+    font-size: 1rem !important;
+  }
+  
+  /* Actions container (with bell) stays inline */
+  body[data-mode="patient"] .header-actions {
+    order: 0 !important;
+    width: auto !important;
+    margin: 0 0 0 auto !important;
+    justify-content: flex-end !important;
+  }
+  
+  /* Hide time display */
+  body[data-mode="patient"] .current-time {
+    display: none !important;
+  }
+  
+  /* Hide these buttons in mobile patient mode */
+  body[data-mode="patient"] .feedback-qr-button,
+  body[data-mode="patient"] .staff-login-button,
+  body[data-mode="patient"] .mode-indicator {
+    display: none !important;
+  }
+  
+  /* Make notification badge more visible */
+  body[data-mode="patient"] .notification-badge {
+    transform: scale(1.1) !important;
+  }
+}
+
+/* Add to Header.css */
+.mobile-patient-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 15px; /* Increased right padding to prevent bell cutoff */
+  height: auto;
+  min-height: 60px;
+  padding: 8px 20px;
+}
+
+
+.mobile-patient-header .patient-header {
+  margin: 0;
+  padding: 0;
+  font-size: 1rem;
+  line-height: 1.2;
+  width: 100%; /* Take full width of wrapper */
+  order: 0;
+}
+
+/* Styling for the mobile patient header */
+.mobile-patient-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 15px; /* Increased right padding to prevent bell cutoff */
+  height: auto;
+  min-height: 60px;
+}
+
+.mobile-time {
+  font-size: 0.8rem; /* Slightly larger for better visibility */
+  color: #666;
+  margin-top: 2px;
+  width: 100%; /* Take full width of wrapper */
+}
+
+.mobile-patient-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  height: auto;
+  min-height: 60px;
+}
+
+.mobile-patient-header .patient-header {
+  margin: 0;
+  padding: 0;
+  font-size: 1rem;
+  line-height: 1.2;
+  width: auto;
+  order: 0;
+}
+
+/* Make notification badge more visible */
+.mobile-patient-header .notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  padding: 1px 5px;
+  font-size: 0.7rem;
+}
+
+.mobile-patient-header .notification-icon {
+  position: relative;
+  font-size: 22px; /* Slightly smaller for mobile */
+  margin-right: 5px; /* Space on the right */
 }
