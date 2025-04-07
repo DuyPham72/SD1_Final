@@ -42,34 +42,37 @@ function MainDashboard() {
   const sidebarButtonsRef = useRef([]);
 
   // Listen for patient changes from staff screen in dual screen mode
-  useEffect(() => {
-    const handlePatientChanged = (event) => {
-      console.log('Patient changed event received in MainDashboard:', event.detail);
-      
-      // Force a refresh of patient data by invalidating cache first
+  // In MainDashboard.js and similar components
+useEffect(() => {
+  const handlePatientChanged = (event) => {
+    console.log('Patient changed event received:', event.detail);
+    
+    // Check if cache invalidation is requested
+    if (event.detail.invalidateCache) {
+      console.log('Invalidating patient cache due to patient change event');
       invalidateCache(event.detail.patientId);
-      
-      // Update the patient
-      handlePatientChange(event.detail.patientId);
-      
-      // Force reload if necessary
-      if (event.detail.forceRefresh) {
-        // Give time for state updates to propagate
-        setTimeout(() => {
-          console.log('Forcing page reload due to patient change');
-          window.location.reload();
-        }, 100);
-      }
-    };
+    }
     
-    // Set up event listener regardless of mode to catch all updates
-    console.log('Setting up patientChanged listener in MainDashboard');
-    window.addEventListener('patientChanged', handlePatientChanged);
+    // Update the patient
+    handlePatientChange(event.detail.patientId);
     
-    return () => {
-      window.removeEventListener('patientChanged', handlePatientChanged);
-    };
-  }, [handlePatientChange, invalidateCache]);
+    // Force reload if necessary
+    if (event.detail.forceRefresh) {
+      // Give time for state updates to propagate
+      setTimeout(() => {
+        console.log('Forcing page reload due to patient change');
+        window.location.reload();
+      }, 100);
+    }
+  };
+  
+  console.log('Setting up patientChanged listener');
+  window.addEventListener('patientChanged', handlePatientChanged);
+  
+  return () => {
+    window.removeEventListener('patientChanged', handlePatientChanged);
+  };
+}, [handlePatientChange, invalidateCache]);
 
   // Setup a polling mechanism to check for patient changes
   useEffect(() => {

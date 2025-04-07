@@ -463,3 +463,42 @@
     margin-right: 10px;
   }
 }
+
+/* Add to your Header.css */
+
+/* Mobile-specific styles */
+@media (max-width: 768px) {
+  /* Patient mode mobile specifics */
+  body[data-mode="patient"] .header-bar {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 8px 10px;
+  }
+
+  body[data-mode="patient"] .header-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  body[data-mode="patient"] .current-time {
+    font-size: 0.9rem;
+    white-space: nowrap;
+    margin-left: auto;
+  }
+  
+  /* Hide certain elements on mobile */
+  body[data-mode="patient"] .staff-login-button,
+  body[data-mode="patient"] .feedback-qr-button,
+  body[data-mode="patient"] .mode-indicator {
+    display: none;
+  }
+  
+  /* Ensure notification badge is properly sized */
+  body[data-mode="patient"] .notification-badge {
+    font-size: 0.7rem;
+    width: 18px;
+    height: 18px;
+  }
+}

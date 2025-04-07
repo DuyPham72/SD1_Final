@@ -6,9 +6,7 @@ import LoginModal from "./LoginModal";
 import "../../styles/Header.css";
 import PatientAccessQR from "./PatientAccessQR";
 import RegistrationQRGenerator from "./RegistrationQRGenerator";
-import FeedbackQR from "./FeedbackQR"; // Import the FeedbackQR component
 import NotificationBadge from './NotificationBadge';
-
 
 export const Header = ({
   patient,
@@ -26,10 +24,22 @@ export const Header = ({
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [showQRCode, setShowQRCode] = useState(false);
   const [showRegQRCode, setShowRegQRCode] = useState(false);
-  const [showFeedbackQRCode, setShowFeedbackQRCode] = useState(false); // New state for feedback QR
   const [isDualScreenLogin, setIsDualScreenLogin] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-
+  // Add this with your other state declarations
+const [showFeedbackQRCode, setShowFeedbackQRCode] = useState(false);
+  
+  // Determine if we're in mobile view
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Log state for debugging
   useEffect(() => {
@@ -39,12 +49,8 @@ export const Header = ({
   // Handle hamburger button click with debug logs
   const handleMenuToggle = () => {
     console.log("Menu button clicked - current isNavOpen:", isNavOpen);
-
-    // Call onNavToggle and log the expected new state
     onNavToggle();
     console.log("Called onNavToggle - expected new state:", !isNavOpen);
-
-    // Check if state actually updated
     setTimeout(() => {
       console.log("After toggle - isNavOpen:", isNavOpen);
     }, 100);
@@ -56,22 +62,15 @@ export const Header = ({
     setShowQRCode(true);
   };
 
-  // notification click
+  // Handle notification click
   const handleNotificationClick = () => {
     setShowNotifications((prev) => !prev);
   };
-  
 
   // Handle Registration QR button click
   const handleRegQRClick = (e) => {
     e.preventDefault();
     setShowRegQRCode(true);
-  };
-  
-  // Handle Feedback QR button click
-  const handleFeedbackQRClick = (e) => {
-    e.preventDefault();
-    setShowFeedbackQRCode(true);
   };
 
   // Handle enabling dual screen mode
@@ -79,13 +78,16 @@ export const Header = ({
     e.preventDefault();
     console.log("Dual screen button clicked");
     
-    // Staff is already authenticated, so enable dual screen immediately
     if (typeof enableDualScreen === 'function') {
       enableDualScreen();
     } else {
       console.error("enableDualScreen is not a function");
     }
   };
+
+  // Hide certain elements in patient mode on mobile
+  const showStaffLogin = mode === "patient" && !isDualScreen && !isMobile;
+  const showFeedbackQR = !(mode === "patient" && isMobile);
 
   return (
     <div className="header-bar">
@@ -131,15 +133,24 @@ export const Header = ({
           </button>
         )}
         
-        {/* Feedback QR Button - visible in all modes */}
-        <button
-          className="feedback-qr-button"
-          onClick={handleFeedbackQRClick}
-          title="Generate QR code for patients to submit feedback on their own device"
-        >
-          <span className="qr-icon">📱</span>
-          <span className="qr-text">Feedback QR</span>
-        </button>
+        {/* Feedback QR Button - hidden in patient mode on mobile */}
+        {showFeedbackQR && (
+          <button
+            className="feedback-qr-button"
+            onClick={(e) => {
+              e.preventDefault();
+              // Import and show the feedback QR only when needed
+              import("./FeedbackQR").then(module => {
+                const FeedbackQR = module.default;
+                setShowFeedbackQRCode(true);
+              });
+            }}
+            title="Generate QR code for patients to submit feedback on their own device"
+          >
+            <span className="qr-icon">📱</span>
+            <span className="qr-text">Feedback QR</span>
+          </button>
+        )}
 
         {/* QR Code Buttons - only visible in staff mode */}
         {mode === "staff" && (
@@ -168,15 +179,14 @@ export const Header = ({
           </>
         )}
 
-        <ModeIndicator />
+        {/* Only show Mode Indicator in non-mobile view */}
+        {!isMobile && <ModeIndicator />}
 
-        {/* Notification Button */}
-        {mode === "staff" && <NotificationBadge notifications={["Patient here", "Patient", "John"]} />}
+        {/* Notification Badge */}
+        <NotificationBadge notifications={["Patient here", "Patient", "John"]} />
 
-        {mode === "patient" && <NotificationBadge notifications={["Patient here", "Patient", "John"]} />}
-
-        {/* Only show Staff Login button in patient mode when not in dual screen mode */}
-        {mode === "patient" && !isDualScreen && (
+        {/* Only show Staff Login button in patient mode when not in dual screen mode and not on mobile */}
+        {showStaffLogin && (
           <button
             className="staff-login-button"
             onClick={() => setIsLoginModalOpen(true)}
@@ -184,8 +194,6 @@ export const Header = ({
             Staff Login
           </button>
         )}
-
-      
 
         {mode === "staff" && extraHeaderContent}
       </div>
@@ -198,7 +206,6 @@ export const Header = ({
           </>
         )}
       </div>
-
 
       <LoginModal
         isOpen={isLoginModalOpen}
@@ -223,12 +230,15 @@ export const Header = ({
         <RegistrationQRGenerator onClose={() => setShowRegQRCode(false)} />
       )}
       
-      {/* Feedback QR Code Modal */}
+      {/* Lazy load FeedbackQR when needed */}
       {showFeedbackQRCode && (
-        <FeedbackQR
-          patient={patient}
-          onClose={() => setShowFeedbackQRCode(false)}
-        />
+        React.createElement(
+          require('./FeedbackQR').default, 
+          {
+            patient: patient,
+            onClose: () => setShowFeedbackQRCode(false)
+          }
+        )
       )}
     </div>
   );
