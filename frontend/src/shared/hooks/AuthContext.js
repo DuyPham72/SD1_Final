@@ -257,7 +257,8 @@ export const AuthProvider = ({ children }) => {
           const patientsResponse = await fetch(`${API_BASE_URL}/api/patients`);
           if (patientsResponse.ok) {
             const patients = await patientsResponse.json();
-            if (patients && patients.length > 0) {
+            // Only set a default patient in patient mode, not in staff mode
+            if (mode !== 'staff' && patients && patients.length > 0) {
               console.log('Setting default patient to:', patients[0].patientId);
               setNurseSelectedPatientId(patients[0].patientId);
               localStorage.setItem('nurseSelectedPatientId', patients[0].patientId);
@@ -368,12 +369,17 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('nurseSelectedPatientId', userId);
         
       } else if (userType === 'staff') {
-        // When logging in as staff, clear any patient selection first
-        clearPatientSelection();
+        // IMPORTANT: When logging in as staff, clear any patient selection first
+        localStorage.removeItem('nurseSelectedPatientId');
+        localStorage.removeItem('selectedPatientId');
+        localStorage.removeItem('patientChangeTimestamp');
         
         setUser({ id: userId });
         setMode('staff');
         setLastActivity(Date.now());
+        
+        // Set nurse selected patient to null
+        setNurseSelectedPatientId(null);
       }
       
       return true;
