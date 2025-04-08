@@ -463,3 +463,134 @@
     margin-right: 10px;
   }
 }
+
+/* Add to your Header.css */
+
+/* Mobile-specific styles */
+/* Mobile patient mode specific styles */
+/* Reset specific mobile patient mode styles */
+/* Add this to the end of your Header.css file */
+
+/* MOBILE PATIENT MODE FIX - overrides all other styles */
+@media (max-width: 768px) {
+  /* Target only patient mode */
+  body[data-mode="patient"] .header-bar {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 8px 12px !important;
+    height: auto !important;
+    min-height: 60px !important;
+  }
+  
+  /* Menu button stays as is */
+  body[data-mode="patient"] .menu-button {
+    order: 0 !important;
+  }
+  
+  /* Patient name takes available space */
+  body[data-mode="patient"] .patient-header {
+    flex: 1 !important;
+    width: auto !important;
+    order: 0 !important;
+    margin: 0 !important;
+    font-size: 1rem !important;
+  }
+  
+  /* Actions container (with bell) stays inline */
+  body[data-mode="patient"] .header-actions {
+    order: 0 !important;
+    width: auto !important;
+    margin: 0 0 0 auto !important;
+    justify-content: flex-end !important;
+  }
+  
+  /* Hide time display */
+  body[data-mode="patient"] .current-time {
+    display: none !important;
+  }
+  
+  /* Hide these buttons in mobile patient mode */
+  body[data-mode="patient"] .feedback-qr-button,
+  body[data-mode="patient"] .staff-login-button,
+  body[data-mode="patient"] .mode-indicator {
+    display: none !important;
+  }
+  
+  /* Make notification badge more visible */
+  body[data-mode="patient"] .notification-badge {
+    transform: scale(1.1) !important;
+  }
+}
+
+/* Add to Header.css */
+.mobile-patient-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 15px; /* Increased right padding to prevent bell cutoff */
+  height: auto;
+  min-height: 60px;
+  padding: 8px 20px;
+}
+
+
+.mobile-patient-header .patient-header {
+  margin: 0;
+  padding: 0;
+  font-size: 1rem;
+  line-height: 1.2;
+  width: 100%; /* Take full width of wrapper */
+  order: 0;
+}
+
+/* Styling for the mobile patient header */
+.mobile-patient-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 15px; /* Increased right padding to prevent bell cutoff */
+  height: auto;
+  min-height: 60px;
+}
+
+.mobile-time {
+  font-size: 0.8rem; /* Slightly larger for better visibility */
+  color: #666;
+  margin-top: 2px;
+  width: 100%; /* Take full width of wrapper */
+}
+
+.mobile-patient-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  height: auto;
+  min-height: 60px;
+}
+
+.mobile-patient-header .patient-header {
+  margin: 0;
+  padding: 0;
+  font-size: 1rem;
+  line-height: 1.2;
+  width: auto;
+  order: 0;
+}
+
+/* Make notification badge more visible */
+.mobile-patient-header .notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  padding: 1px 5px;
+  font-size: 0.7rem;
+}
+
+.mobile-patient-header .notification-icon {
+  position: relative;
+  font-size: 22px; /* Slightly smaller for mobile */
+  margin-right: 5px; /* Space on the right */
+}

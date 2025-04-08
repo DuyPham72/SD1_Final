@@ -6,9 +6,8 @@ import LoginModal from "./LoginModal";
 import "../../styles/Header.css";
 import PatientAccessQR from "./PatientAccessQR";
 import RegistrationQRGenerator from "./RegistrationQRGenerator";
-import FeedbackQR from "./FeedbackQR"; // Import the FeedbackQR component
 import NotificationBadge from './NotificationBadge';
-
+import FeedbackQR from "./FeedbackQR";
 
 export const Header = ({
   patient,
@@ -26,60 +25,55 @@ export const Header = ({
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [showQRCode, setShowQRCode] = useState(false);
   const [showRegQRCode, setShowRegQRCode] = useState(false);
-  const [showFeedbackQRCode, setShowFeedbackQRCode] = useState(false); // New state for feedback QR
+  const [showFeedbackQRCode, setShowFeedbackQRCode] = useState(false);
   const [isDualScreenLogin, setIsDualScreenLogin] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-
-
-  // Log state for debugging
+  
+  // Determine if we're in mobile view
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  
   useEffect(() => {
-    console.log("Header render - isNavOpen:", isNavOpen);
-  }, [isNavOpen]);
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
-  // Handle hamburger button click with debug logs
+  // Handle functions
   const handleMenuToggle = () => {
     console.log("Menu button clicked - current isNavOpen:", isNavOpen);
-
-    // Call onNavToggle and log the expected new state
     onNavToggle();
     console.log("Called onNavToggle - expected new state:", !isNavOpen);
-
-    // Check if state actually updated
     setTimeout(() => {
       console.log("After toggle - isNavOpen:", isNavOpen);
     }, 100);
   };
 
-  // Handle QR code button click
   const handleQRCodeClick = (e) => {
     e.preventDefault();
     setShowQRCode(true);
   };
 
-  // notification click
   const handleNotificationClick = () => {
     setShowNotifications((prev) => !prev);
   };
-  
 
-  // Handle Registration QR button click
   const handleRegQRClick = (e) => {
     e.preventDefault();
     setShowRegQRCode(true);
   };
   
-  // Handle Feedback QR button click
   const handleFeedbackQRClick = (e) => {
     e.preventDefault();
     setShowFeedbackQRCode(true);
   };
 
-  // Handle enabling dual screen mode
   const handleEnableDualScreen = (e) => {
     e.preventDefault();
     console.log("Dual screen button clicked");
     
-    // Staff is already authenticated, so enable dual screen immediately
     if (typeof enableDualScreen === 'function') {
       enableDualScreen();
     } else {
@@ -87,6 +81,68 @@ export const Header = ({
     }
   };
 
+  // Check if we're in patient mode on mobile
+  const isPatientMobile = mode === 'patient' && isMobile;
+
+  // Different rendering for mobile patient view vs normal view
+  if (isPatientMobile) {
+    // Get formatted time
+    const formattedTime = currentTime ? 
+      currentTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
+    
+    return (
+      <div className="header-bar mobile-patient-header">
+        <button
+          ref={(el) => (mainNavElementsRef.current.menuButton = el)}
+          className="menu-button"
+          onClick={handleMenuToggle}
+          aria-label="Toggle navigation menu"
+        >
+          ☰
+        </button>
+
+        {/* Patient name and time in a container */}
+        <div className="patient-info-wrapper">
+          <h1 className="patient-header">Patient Name: {patient?.name}</h1>
+          <div className="mobile-time">{formattedTime}</div>
+        </div>
+
+        {/* Notification badge on the right */}
+        <NotificationBadge notifications={["Patient here", "Patient", "John"]} />
+
+        {/* Modals still needed */}
+        <LoginModal
+          isOpen={isLoginModalOpen}
+          onClose={() => {
+            setIsLoginModalOpen(false);
+            setIsDualScreenLogin(false);
+          }}
+          isDualScreenLogin={isDualScreenLogin}
+          onDualScreenEnable={enableDualScreen}
+        />
+
+        {showQRCode && (
+          <PatientAccessQR
+            patient={patient}
+            onClose={() => setShowQRCode(false)}
+          />
+        )}
+
+        {showRegQRCode && (
+          <RegistrationQRGenerator onClose={() => setShowRegQRCode(false)} />
+        )}
+        
+        {showFeedbackQRCode && (
+          <FeedbackQR
+            patient={patient}
+            onClose={() => setShowFeedbackQRCode(false)}
+          />
+        )}
+      </div>
+    );
+  }
+
+  // Normal desktop or staff view
   return (
     <div className="header-bar">
       <button
@@ -119,7 +175,7 @@ export const Header = ({
       <h1 className="patient-header">Patient Name: {patient?.name}</h1>
 
       <div className="header-actions">
-        {/* Dual Screen Mode Button - only visible in staff mode and not already in dual screen mode */}
+        {/* Dual Screen Mode Button */}
         {mode === "staff" && !isDualScreen && (
           <button
             className="dual-screen-button"
@@ -131,36 +187,38 @@ export const Header = ({
           </button>
         )}
         
-        {/* Feedback QR Button - visible in all modes */}
-        <button
-          className="feedback-qr-button"
-          onClick={handleFeedbackQRClick}
-          title="Generate QR code for patients to submit feedback on their own device"
-        >
-          <span className="qr-icon">📱</span>
-          <span className="qr-text">Feedback QR</span>
-        </button>
+        {/* Patient Access QR - only visible in patient mode */}
+        {mode === "patient" && patient && (
+          <button
+            className="qr-code-button"
+            onClick={handleQRCodeClick}
+            title="Generate patient access QR code"
+          >
+            <span className="qr-icon">🔗</span>
+            <span className="qr-text">Patient Access</span>
+          </button>
+        )}
+        
+        {/* Feedback QR Button - only visible in patient mode */}
+        {mode === "patient" && (
+          <button
+            className="feedback-qr-button"
+            onClick={handleFeedbackQRClick}
+            title="Generate QR code for patients to submit feedback on their own device"
+          >
+            <span className="qr-icon">📱</span>
+            <span className="qr-text">Feedback QR</span>
+          </button>
+        )}
 
-        {/* QR Code Buttons - only visible in staff mode */}
+        {/* Staff mode buttons */}
         {mode === "staff" && (
           <>
-            {/* Patient Access QR - only show when a patient is selected */}
-            {patient && (
-              <button
-                className="qr-code-button"
-                onClick={handleQRCodeClick}
-                title="Generate patient access QR code"
-              >
-                <span className="qr-icon">🔗</span>
-                <span className="qr-text">Patient Access</span>
-              </button>
-            )}
-
             {/* New Patient Registration QR */}
             <button
               className="reg-qr-button"
               onClick={handleRegQRClick}
-              title="Generate registration QR code for new patients"
+              title="Registration QR code"
             >
               <span className="qr-icon">➕</span>
               <span className="qr-text">New Patient</span>
@@ -174,6 +232,10 @@ export const Header = ({
         {mode === "staff" && <NotificationBadge notifications={[]} />}
 
         {/* Only show Staff Login button in patient mode when not in dual screen mode */}
+        {/* Notification Badge */}
+        <NotificationBadge notifications={["Patient here", "Patient", "John"]} />
+
+        {/* Staff Login button in patient mode */}
         {mode === "patient" && !isDualScreen && (
           <button
             className="staff-login-button"
@@ -182,8 +244,6 @@ export const Header = ({
             Staff Login
           </button>
         )}
-
-      
 
         {mode === "staff" && extraHeaderContent}
       </div>
@@ -197,7 +257,7 @@ export const Header = ({
         )}
       </div>
 
-
+      {/* Modals */}
       <LoginModal
         isOpen={isLoginModalOpen}
         onClose={() => {
@@ -208,7 +268,6 @@ export const Header = ({
         onDualScreenEnable={enableDualScreen}
       />
 
-      {/* QR Code Modals */}
       {showQRCode && (
         <PatientAccessQR
           patient={patient}
@@ -216,12 +275,10 @@ export const Header = ({
         />
       )}
 
-      {/* Registration QR Code Modal */}
       {showRegQRCode && (
         <RegistrationQRGenerator onClose={() => setShowRegQRCode(false)} />
       )}
       
-      {/* Feedback QR Code Modal */}
       {showFeedbackQRCode && (
         <FeedbackQR
           patient={patient}

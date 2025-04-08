@@ -1,4 +1,4 @@
-// usePatientData.js - Updated with localStorage persistence
+// usePatientData.js - Updated with improved caching and refresh logic
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from './AuthContext'; // Make sure this path is correct
 
@@ -85,21 +85,30 @@ export function usePatientData() {
     };
 
     fetchPatients();
-  }, [mode, nurseSelectedPatientId, selectedPatientId]); // Include selectedPatientId as dependency
+  }, [mode, nurseSelectedPatientId]); // Include selectedPatientId as dependency
 
   // Fetch selected patient data
   useEffect(() => {
     if (!selectedPatientId) return;
 
+    // In usePatientData.js - fetchSelectedPatient function
     const fetchSelectedPatient = async () => {
       try {
         setLoading(true);
+        
+        // Check if cache invalidation is requested
+        const shouldInvalidateCache = localStorage.getItem('invalidateCache') === 'true';
+        if (shouldInvalidateCache) {
+          console.log('Cache invalidation requested, clearing cache for:', selectedPatientId);
+          delete patientCache[selectedPatientId];
+          localStorage.removeItem('invalidateCache'); // Clear the flag
+        }
         
         // Check if we have a cached version that's recent
         const cachedPatient = patientCache[selectedPatientId];
         
         // Use the cached patient data if available and recent (less than 30 seconds old)
-        if (cachedPatient && (Date.now() - cachedPatient.timestamp < 30000)) {
+        if (cachedPatient && (Date.now() - cachedPatient.timestamp < 30000) && !shouldInvalidateCache) {
           setPatient(cachedPatient.data);
           setLoading(false);
           return;
@@ -188,12 +197,34 @@ export function usePatientData() {
   }, [updatePatient]);
 
   // Handle patient change with explicit logging
-  const handlePatientChange = useCallback((patientId) => {
-    console.log('handlePatientChange called with patientId:', patientId);
-    setSelectedPatientId(patientId);
-    // Also save to localStorage immediately for extra safety
-    localStorage.setItem(SELECTED_PATIENT_STORAGE_KEY, patientId);
-  }, []);
+  // In usePatientData.js
+const handlePatientChange = useCallback((patientId, forceRefresh = false) => {
+  console.log('handlePatientChange called with patientId:', patientId, 'forceRefresh:', forceRefresh);
+  
+  // If this is the same patient but we want to force refresh
+  if (patientId === selectedPatientId && forceRefresh) {
+    console.log('Same patient selected, but forcing refresh');
+    // Invalidate cache for this patient
+    delete patientCache[patientId];
+    
+    // Trigger a re-fetch by setting a refresh timestamp
+    localStorage.setItem('refreshTimestamp', Date.now().toString());
+    
+    // Dispatch an event to notify components
+    window.dispatchEvent(new CustomEvent('patientRefreshed', { 
+      detail: { 
+        patientId: patientId,
+        timestamp: Date.now(),
+      }
+    }));
+  }
+  
+  // Always update the selectedPatientId (this will trigger the useEffect)
+  setSelectedPatientId(patientId);
+  
+  // Save to localStorage
+  localStorage.setItem(SELECTED_PATIENT_STORAGE_KEY, patientId);
+}, [selectedPatientId]);
 
   return { 
     patient, 
@@ -205,12 +236,6 @@ export function usePatientData() {
     error,
     handlePatientChange,
     updatePatientData, // Add the function to update patient data on the server
-    invalidateCache: useCallback((patientId) => {
-      if (patientId) {
-        delete patientCache[patientId];
-      } else {
-        patientCache = {}; // Clear entire cache
-      }
-    }, [])
+    
   };
 }

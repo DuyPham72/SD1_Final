@@ -1,5 +1,6 @@
 .notification-wrapper {
     position: relative;
+    margin-right: 10px; /* Use margin instead for better layout control */
   }
   
   .notification-icon {

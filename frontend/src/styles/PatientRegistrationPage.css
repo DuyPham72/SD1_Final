@@ -1,4 +1,13 @@
 /* src/styles/PatientRegistrationPage.css */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: auto !important;
+  position: relative;
+  -webkit-overflow-scrolling: touch;
+}
+
 .registration-page {
   display: flex;
   justify-content: center;
