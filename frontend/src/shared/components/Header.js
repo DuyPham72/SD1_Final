@@ -232,8 +232,6 @@ export const Header = ({
         {mode === "staff" && <NotificationBadge notifications={[]} />}
 
         {/* Only show Staff Login button in patient mode when not in dual screen mode */}
-        {/* Notification Badge */}
-        <NotificationBadge notifications={["Patient here", "Patient", "John"]} />
 
         {/* Staff Login button in patient mode */}
         {mode === "patient" && !isDualScreen && (
