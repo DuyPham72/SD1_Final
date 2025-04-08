@@ -63,6 +63,34 @@ app.get('/api/patients/:patientId', async (req, res) => {
   }
 });
 
+//Notifications stuff
+
+//Patient creates a notification on feedback submission
+let notifications = []; // to store the notification stuff
+
+app.post('/api/notifications', (req, res) => {
+  const { message } = req.body;
+  const newNotification = {
+    id: Date.now(),
+    message,
+    time: new Date().toLocaleTimeString(),
+    read: false
+  };
+  notifications.push(newNotification);
+  res.status(201).json({ success: true });
+});
+
+// Staff fetches all notifications
+app.get('/api/notifications', (req, res) => {
+  res.json(notifications.filter(n => !n.read));
+});
+
+// Mark notifications as read
+app.post('/api/notifications/read', (req, res) => {
+  notifications.forEach(n => n.read = true);
+  res.json({ success: true });
+});
+
 // Update a patient
 app.put('/api/patients/:patientId', async (req, res) => {
   try {

@@ -9,6 +9,7 @@ import {
   Layout,
   Header,
 } from "../shared";
+import axios from 'axios'; //for notification
 
 // Rating category component
 const RatingCategory = ({ label, description, rating, onChange }) => {
@@ -227,6 +228,25 @@ function Feedback() {
       setSubmitting(false);
     }
   };
+
+  useEffect(() => {
+    if (submitted) {
+      // Request permission if not already granted
+      if (Notification.permission === "granted") {
+        new Notification("Feedback received", {
+          body: "A new feedback has been submitted.",
+        });
+      } else if (Notification.permission !== "denied") {
+        Notification.requestPermission().then((permission) => {
+          if (permission === "granted") {
+            new Notification("Feedback received", {
+              body: "A new feedback has been submitted.",
+            });
+          }
+        });
+      }
+    }
+  }, [submitted]);
 
   // Reset form to submit another feedback
   const handleReset = () => {
