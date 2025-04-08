@@ -423,23 +423,38 @@ useEffect(() => {
 
   // Create a wrapped version of handlePatientChange that also updates the persisted ID
   const handlePatientChangeWithModeAwareness = (patientId) => {
-    console.log(
-      "PatientInfo: Patient changed in mode:",
-      mode,
-      "to:",
-      patientId
-    );
-    invalidateCache(patientId);
+    console.log("PatientInfo: Patient changed in mode:", mode, "to:", patientId);
+    
+    // Check if invalidateCache exists and is a function before calling it
+    if (invalidateCache && typeof invalidateCache === 'function') {
+      invalidateCache(patientId);
+    } else {
+      console.warn('invalidateCache is not available or not a function');
+    }
+    
     // In staff mode, update the nurse-selected patient
     if (mode === "staff") {
       updateNurseSelectedPatient(patientId);
     }
-
+  
     // Always update the current selection
     handlePatientChange(patientId);
-
+  
+    // Update localStorage values for persistence
     localStorage.setItem('selectedPatientId', patientId);
-  localStorage.setItem('nurseSelectedPatientId', patientId);
+    localStorage.setItem('nurseSelectedPatientId', patientId);
+    
+    // Add a timestamp to indicate a fresh change
+    localStorage.setItem('patientChangeTimestamp', Date.now().toString());
+    
+    // Dispatch an event to notify other components about the change
+    window.dispatchEvent(new CustomEvent('patientChanged', { 
+      detail: { 
+        patientId: patientId,
+        timestamp: Date.now(),
+        forceRefresh: false
+      }
+    }));
   };
 
   // Handle edit button click

@@ -177,31 +177,43 @@ useEffect(() => {
     }
   }, [mode, isDualScreen, selectedPatientId, handlePatientChange, invalidateCache]);
 
-  // When the selected patient changes in dual screen mode, refresh the data
-  useEffect(() => {
-    // In dual screen mode, prioritize nurseSelectedPatientId if in patient mode
-    if (isDualScreen && mode === 'patient' && nurseSelectedPatientId) {
-      console.log('MainDashboard: Using nurse-selected patient in dual screen mode:', nurseSelectedPatientId);
+ // When the selected patient changes in dual screen mode, refresh the data
+useEffect(() => {
+  // In dual screen mode, prioritize nurseSelectedPatientId if in patient mode
+  if (isDualScreen && mode === 'patient' && nurseSelectedPatientId) {
+    console.log('MainDashboard: Using nurse-selected patient in dual screen mode:', nurseSelectedPatientId);
+    
+    // Check if we need to update the selection
+    if (selectedPatientId !== nurseSelectedPatientId) {
+      console.log('MainDashboard: Updating from nurse selection');
       
-      // Check if we need to update the selection
-      if (selectedPatientId !== nurseSelectedPatientId) {
-        console.log('MainDashboard: Updating from nurse selection');
-        
+      // Add null check here
+      if (invalidateCache && typeof invalidateCache === 'function') {
         // Force clear the cache for this patient
         invalidateCache(nurseSelectedPatientId);
-        
-        // Update selection
-        handlePatientChange(nurseSelectedPatientId);
+      } else {
+        console.warn('invalidateCache not available in dual screen effect');
       }
+      
+      // Update selection
+      handlePatientChange(nurseSelectedPatientId);
     }
-  }, [isDualScreen, mode, nurseSelectedPatientId, selectedPatientId, handlePatientChange, invalidateCache]);
+  }
+}, [isDualScreen, mode, nurseSelectedPatientId, selectedPatientId, handlePatientChange, invalidateCache]);
 
   // Listen for storage events (when localStorage changes in other tabs/windows)
   useEffect(() => {
     const handleStorageChange = (e) => {
       if (e.key === 'nurseSelectedPatientId' && e.newValue && e.newValue !== selectedPatientId) {
         console.log('Storage event detected patient change:', e.newValue);
-        invalidateCache(e.newValue);
+        
+        // Add null check here
+        if (invalidateCache && typeof invalidateCache === 'function') {
+          invalidateCache(e.newValue);
+        } else {
+          console.warn('invalidateCache is not available in handleStorageChange');
+        }
+        
         handlePatientChange(e.newValue);
       }
     };
