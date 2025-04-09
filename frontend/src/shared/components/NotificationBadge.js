@@ -9,7 +9,7 @@ function NotificationBadge() {
 
   const fetchNotifications = async () => {
     try {
-      const res = await axios.get('http://localhost:3000/api/notifications'); // Adjust URL for production
+      const res = await axios.get('http://localhost:5001/api/notifications'); // Adjust URL for production
       setNotifications(res.data.map((n) => `${n.message} at ${n.time}`));
     } catch (err) {
       console.error('Error fetching notifications:', err);
@@ -17,7 +17,7 @@ function NotificationBadge() {
   };
 
   const markAllRead = async () => {
-    await axios.post('http://localhost:3000/api/notifications/read');
+    await axios.post('http://localhost:5001/api/notifications/read');
     setNotifications([]);
   };
 

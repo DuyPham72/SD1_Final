@@ -60,6 +60,7 @@ export const Header = ({
     setShowNotifications((prev) => !prev);
   };
 
+
   const handleRegQRClick = (e) => {
     e.preventDefault();
     setShowRegQRCode(true);
@@ -229,7 +230,7 @@ export const Header = ({
         <ModeIndicator />
 
         {/* Notification Button */}
-        {mode === "staff" && <NotificationBadge notifications={[]} />}
+        {mode === "staff" && <NotificationBadge />}
 
         {/* Only show Staff Login button in patient mode when not in dual screen mode */}
 
