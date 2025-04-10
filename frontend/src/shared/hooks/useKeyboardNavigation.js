@@ -14,7 +14,7 @@ export const useKeyboardNavigation = ({
 }) => {
   const handleKeyDown = useCallback((e) => {
     const mainNavElements = Object.values(mainNavElementsRef.current).filter(Boolean);
-
+    
     // Handle custom key handlers first
     if (customHandlers[e.key]) {
       customHandlers[e.key](e);
@@ -52,6 +52,7 @@ export const useKeyboardNavigation = ({
           break;
 
         case 'Escape':
+        case 'Backspace': // Add Backspace as another option for "back"
           e.preventDefault();
           setIsNavOpen(false);
           break;
@@ -96,21 +97,20 @@ export const useKeyboardNavigation = ({
         } else if (mainNavFocusIndex !== null) {
           const element = mainNavElements[mainNavFocusIndex];
           if (element) {
+            // Execute the click
+            element.click();
+            
+            // Handle dropdown/select elements 
             if (element.tagName.toLowerCase() === 'select') {
-              element.click();
               try {
                 element.showPicker?.();
               } catch (error) {
                 console.error('Error opening dropdown:', error);
               }
-            } else {
-              element.click();
             }
           }
         }
         break;
-
-
 
       default:
         break;
@@ -128,8 +128,46 @@ export const useKeyboardNavigation = ({
     customHandlers
   ]);
 
+  // Add mouse hover handling for main nav elements
+  const handleMouseEnter = useCallback((e) => {
+    const mainNavElements = Object.values(mainNavElementsRef.current).filter(Boolean);
+    const target = e.currentTarget;
+    
+    // Find the index of the hovered element
+    const index = mainNavElements.findIndex(el => el === target);
+    if (index !== -1) {
+      setMainNavFocusIndex(index);
+      target.focus();
+    }
+  }, [mainNavElementsRef, setMainNavFocusIndex]);
+
+  // Add event listeners for mouse enter/hover on main nav elements
+  useEffect(() => {
+    const mainNavElements = Object.values(mainNavElementsRef.current).filter(Boolean);
+    
+    // Add hover listeners to all main nav elements
+    mainNavElements.forEach(element => {
+      if (element) {
+        element.addEventListener('mouseenter', handleMouseEnter);
+      }
+    });
+    
+    return () => {
+      // Clean up listeners
+      mainNavElements.forEach(element => {
+        if (element) {
+          element.removeEventListener('mouseenter', handleMouseEnter);
+        }
+      });
+    };
+  }, [mainNavElementsRef, handleMouseEnter]);
+
+  // Add keyboard event listener
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, [handleKeyDown]);
 };

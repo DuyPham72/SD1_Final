@@ -594,3 +594,48 @@
   font-size: 22px; /* Slightly smaller for mobile */
   margin-right: 5px; /* Space on the right */
 }
+
+.feedback-qr-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #2ecc71;
+  color: white;
+  border: 1px solid #27ae60;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: 8px;
+}
+
+.feedback-qr-button:hover {
+  background-color: #27ae60; /* Slightly darker green on hover */
+  border-color: #219653;
+}
+
+.feedback-qr-button:focus {
+  outline: 3px solid #ffb700 !important;
+  box-shadow: 0 0 8px rgba(255, 183, 0, 0.6) !important;
+}
+
+.feedback-qr-button.focused {
+  outline: 3px solid #ffb700 !important;
+  box-shadow: 0 0 8px rgba(255, 183, 0, 0.6) !important;
+}
+
+.feedback-qr-button:active {
+  background-color: #e9ecef;
+  transform: translateY(1px);
+}
+
+.feedback-qr-button .qr-icon {
+  font-size: 16px;
+  margin-right: 8px;
+}
+
+.feedback-qr-button .qr-text {
+  white-space: nowrap;
+}
