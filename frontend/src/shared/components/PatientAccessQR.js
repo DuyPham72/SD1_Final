@@ -1,11 +1,14 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import "../../styles/PatientAccessQR.css";
 
-function PatientAccessQR({ patient, onClose }) {
+function PatientAccessQR({ patient, onClose, autoFocus }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [qrData, setQrData] = useState(null);
   const [copied, setCopied] = useState(false);
+
+  // Add ref for back button
+  const backButtonRef = useRef(null);
 
   // Function to generate the QR code
   const generateQR = useCallback(async () => {
@@ -42,6 +45,26 @@ function PatientAccessQR({ patient, onClose }) {
   useEffect(() => {
     generateQR();
   }, [generateQR]);
+
+  // Handle escape/backspace key for closing the modal
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' || e.key === 'Backspace') {
+        onClose();
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    
+    // Auto-focus back button if requested
+    if (autoFocus && backButtonRef.current) {
+      backButtonRef.current.focus();
+    }
+    
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onClose, autoFocus]);
 
   // Handle link copying
   const copyLink = () => {
@@ -119,6 +142,15 @@ function PatientAccessQR({ patient, onClose }) {
                   direct access to patient information.
                 </p>
               </div>
+              
+              {/* Add Back button */}
+              <button 
+                ref={backButtonRef}
+                className="back-button"
+                onClick={onClose}
+              >
+                Back
+              </button>
             </>
           ) : (
             <div className="error-message">

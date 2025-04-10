@@ -1,5 +1,5 @@
 // src/shared/components/Header.js
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "../hooks/AuthContext";
 import ModeIndicator from "./ModeIndicator";
 import LoginModal from "./LoginModal";
@@ -29,6 +29,10 @@ export const Header = ({
   const [isDualScreenLogin, setIsDualScreenLogin] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   
+  // Create refs for our buttons
+  const patientAccessBtnRef = useRef(null);
+  const feedbackQRBtnRef = useRef(null);
+  
   // Determine if we're in mobile view
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   
@@ -40,6 +44,40 @@ export const Header = ({
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Register the button refs when the component mounts
+  useEffect(() => {
+    // Add patient access button to mainNavElementsRef if it exists
+    if (patientAccessBtnRef.current && mode === "patient" && patient) {
+      mainNavElementsRef.current.patientAccessBtn = patientAccessBtnRef.current;
+    }
+    
+    // Add feedback QR button to mainNavElementsRef if it exists
+    if (feedbackQRBtnRef.current && mode === "patient") {
+      mainNavElementsRef.current.feedbackQRBtn = feedbackQRBtnRef.current;
+    }
+  }, [mainNavElementsRef, mode, patient]);
+
+  // Handle escape key for modals
+  useEffect(() => {
+    const handleEscapeKey = (e) => {
+      if (e.key === 'Escape' || e.key === 'Backspace') {
+        // Close the appropriate modal if it's open
+        if (showQRCode) {
+          setShowQRCode(false);
+        }
+        if (showFeedbackQRCode) {
+          setShowFeedbackQRCode(false);
+        }
+        if (showRegQRCode) {
+          setShowRegQRCode(false);
+        }
+      }
+    };
+    
+    window.addEventListener('keydown', handleEscapeKey);
+    return () => window.removeEventListener('keydown', handleEscapeKey);
+  }, [showQRCode, showFeedbackQRCode, showRegQRCode]);
 
   // Handle functions
   const handleMenuToggle = () => {
@@ -126,17 +164,22 @@ export const Header = ({
           <PatientAccessQR
             patient={patient}
             onClose={() => setShowQRCode(false)}
+            autoFocus={true}
           />
         )}
 
         {showRegQRCode && (
-          <RegistrationQRGenerator onClose={() => setShowRegQRCode(false)} />
+          <RegistrationQRGenerator 
+            onClose={() => setShowRegQRCode(false)}
+            autoFocus={true}
+          />
         )}
         
         {showFeedbackQRCode && (
           <FeedbackQR
             patient={patient}
             onClose={() => setShowFeedbackQRCode(false)}
+            autoFocus={true}
           />
         )}
       </div>
@@ -191,7 +234,8 @@ export const Header = ({
         {/* Patient Access QR - only visible in patient mode */}
         {mode === "patient" && patient && (
           <button
-            className="qr-code-button"
+            ref={patientAccessBtnRef}
+            className={`qr-code-button ${mainNavFocusIndex === 2 ? "focused" : ""}`}
             onClick={handleQRCodeClick}
             title="Generate patient access QR code"
           >
@@ -203,7 +247,8 @@ export const Header = ({
         {/* Feedback QR Button - only visible in patient mode */}
         {mode === "patient" && (
           <button
-            className="feedback-qr-button"
+            ref={feedbackQRBtnRef}
+            className={`feedback-qr-button ${mainNavFocusIndex === 3 ? "focused" : ""}`}
             onClick={handleFeedbackQRClick}
             title="Generate QR code for patients to submit feedback on their own device"
           >
@@ -271,17 +316,22 @@ export const Header = ({
         <PatientAccessQR
           patient={patient}
           onClose={() => setShowQRCode(false)}
+          autoFocus={true}
         />
       )}
 
       {showRegQRCode && (
-        <RegistrationQRGenerator onClose={() => setShowRegQRCode(false)} />
+        <RegistrationQRGenerator 
+          onClose={() => setShowRegQRCode(false)}
+          autoFocus={true}
+        />
       )}
       
       {showFeedbackQRCode && (
         <FeedbackQR
           patient={patient}
           onClose={() => setShowFeedbackQRCode(false)}
+          autoFocus={true}
         />
       )}
     </div>
