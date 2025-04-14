@@ -1,6 +1,6 @@
-// src/pages/Feedback.js - Modified to handle both in-app and QR code access
+// src/pages/Feedback.js
 import React, { useState, useRef, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom"; // Add useParams for token
+import { useNavigate, useParams } from "react-router-dom";
 import "../styles/Feedback.css";
 import {
   usePatientData,
@@ -9,7 +9,7 @@ import {
   Layout,
   Header,
 } from "../shared";
-import axios from 'axios'; //for notification
+import axios from 'axios';
 
 // Rating category component
 const RatingCategory = ({ label, description, rating, onChange }) => {
@@ -95,15 +95,20 @@ function Feedback() {
         setQRLoading(true);
         const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5001";
         
-        console.log("Validating feedback token:", token);
+        console.log("Validating feedback token in Feedback component:", token);
+        console.log("Dual screen mode:", window.isDualScreen ? "Yes" : "No");
+        console.log("Current window mode:", localStorage.getItem('mode'));
+        
         const response = await fetch(`${API_BASE_URL}/api/feedback/validate/${token}`);
         const data = await response.json();
         
         console.log("Token validation response:", data);
         
         if (data.valid) {
+          console.log("Setting patient data from token:", data.patientData);
           setQRPatientData(data.patientData);
         } else {
+          console.error("Token validation failed:", data.message);
           setQRError("This feedback link is invalid or has expired.");
         }
       } catch (err) {

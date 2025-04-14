@@ -3,11 +3,13 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const Patient = require('./models/Patient');
+const FeedbackToken = require('./models/FeedbackToken');
 require('dotenv').config();
 const qrcode = require('qrcode');
 const crypto = require('crypto');
 const app = express();
 const registrationTokens = new Map();
+
 // CORS configuration
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:3000',  // Your frontend URL
@@ -286,8 +288,7 @@ mongoose.connect(process.env.MONGODB_URI)
     console.error('MongoDB connection error:', error);
   });
 
-
-  // Add this endpoint to your server.js file
+// Registration QR code generation endpoint
 app.post('/api/registration/create-qr', async (req, res) => {
   try {
     console.log("Registration QR request received with data:", req.body);
@@ -325,7 +326,7 @@ app.post('/api/registration/create-qr', async (req, res) => {
   }
 });
 
-// Also add this validation endpoint
+// Registration token validation endpoint
 app.get('/api/registration/validate/:token', (req, res) => {
   try {
     const token = req.params.token;
@@ -353,7 +354,7 @@ app.get('/api/registration/validate/:token', (req, res) => {
   }
 });
 
-// Add this endpoint for Patient Access QR functionality
+// Patient access QR functionality endpoint
 app.get('/api/patients/:patientId/access-qr', async (req, res) => {
   try {
     // Check if patient exists
@@ -394,7 +395,7 @@ app.get('/api/patients/:patientId/access-qr', async (req, res) => {
   }
 });
 
-// Add validation endpoint for patient access tokens
+// Patient access token validation endpoint
 app.get('/api/patient-access/validate/:token', async (req, res) => {
   try {
     const token = req.params.token;
@@ -439,8 +440,7 @@ app.get('/api/patient-access/validate/:token', async (req, res) => {
   }
 });
 
-// Add this endpoint to your server.js file
-// Add this endpoint to your server.js file
+// Registration submission endpoint
 app.post('/api/registration/submit/:token', async (req, res) => {
   try {
     const token = req.params.token;
@@ -465,7 +465,7 @@ app.post('/api/registration/submit/:token', async (req, res) => {
       });
     }
     
-    // Generate initials from the name using the function you've added
+    // Generate initials from the name using the function
     const initialsName = getInitialsFromName(formData.name);
     console.log(`Converting name "${formData.name}" to initials: "${initialsName}"`);
     
@@ -533,7 +533,8 @@ app.post('/api/registration/submit/:token', async (req, res) => {
     });
   }
 });
-// Add this function to your server.js file
+
+// Utility function to get initials from name
 function getInitialsFromName(fullName) {
   if (!fullName) return '';
   
@@ -547,7 +548,7 @@ function getInitialsFromName(fullName) {
   return initials.length > 0 ? initials + '.' : '';
 }
 
-// Add this endpoint to your server.js file for feedback QR code functionality
+// Feedback QR code generation endpoint
 app.post('/api/feedback/create-qr', async (req, res) => {
   try {
     console.log("Feedback QR request received with data:", req.body);
@@ -556,17 +557,17 @@ app.post('/api/feedback/create-qr', async (req, res) => {
     const feedbackToken = crypto.randomBytes(16).toString('hex');
     
     // Store the associated patient info if provided
-    const patientInfo = req.body.patientId ? { patientId: req.body.patientId } : null;
+    const patientInfo = req.body.patientId ? { 
+      patientId: req.body.patientId,
+      name: req.body.patientName,
+      room: req.body.room
+    } : null;
     
-    // Initialize feedbackTokens if it doesn't exist
-    if (!global.feedbackTokens) {
-      global.feedbackTokens = new Map();
-    }
-    
-    // Save token with patient info (expires in 24 hours)
-    global.feedbackTokens.set(feedbackToken, {
-      patientInfo,
-      expiry: Date.now() + (24 * 60 * 60 * 1000)
+    // Create a new token in MongoDB with 24-hour expiration
+    await FeedbackToken.create({
+      token: feedbackToken,
+      patientInfo: patientInfo,
+      expiry: new Date(Date.now() + (24 * 60 * 60 * 1000)) // 24 hours
     });
     
     // Generate the feedback URL
@@ -574,6 +575,7 @@ app.post('/api/feedback/create-qr', async (req, res) => {
     const feedbackUrl = `${baseUrl}/feedback/${feedbackToken}`;
     
     console.log("Generated feedback URL:", feedbackUrl);
+    console.log("For patient (if applicable):", patientInfo);
     
     // Generate QR code
     const qrCodeDataUrl = await qrcode.toDataURL(feedbackUrl);
@@ -590,27 +592,30 @@ app.post('/api/feedback/create-qr', async (req, res) => {
   }
 });
 
-// Add a validation endpoint for feedback tokens
+// Feedback token validation endpoint
 app.get('/api/feedback/validate/:token', async (req, res) => {
   try {
     const token = req.params.token;
+    console.log("Validating feedback token:", token);
     
-    if (!global.feedbackTokens) {
+    // Find token in MongoDB
+    const feedbackData = await FeedbackToken.findOne({ token });
+    
+    if (!feedbackData || feedbackData.expiry < new Date()) {
+      // Clean up expired token if it exists
+      if (feedbackData) {
+        await FeedbackToken.deleteOne({ token });
+        console.log("Removed expired token:", token);
+      }
+      
+      console.log("Token not found or expired:", token);
       return res.status(404).json({
         valid: false,
         message: 'Invalid or expired feedback token'
       });
     }
     
-    const feedbackData = global.feedbackTokens.get(token);
-    
-    if (!feedbackData || feedbackData.expiry < Date.now()) {
-      global.feedbackTokens.delete(token); // Clean up expired tokens
-      return res.status(404).json({
-        valid: false,
-        message: 'Invalid or expired feedback token'
-      });
-    }
+    console.log("Token is valid:", token);
     
     // If there's associated patient info, fetch the patient data
     let patientData = null;
@@ -625,6 +630,9 @@ app.get('/api/feedback/validate/:token', async (req, res) => {
           name: patient.name,
           room: patient.room
         };
+        console.log("Found patient data for token:", patientData);
+      } else {
+        console.log("Patient not found for token:", feedbackData.patientInfo.patientId);
       }
     }
     
@@ -642,15 +650,25 @@ app.get('/api/feedback/validate/:token', async (req, res) => {
   }
 });
 
-// Add a dedicated endpoint for submitting anonymous feedback (no patient ID)
+// Anonymous feedback submission endpoint
 app.post('/api/feedback/submit', async (req, res) => {
   try {
     console.log("Received anonymous feedback submission");
     console.log("Feedback data:", req.body);
     
-    // Store anonymous feedback in a separate collection or handle as needed
-    // For now, we'll just return success
+    // Add notification for the submission
+    if (!global.notifications) {
+      global.notifications = [];
+    }
     
+    global.notifications.push({
+      id: Date.now(),
+      message: "New anonymous feedback received",
+      time: new Date().toLocaleTimeString(),
+      read: false
+    });
+    
+    // For now, we'll just return success
     res.status(201).json({
       success: true,
       message: 'Anonymous feedback submitted successfully'
