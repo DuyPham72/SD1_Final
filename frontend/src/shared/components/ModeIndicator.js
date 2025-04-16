@@ -1,4 +1,4 @@
-// src/shared/components/ModeIndicator.js
+// Modified ModeIndicator.js
 import React from "react";
 import { useAuth } from "../hooks/AuthContext";
 import "../../styles/ModeIndicator.css";
@@ -6,24 +6,25 @@ import "../../styles/ModeIndicator.css";
 const ModeIndicator = () => {
   const { mode, user, logout } = useAuth();
 
+  // Don't render anything if in patient mode
+  if (mode === "patient") {
+    return null;
+  }
+
   return (
-    <div className={`mode-indicator ${mode}`}>
-      <div className="mode-icon">{mode === "staff" ? "👩‍⚕️" : "📺"}</div>
+    <div className="mode-indicator staff">
+      <div className="mode-icon">👩‍⚕️</div>
       <div className="mode-info">
-        <div className="mode-name">
-          {mode === "staff" ? "Staff Mode" : "Patient Mode"}
-        </div>
+        <div className="mode-name">Staff Mode</div>
         <div className="user-info">
-          {mode === "staff" && user && <span>{user.name}</span>}
-          {mode === "staff" && (
-            <button
-              className="logout-button"
-              onClick={logout}
-              title="Return to Patient Mode"
-            >
-              Exit
-            </button>
-          )}
+          {user && <span>{user.name}</span>}
+          <button
+            className="logout-button"
+            onClick={logout}
+            title="Return to Patient Mode"
+          >
+            Exit
+          </button>
         </div>
       </div>
     </div>
