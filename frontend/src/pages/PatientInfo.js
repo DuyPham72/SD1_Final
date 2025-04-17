@@ -165,7 +165,8 @@ function PatientInfo() {
     nurseSelectedPatientId, 
     updateNurseSelectedPatient, 
     isDualScreen,
-    syncDataToPatientScreen 
+    syncDataToPatientScreen,
+    forceReloadPatientScreen 
   } = useAuth();
 
   const {
@@ -556,7 +557,7 @@ const handleSave = useCallback(() => {
     });
   }, []);
 
-  // UPDATED to not sort when updating fields
+  // UPDATED to sync changes with patient screen
   const handleItemUpdate = useCallback(
     (index, field, value) => {
       setEditedData((prev) => {
@@ -564,14 +565,29 @@ const handleSave = useCallback(() => {
           i === index ? { ...item, [field]: value } : item
         );
         
-        // Do NOT sort when updating fields
+        // Sync with patient screen in dual screen mode
+        // Only sync on significant changes to avoid constant refreshing
+        if (isDualScreen && mode === 'staff' && (field === 'activity' || field === 'time')) {
+          console.log('Syncing schedule changes after updating item field:', field);
+          // Sync the schedule update to the patient screen
+          syncDataToPatientScreen('scheduleUpdate', updatedSchedule);
+          
+          // Force a reload of the patient screen, but only on completed edits
+          // We'll define completed edits as changes to the activity field
+          if (field === 'activity' && value.length > 0) {
+            setTimeout(() => {
+              forceReloadPatientScreen();
+            }, 100);
+          }
+        }
+        
         return {
           ...prev,
           schedule: updatedSchedule,
         };
       });
     },
-    [setEditedData]
+    [setEditedData, isDualScreen, mode, syncDataToPatientScreen, forceReloadPatientScreen]
   );
 
   // UPDATED to not sort when adding new items
@@ -587,10 +603,26 @@ const handleSave = useCallback(() => {
     };
 
     // Add to schedule array WITHOUT sorting
-    setEditedData((prev) => ({
-      ...prev,
-      schedule: [...prev.schedule, newItem],
-    }));
+    setEditedData((prev) => {
+      const updatedSchedule = [...prev.schedule, newItem];
+      
+      // Sync with patient screen in dual screen mode
+      if (isDualScreen && mode === 'staff') {
+        console.log('Syncing schedule changes after adding new item');
+        // Sync the schedule update to the patient screen
+        syncDataToPatientScreen('scheduleUpdate', updatedSchedule);
+        
+        // Force a reload of the patient screen
+        setTimeout(() => {
+          forceReloadPatientScreen();
+        }, 100);
+      }
+      
+      return {
+        ...prev,
+        schedule: updatedSchedule,
+      };
+    });
 
     // Set focus to the new item (it will be the last one)
     const newIndex = editedData.schedule.length;
@@ -601,7 +633,7 @@ const handleSave = useCallback(() => {
         scheduleInputRefs.current[newIndex]?.timeInput?.focus();
       });
     }, 50);
-  }, [editing, editedData, setEditedData]);
+  }, [editing, editedData, setEditedData, isDualScreen, mode, syncDataToPatientScreen, forceReloadPatientScreen]);
 
   // Delete schedule item
   const handleDeleteScheduleItem = useCallback(
@@ -609,16 +641,32 @@ const handleSave = useCallback(() => {
       if (!editing || !editedData) return;
 
       // Remove the item at the specified index
-      setEditedData((prev) => ({
-        ...prev,
-        schedule: prev.schedule.filter((_, i) => i !== index),
-      }));
+      setEditedData((prev) => {
+        const updatedSchedule = prev.schedule.filter((_, i) => i !== index);
+        
+        // Sync with patient screen in dual screen mode
+        if (isDualScreen && mode === 'staff') {
+          console.log('Syncing schedule changes after deleting item');
+          // Sync the schedule update to the patient screen
+          syncDataToPatientScreen('scheduleUpdate', updatedSchedule);
+          
+          // Force a reload of the patient screen
+          setTimeout(() => {
+            forceReloadPatientScreen();
+          }, 100);
+        }
+        
+        return {
+          ...prev,
+          schedule: updatedSchedule,
+        };
+      });
 
       // Reset focus
       setEditingScheduleItem(null);
       setFocusedScheduleIndex(null);
     },
-    [editing, editedData, setEditedData]
+    [editing, editedData, setEditedData, isDualScreen, mode, syncDataToPatientScreen, forceReloadPatientScreen]
   );
 
   const handleKeyDown = useCallback(
@@ -852,6 +900,11 @@ const handleSave = useCallback(() => {
     { label: "Physician", path: ["careTeam", "primaryDoctor"] },
     { label: "Nurse", path: ["careTeam", "primaryNurse"] },
     { label: "Room", path: ["room"] },
+    { label: "Status", path: ["status"], type: "select", options: [
+      { value: "stable", label: "Stable" },
+      { value: "needs-attention", label: "Needs Attention" },
+      { value: "critical", label: "Critical" }
+    ] },
     { label: "Dietary", path: ["preferences", "dietary"], isArray: true },
     { label: "Language", path: ["preferences", "language"] },
     { label: "Religious", path: ["preferences", "religious"] },
@@ -867,6 +920,17 @@ const handleSave = useCallback(() => {
     }
     return patient[field.path[0]] !== undefined;
   });
+
+  // Define the fields for the form
+  const personalInfoFields = [
+    { label: "Primary Doctor", path: ["careTeam", "primaryDoctor"] },
+    { label: "Primary Nurse", path: ["careTeam", "primaryNurse"] },
+    { label: "Status", path: ["status"], type: "select", options: [
+      { value: "stable", label: "Stable" },
+      { value: "needs-attention", label: "Needs Attention" },
+      { value: "critical", label: "Critical" }
+    ] }
+  ];
 
   // Render schedule section
   const renderSchedule = () => {
@@ -1014,41 +1078,80 @@ const handleSave = useCallback(() => {
           <div key={field.label} className="info-field">
             <label>{field.label}:</label>
             {editing ? (
-              <input
-                ref={(el) => (inputRefs.current[index] = el)}
-                type="text"
-                value={
-                  field.isArray
-                    ? editedData[field.path[0]][field.path[1]].join(", ")
-                    : field.path.length === 2
-                    ? editedData[field.path[0]][field.path[1]]
-                    : editedData[field.path[0]]
-                }
-                onChange={(e) => updateField(field, e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    handleSave();
-                  } else if (e.key === "Escape") {
-                    e.preventDefault();
-                    handleKeyNavigation(e);
+              field.type === "select" ? (
+                <select
+                  ref={(el) => (inputRefs.current[index] = el)}
+                  value={field.path.length === 2 
+                    ? editedData[field.path[0]][field.path[1]] 
+                    : editedData[field.path[0]]}
+                  onChange={(e) => updateField(field, e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleSave();
+                    } else if (e.key === "Escape") {
+                      e.preventDefault();
+                      handleKeyNavigation(e);
+                    }
+                  }}
+                  onFocus={() => {
+                    setNavigationSection("info");
+                    setFocusedInputIndex(index);
+                    setFocusedScheduleIndex(null);
+                    setMainNavFocusIndex(null);
+                  }}
+                  className={`editable-input ${
+                    navigationSection === "info" && focusedInputIndex === index
+                      ? "focused"
+                      : ""
+                  }`}
+                  disabled={isSaving}
+                >
+                  {field.options.map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  ref={(el) => (inputRefs.current[index] = el)}
+                  type="text"
+                  value={
+                    field.isArray
+                      ? editedData[field.path[0]][field.path[1]].join(", ")
+                      : field.path.length === 2
+                      ? editedData[field.path[0]][field.path[1]]
+                      : editedData[field.path[0]]
                   }
-                }}
-                onFocus={() => {
-                  setNavigationSection("info");
-                  setFocusedInputIndex(index);
-                  setFocusedScheduleIndex(null);
-                  setMainNavFocusIndex(null);
-                }}
-                className={`editable-input ${
-                  navigationSection === "info" && focusedInputIndex === index
-                    ? "focused"
-                    : ""
-                }`}
-                disabled={isSaving}
-              />
+                  onChange={(e) => updateField(field, e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleSave();
+                    } else if (e.key === "Escape") {
+                      e.preventDefault();
+                      handleKeyNavigation(e);
+                    }
+                  }}
+                  onFocus={() => {
+                    setNavigationSection("info");
+                    setFocusedInputIndex(index);
+                    setFocusedScheduleIndex(null);
+                    setMainNavFocusIndex(null);
+                  }}
+                  className={`editable-input ${
+                    navigationSection === "info" && focusedInputIndex === index
+                      ? "focused"
+                      : ""
+                  }`}
+                  disabled={isSaving}
+                />
+              )
             ) : (
-              <span>{getFieldValue(field)}</span>
+              <span>{field.type === "select" && field.options 
+                ? field.options.find(opt => opt.value === getFieldValue(field))?.label || getFieldValue(field)
+                : getFieldValue(field)}</span>
             )}
           </div>
         ))}

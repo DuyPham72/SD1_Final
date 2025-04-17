@@ -27,13 +27,29 @@ function Entertainment() {
     setMainNavFocusIndex 
   } = useNavigationState();
 
+  // References for keyboard navigation
+  const appRefs = useRef([]);
   const mainNavElementsRef = useRef({
     menuButton: null,
     entertainmentButton: null
   });
   const sidebarButtonsRef = useRef([]);
 
-  useKeyboardNavigation({
+  // Entertainment options
+  const entertainmentOptions = [
+    { name: 'YouTube', icon: youtubeIcon, url: 'https://www.youtube.com' },
+    { name: 'Spotify', icon: spotifyIcon, url: 'https://www.spotify.com' },
+    { name: 'Netflix', icon: netflixIcon, url: 'https://www.netflix.com' },
+    { name: 'Twitch', icon: twitchIcon, url: 'https://www.twitch.tv' }
+  ];
+
+  // Use the enhanced keyboard navigation with entertainment support
+  const {
+    focusedAppIndex,
+    isEntertainmentMode,
+    handleIconFocus,
+    handleIconKeyDown
+  } = useKeyboardNavigation({
     isNavOpen,
     setIsNavOpen,
     sidebarFocusIndex,
@@ -42,13 +58,15 @@ function Entertainment() {
     setMainNavFocusIndex,
     mainNavElementsRef,
     sidebarButtonsRef,
-    navigate
+    navigate,
+    // Entertainment-specific params
+    isEntertainmentPage: true,
+    appRefs,
+    entertainmentOptions
   });
 
   if (loading) return <div className="loading">Loading...</div>;
   if (!patient) return <div className="error">No patient data available</div>;
-
-
 
   return (
     <Layout
@@ -72,21 +90,33 @@ function Entertainment() {
       <div className="entertainment-container">
         {/* Centered Entertainment Section */}
         <div className="entertainment-card">
-          <h2>More Entertainment</h2>
-          <div className="entertainment-icons">
-            <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer">
-              <img src={youtubeIcon} alt="YouTube" className="entertainment-icon" />
-            </a>
-            <a href="https://www.spotify.com" target="_blank" rel="noopener noreferrer">
-              <img src={spotifyIcon} alt="Spotify" className="entertainment-icon" />
-            </a>
-            <a href="https://www.netflix.com" target="_blank" rel="noopener noreferrer">
-              <img src={netflixIcon} alt="Netflix" className="entertainment-icon" />
-            </a>
-            <a href="https://www.twitch.tv" target="_blank" rel="noopener noreferrer">
-              <img src={twitchIcon} alt="Twitch" className="entertainment-icon" />
-            </a>
+          <h2 id="entertainment-heading">More Entertainment</h2>
+          <div className="entertainment-icons" role="navigation" aria-labelledby="entertainment-heading">
+            {entertainmentOptions.map((option, index) => (
+              <a 
+                key={option.name}
+                href={option.url} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                aria-label={`${option.name} (use arrow keys to navigate)`}
+                tabIndex={isEntertainmentMode || index === focusedAppIndex ? 0 : -1}
+                ref={el => appRefs.current[index] = el}
+                onKeyDown={(e) => handleIconKeyDown(e, index, option.url)}
+                className={`entertainment-link ${focusedAppIndex === index ? 'app-focused' : ''}`}
+                onFocus={() => handleIconFocus(index)}
+                onMouseOver={() => handleIconFocus(index)}
+              >
+                <img 
+                  src={option.icon} 
+                  alt={option.name} 
+                  className="entertainment-icon"
+                />
+              </a>
+            ))}
           </div>
+          <p className="keyboard-hint">
+            Press arrow keys to navigate, Enter to select
+          </p>
         </div>
       </div>
     </Layout>

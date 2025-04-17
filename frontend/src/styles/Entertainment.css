@@ -4,6 +4,9 @@
   align-items: center;
   height: 80vh;
   text-align: center;
+  outline: none; /* Hide outline when tabbing to container */
+  position: relative;
+  z-index: 5; /* Ensure it's above other elements */
 }
 
 /* Matches the existing card style */
@@ -14,6 +17,8 @@
   max-width: 700px;
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 10;
 }
 
 /* Title styling */
@@ -27,19 +32,15 @@
   display: flex;
   justify-content: center;
   gap: 30px;
+  position: relative;
+  z-index: 15;
 }
 
 /* Large icons for entertainment links */
 .entertainment-icon {
   width: 120px;
   height: 120px;
-  transition: transform 0.2s ease-in-out;
-}
-
-/* Make icons have a solid background */
-.entertainment-icon {
-  width: 120px;
-  height: 120px;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
   background-color: white;
   border-radius: 20px;
   padding: 10px;
@@ -47,6 +48,43 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.entertainment-icon:hover {
+/* Basic styles for entertainment links to support keyboard navigation */
+.entertainment-link {
+  position: relative;
+  text-decoration: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+  outline: none;
+  padding: 5px;
+  border-radius: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Hover effect */
+.entertainment-link:hover .entertainment-icon {
   transform: scale(1.1);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Focused state styles */
+.entertainment-link.app-focused,
+.entertainment-link:focus-visible {
+  outline: 3px solid #3498db;
+  box-shadow: 0 0 0 5px rgba(52, 152, 219, 0.3);
+}
+
+/* Make the hover effect apply to the icon */
+.entertainment-link.app-focused .entertainment-icon,
+.entertainment-link:focus-visible .entertainment-icon {
+  transform: scale(1.1);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Keyboard navigation hint text */
+.keyboard-hint {
+  margin-top: 20px;
+  color: #777;
+  font-style: italic;
+  font-size: 14px;
 }

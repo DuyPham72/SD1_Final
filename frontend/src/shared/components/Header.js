@@ -142,7 +142,13 @@ export const Header = ({
 
         {/* Patient name and time in a container */}
         <div className="patient-info-wrapper">
-          <h1 className="patient-header">Patient Name: {patient?.name}</h1>
+          <h1 className="patient-header-with-status">
+            {patient?.status && (
+              <span className={`status-indicator status-${patient.status}`} 
+                   title={`Patient Status: ${patient.status.replace('-', ' ')}`}></span>
+            )}
+            Patient Name: {patient?.name}
+          </h1>
           <div className="mobile-time">{formattedTime}</div>
         </div>
 
@@ -209,14 +215,30 @@ export const Header = ({
           onChange={(e) => onPatientChange(e.target.value)}
         >
           {allPatients.map((p) => (
-            <option key={p.patientId} value={p.patientId}>
+            <option 
+              key={p.patientId} 
+              value={p.patientId} 
+              data-status={p.status || 'stable'}
+              className={`patient-option status-${p.status || 'stable'}`}
+            >
               {p.name} - Room {p.room}
             </option>
           ))}
         </select>
       )}
 
-      <h1 className="patient-header">Patient Name: {patient?.name}</h1>
+      {/* Only show patient name in patient mode */}
+      {mode === "patient" ? (
+        <h1 className="patient-header-with-status">
+          {patient?.status && (
+            <span className={`status-indicator status-${patient.status}`} 
+                 title={`Patient Status: ${patient.status.replace('-', ' ')}`}></span>
+          )}
+          Patient Name: {patient?.name}
+        </h1>
+      ) : (
+        <div className="patient-header-spacer"></div>
+      )}
 
       <div className="header-actions">
         {/* Dual Screen Mode Button */}

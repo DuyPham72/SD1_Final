@@ -11,6 +11,7 @@ const patientData = [
     patientId: 'P001',
     name: 'J.S.', // Only initials, not full name
     room: '101A',
+    status: 'stable',
     careTeam: {
       primaryDoctor: 'Dr. Johnson',
       primaryNurse: 'RN Sarah',
@@ -65,6 +66,7 @@ const patientData = [
     patientId: 'P002',
     name: 'M.G.', // Only initials, not full name
     room: '102B',
+    status: 'needs-attention',
     careTeam: {
       primaryDoctor: 'Dr. Johnson',
       primaryNurse: 'RN Michael',
@@ -149,6 +151,7 @@ const patientData = [
     patientId: 'P003',
     name: 'N.C.', // Only initials, not full name
     room: 'Unassigned',
+    status: 'critical',
     careTeam: {
       primaryDoctor: 'Dr. Johnson',
       primaryNurse: 'RN Michael',

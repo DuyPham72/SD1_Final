@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 
 export const useKeyboardNavigation = ({
   isNavOpen,
@@ -10,14 +10,93 @@ export const useKeyboardNavigation = ({
   mainNavElementsRef,
   sidebarButtonsRef,
   navigate,
-  customHandlers = {}
+  customHandlers = {},
+  // New parameters for entertainment
+  isEntertainmentPage = false,
+  appRefs = { current: [] },
+  entertainmentOptions = []
 }) => {
+  // Add state for entertainment navigation if on entertainment page
+  const [focusedAppIndex, setFocusedAppIndex] = useState(-1);
+  const [isEntertainmentMode, setIsEntertainmentMode] = useState(false);
+  
+  // Focus the entertainment app when focusedAppIndex changes
+  useEffect(() => {
+    if (isEntertainmentPage && focusedAppIndex >= 0 && appRefs.current[focusedAppIndex]) {
+      appRefs.current[focusedAppIndex].focus();
+    }
+  }, [focusedAppIndex, appRefs, isEntertainmentPage]);
+
   const handleKeyDown = useCallback((e) => {
     const mainNavElements = Object.values(mainNavElementsRef.current).filter(Boolean);
     
-    // Handle custom key handlers first
-    if (customHandlers[e.key]) {
-      customHandlers[e.key](e);
+    // Special handling for the entertainment page
+    if (isEntertainmentPage) {
+      // When in entertainment mode
+      if (isEntertainmentMode) {
+        switch(e.key) {
+          case 'ArrowRight':
+            e.preventDefault();
+            // Move focus to next entertainment icon
+            setFocusedAppIndex(prev => {
+              const nextIndex = (prev + 1) % appRefs.current.length;
+              return nextIndex;
+            });
+            return;
+            
+          case 'ArrowLeft':
+            e.preventDefault();
+            // Move focus to previous entertainment icon
+            setFocusedAppIndex(prev => {
+              const prevIndex = (prev - 1 + appRefs.current.length) % appRefs.current.length;
+              return prevIndex;
+            });
+            return;
+            
+          case 'ArrowUp':
+            e.preventDefault();
+            // Move focus back to header
+            setFocusedAppIndex(-1);
+            setIsEntertainmentMode(false);
+            setMainNavFocusIndex(0); // Focus on menu button
+            mainNavElementsRef.current.menuButton?.focus();
+            return;
+            
+          case 'ArrowDown':
+            // Block arrow down in entertainment mode
+            e.preventDefault();
+            return;
+            
+          case 'Escape':
+            e.preventDefault();
+            // Move focus back to header
+            setFocusedAppIndex(-1);
+            setIsEntertainmentMode(false);
+            setMainNavFocusIndex(0); // Focus on menu button
+            mainNavElementsRef.current.menuButton?.focus();
+            return;
+            
+          default:
+            break;
+        }
+      }
+      // When in header on entertainment page and Down is pressed
+      else if (e.key === 'ArrowDown' && !isNavOpen) {
+        // Check if we're currently focused in the header
+        const activeElement = document.activeElement;
+        const isInHeader = mainNavElements.includes(activeElement);
+        
+        if (isInHeader) {
+          e.preventDefault();
+          setFocusedAppIndex(0);
+          setIsEntertainmentMode(true);
+          return;
+        }
+      }
+    }
+    
+    // Handle custom key handlers
+    if (customHandlers[e.key] && customHandlers[e.key](e) === true) {
       return;
     }
 
@@ -125,7 +204,12 @@ export const useKeyboardNavigation = ({
     mainNavElementsRef,
     sidebarButtonsRef,
     navigate,
-    customHandlers
+    customHandlers,
+    // New dependencies for entertainment
+    isEntertainmentPage,
+    isEntertainmentMode,
+    focusedAppIndex,
+    appRefs
   ]);
 
   // Add mouse hover handling for main nav elements
@@ -140,6 +224,22 @@ export const useKeyboardNavigation = ({
       target.focus();
     }
   }, [mainNavElementsRef, setMainNavFocusIndex]);
+
+  // Entertainment icon focus handler
+  const handleIconFocus = useCallback((index) => {
+    if (isEntertainmentPage) {
+      setFocusedAppIndex(index);
+      setIsEntertainmentMode(true);
+    }
+  }, [isEntertainmentPage]);
+
+  // Entertainment icon keydown handler
+  const handleIconKeyDown = useCallback((e, index, url) => {
+    if (isEntertainmentPage && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  }, [isEntertainmentPage]);
 
   // Add event listeners for mouse enter/hover on main nav elements
   useEffect(() => {
@@ -170,4 +270,15 @@ export const useKeyboardNavigation = ({
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [handleKeyDown]);
+  
+  // Return entertainment-related state and handlers if on entertainment page
+  if (isEntertainmentPage) {
+    return {
+      // Return the entertainment-specific helpers
+      focusedAppIndex,
+      isEntertainmentMode,
+      handleIconFocus,
+      handleIconKeyDown
+    };
+  }
 };

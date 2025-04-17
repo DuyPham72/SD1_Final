@@ -69,6 +69,11 @@
   flex: 1;
 }
 
+/* Spacer for when patient name is hidden */
+.patient-header-spacer {
+  flex: 1;
+}
+
 /* Header actions area */
 .header-actions {
   display: flex;
@@ -638,4 +643,69 @@
 
 .feedback-qr-button .qr-text {
   white-space: nowrap;
+}
+
+/* Patient status indicators */
+.status-indicator {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.status-stable {
+  background-color: #27ae60; /* Green */
+}
+
+.status-needs-attention {
+  background-color: #f39c12; /* Yellow/Orange */
+}
+
+.status-critical {
+  background-color: #e74c3c; /* Red */
+  animation: pulse 2s infinite;
+}
+
+/* Pulse animation for critical status */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(231, 76, 60, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(231, 76, 60, 0);
+  }
+}
+
+/* Patient selector with status */
+.patient-option {
+  display: flex;
+  align-items: center;
+}
+
+/* Status in patient header */
+.patient-header-with-status {
+  display: flex;
+  align-items: center;
+}
+
+/* For patient list item in dropdown */
+.patient-selector option {
+  padding: 8px;
+  border-left: 3px solid transparent;
+}
+
+.patient-selector option[data-status="stable"] {
+  border-left-color: #27ae60;
+}
+
+.patient-selector option[data-status="needs-attention"] {
+  border-left-color: #f39c12;
+}
+
+.patient-selector option[data-status="critical"] {
+  border-left-color: #e74c3c;
 }
