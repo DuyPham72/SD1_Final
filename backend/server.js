@@ -248,22 +248,41 @@ app.post('/api/patients/:patientId/feedback', async (req, res) => {
       return res.status(404).json({ message: 'Patient not found' });
     }
     
-    const { message, rating } = req.body;
+    const { ratings, comment, timestamp } = req.body;
     
-    if (!message || !rating) {
-      return res.status(400).json({ message: 'Message and rating are required' });
+    if (!ratings || !ratings.overall) {
+      return res.status(400).json({ message: 'Overall rating is required' });
     }
     
-    if (rating < 1 || rating > 5) {
-      return res.status(400).json({ message: 'Rating must be between 1 and 5' });
+    if (ratings.overall < 1 || ratings.overall > 5) {
+      return res.status(400).json({ message: 'Overall rating must be between 1 and 5' });
     }
     
-    patient.feedback.push({ message, rating });
+    // Create new feedback object with detailed ratings
+    const newFeedback = {
+      id: req.body.id || Date.now().toString(),
+      patientIdentifier: req.params.patientId,
+      patientId: req.params.patientId,
+      patientName: req.body.patientName || patient.name,
+      room: req.body.room || patient.room,
+      rating: ratings.overall,
+      ratings: ratings,
+      comment: comment || '',
+      timestamp: timestamp || new Date().toISOString()
+    };
+    
+    // Initialize feedback array if it doesn't exist
+    if (!patient.feedback) {
+      patient.feedback = [];
+    }
+    
+    patient.feedback.push(newFeedback);
     patient.lastUpdated = Date.now();
     
     const updatedPatient = await patient.save();
     res.status(201).json(updatedPatient);
   } catch (error) {
+    console.error('Error saving feedback:', error);
     res.status(400).json({ message: error.message });
   }
 });
