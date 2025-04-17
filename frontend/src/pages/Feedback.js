@@ -170,6 +170,7 @@ function Feedback() {
       const newFeedback = {
         id: Date.now().toString(),
         // Set old-style single rating for compatibility
+        patientIdentifier: patient.patientId || qrPatientData.patientId,
         rating: Number(overallRating),
         // Detailed ratings with calculated overall
         ratings: {

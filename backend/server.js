@@ -221,59 +221,53 @@ app.delete('/api/patients/:patientId/schedule/:itemId', async (req, res) => {
 });
 
 // Add a dedicated endpoint for patient feedback
-app.post('/api/patients/:patientId/feedback', async (req, res) => {
+// ... existing code ...
+// Delete a schedule item
+app.delete('/api/patients/:patientId/schedule/:itemId', async (req, res) => {
   try {
-    console.log("Received feedback submission for patient:", req.params.patientId);
-    console.log("Feedback data:", req.body);
-    
-    // Ensure numeric ratings
-    if (req.body.rating !== undefined) {
-      req.body.rating = Number(req.body.rating);
-    }
-    
-    if (req.body.ratings) {
-      Object.keys(req.body.ratings).forEach(key => {
-        if (req.body.ratings[key] !== undefined) {
-          req.body.ratings[key] = Number(req.body.ratings[key]);
-        }
-      });
-    }
-    
     const patient = await Patient.findOne({ patientId: req.params.patientId });
-    
     if (!patient) {
       return res.status(404).json({ message: 'Patient not found' });
     }
     
-    // Initialize feedback array if it doesn't exist
-    if (!patient.feedback) {
-      patient.feedback = [];
-    }
-    
-    // Add the new feedback
-    patient.feedback.push(req.body);
+    patient.schedule.id(req.params.itemId).remove();
     patient.lastUpdated = Date.now();
     
-    // Save and return the updated patient
     const updatedPatient = await patient.save();
-    
-    // Verify feedback was saved correctly
-    if (updatedPatient.feedback && updatedPatient.feedback.length > 0) {
-      const lastFeedback = updatedPatient.feedback[updatedPatient.feedback.length - 1];
-      console.log("Saved feedback:", lastFeedback);
-      console.log("Saved rating type:", typeof lastFeedback.rating, "value:", lastFeedback.rating);
-      
-      if (lastFeedback.ratings) {
-        console.log("Saved ratings overall type:", typeof lastFeedback.ratings.overall, "value:", lastFeedback.ratings.overall);
-      }
-    }
-    
-    res.status(201).json(updatedPatient);
+    res.json(updatedPatient);
   } catch (error) {
-    console.error("Error saving feedback:", error);
     res.status(400).json({ message: error.message });
   }
 });
+
+// Submit patient feedback
+app.post('/api/patients/:patientId/feedback', async (req, res) => {
+  try {
+    const patient = await Patient.findOne({ patientId: req.params.patientId });
+    if (!patient) {
+      return res.status(404).json({ message: 'Patient not found' });
+    }
+    
+    const { message, rating } = req.body;
+    
+    if (!message || !rating) {
+      return res.status(400).json({ message: 'Message and rating are required' });
+    }
+    
+    if (rating < 1 || rating > 5) {
+      return res.status(400).json({ message: 'Rating must be between 1 and 5' });
+    }
+    
+    patient.feedback.push({ message, rating });
+    patient.lastUpdated = Date.now();
+    
+    const updatedPatient = await patient.save();
+    res.status(201).json(updatedPatient);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+// ... existing code ...
 
 const PORT = process.env.PORT || 5001;
 
