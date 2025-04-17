@@ -920,6 +920,11 @@ const handleSave = useCallback(() => {
     }
     return patient[field.path[0]] !== undefined;
   });
+  
+  // Debug logs to check fields
+  console.log('Patient fields:', patientFields);
+  console.log('Patient data:', patient);
+  console.log('Visible fields:', visibleFields);
 
   // Define the fields for the form
   const personalInfoFields = [
