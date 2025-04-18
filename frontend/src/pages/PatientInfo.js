@@ -1355,32 +1355,43 @@ const handleSave = useCallback(() => {
         extraHeaderContent={extraHeaderContent}
       />
 
-      {/* Updated layout structure with left and right columns */}
-      <div className="content-container">
-        {/* Left Column - Contains Personal Info and Schedule stacked vertically */}
-        <div className="left-column">
-          {/* Patient Information Card */}
-          <div className="info-card personal-info">
-            <h2>Personal Information</h2>
-            {renderPatientInfo()}
-          </div>
-
-          {/* Schedule Card */}
-          <div className="info-card schedule">
-            <h2>Today's Schedule</h2>
-            {renderSchedule()}
+      {/* Check for no patients condition */}
+      {mode === "staff" && (!allPatients || allPatients.length === 0) ? (
+        <div className="info-container">
+          <div className="no-patients-message">
+            <h2>No Patients Assigned</h2>
+            <p>You don't currently have any patients assigned to you.</p>
+            <p>If you believe this is a mistake, please contact the system administrator.</p>
           </div>
         </div>
+      ) : (
+        /* The original content container */
+        <div className="content-container">
+          {/* Left Column - Contains Personal Info and Schedule stacked vertically */}
+          <div className="left-column">
+            {/* Patient Information Card */}
+            <div className="info-card personal-info">
+              <h2>Personal Information</h2>
+              {renderPatientInfo()}
+            </div>
 
-        {/* Right Column - Contains Patient Feedback */}
-        <div className="right-column">
-          <div className="info-card">
-            <div className="feedback-container">
-              <PatientFeedbackTab patient={patient} />
+            {/* Schedule Card */}
+            <div className="info-card schedule">
+              <h2>Today's Schedule</h2>
+              {renderSchedule()}
+            </div>
+          </div>
+
+          {/* Right Column - Contains Patient Feedback */}
+          <div className="right-column">
+            <div className="info-card">
+              <div className="feedback-container">
+                <PatientFeedbackTab patient={patient} />
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
       
       {/* Debug panel - only visible during development */}
       {process.env.NODE_ENV !== 'production' && (

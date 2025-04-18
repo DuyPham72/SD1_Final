@@ -1,6 +1,7 @@
 // usePatientData.js - Updated with improved caching and refresh logic
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from './AuthContext'; // Make sure this path is correct
+import DOCTOR_ROOM_ASSIGNMENTS from '../constants/doctorRoomAssignments';
 
 // Add a simple caching mechanism
 let patientCache = {};
@@ -11,6 +12,7 @@ const SELECTED_PATIENT_STORAGE_KEY = 'selectedPatientId';
 export function usePatientData() {
   const [patient, setPatient] = useState(null);
   const [allPatients, setAllPatients] = useState([]);
+  const [filteredPatients, setFilteredPatients] = useState([]);
   // Initialize from localStorage if available
   const [selectedPatientId, setSelectedPatientId] = useState(() => {
     const storedId = localStorage.getItem(SELECTED_PATIENT_STORAGE_KEY);
@@ -19,8 +21,8 @@ export function usePatientData() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  // Get auth context to access mode
-  const { mode, nurseSelectedPatientId } = useAuth();
+  // Get auth context to access mode and user
+  const { mode, nurseSelectedPatientId, user } = useAuth();
 
   // Persist selectedPatientId to localStorage when it changes
   useEffect(() => {
@@ -44,6 +46,35 @@ export function usePatientData() {
         
         const data = await response.json();
         setAllPatients(data);
+        
+        // Filter patients based on doctor's assignments if user is logged in
+        if (user && user.username && mode === 'staff') {
+          console.log('Filtering patients for doctor:', user.username);
+          
+          const doctorAssignment = DOCTOR_ROOM_ASSIGNMENTS[user.username];
+          if (doctorAssignment) {
+            // Create regex from pattern
+            const roomPattern = new RegExp(doctorAssignment.pattern);
+            
+            // Filter patients by room pattern
+            const filtered = data.filter(p => {
+              // If room is not assigned, show to everyone
+              if (!p.room || p.room === 'Unassigned') return true;
+              
+              // Check if room matches pattern
+              return roomPattern.test(p.room);
+            });
+            
+            console.log(`Filtered to ${filtered.length} patients for ${user.name}`);
+            setFilteredPatients(filtered);
+          } else {
+            // If no assignment found or not a doctor, show all patients
+            setFilteredPatients(data);
+          }
+        } else {
+          // In patient mode or not logged in, show all patients
+          setFilteredPatients(data);
+        }
         
         // Selection logic based on mode and whether we already have a selectedPatientId
         if (data.length > 0 && !selectedPatientId) {
@@ -85,7 +116,12 @@ export function usePatientData() {
     };
 
     fetchPatients();
-  }, [mode, nurseSelectedPatientId]); // Include selectedPatientId as dependency
+  }, [mode, nurseSelectedPatientId, user]); // Include user as dependency to re-fetch when user changes
+  
+  // Return filtered patients instead of all patients
+  const getPatientList = useCallback(() => {
+    return filteredPatients.length > 0 ? filteredPatients : allPatients;
+  }, [filteredPatients, allPatients]);
 
   // Fetch selected patient data
   useEffect(() => {
@@ -160,6 +196,13 @@ export function usePatientData() {
         p.patientId === updatedPatientData.patientId ? {...p, ...updatedPatientData} : p
       )
     );
+    
+    // Update in filtered patients as well
+    setFilteredPatients(prevPatients => 
+      prevPatients.map(p => 
+        p.patientId === updatedPatientData.patientId ? {...p, ...updatedPatientData} : p
+      )
+    );
   }, []);
 
   // Function to update patient data on the server
@@ -196,46 +239,33 @@ export function usePatientData() {
     }
   }, [updatePatient]);
 
-  // Handle patient change with explicit logging
-  // In usePatientData.js
-const handlePatientChange = useCallback((patientId, forceRefresh = false) => {
-  console.log('handlePatientChange called with patientId:', patientId, 'forceRefresh:', forceRefresh);
-  
-  // If this is the same patient but we want to force refresh
-  if (patientId === selectedPatientId && forceRefresh) {
-    console.log('Same patient selected, but forcing refresh');
-    // Invalidate cache for this patient
-    delete patientCache[patientId];
-    
-    // Trigger a re-fetch by setting a refresh timestamp
-    localStorage.setItem('refreshTimestamp', Date.now().toString());
-    
-    // Dispatch an event to notify components
-    window.dispatchEvent(new CustomEvent('patientRefreshed', { 
-      detail: { 
-        patientId: patientId,
-        timestamp: Date.now(),
-      }
-    }));
-  }
-  
-  // Always update the selectedPatientId (this will trigger the useEffect)
-  setSelectedPatientId(patientId);
-  
-  // Save to localStorage
-  localStorage.setItem(SELECTED_PATIENT_STORAGE_KEY, patientId);
-}, [selectedPatientId]);
+  // Function to manually invalidate the cache
+  const invalidateCache = useCallback(() => {
+    patientCache = {}; // Clear the entire cache
+    console.log('Patient cache invalidated');
+    localStorage.setItem('invalidateCache', 'true');
+  }, []);
 
-  return { 
-    patient, 
+  // Handle patient change
+  const handlePatientChange = useCallback(
+    (newPatientId) => {
+      if (selectedPatientId !== newPatientId) {
+        console.log('Changing selected patient to:', newPatientId);
+        setSelectedPatientId(newPatientId);
+      }
+    },
+    [selectedPatientId]
+  );
+
+  return {
+    patient,
     setPatient: updatePatient,
-    allPatients, 
+    allPatients: getPatientList(), // Return the filtered patient list
     selectedPatientId,
-    setSelectedPatientId, // Expose this for direct access if needed 
-    loading, 
+    loading,
     error,
     handlePatientChange,
-    updatePatientData, // Add the function to update patient data on the server
-    
+    updatePatientData,
+    invalidateCache,
   };
 }

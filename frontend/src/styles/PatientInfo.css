@@ -806,3 +806,31 @@ select option[value="critical"] {
   background-color: #dc3545;
   color: white;
 }
+
+/* Add styles for no patients message */
+.no-patients-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  margin: 2rem auto;
+  max-width: 600px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.no-patients-message h2 {
+  color: #495057;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.no-patients-message p {
+  color: #6c757d;
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+}

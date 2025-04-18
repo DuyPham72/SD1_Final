@@ -7,13 +7,14 @@ require('dotenv').config();
 
 // Sample patient data (HIPAA compliant)
 const patientData = [
+  // Dr. Smith's patients (rooms starting with 1)
   {
     patientId: 'P001',
     name: 'J.S.', // Only initials, not full name
     room: '101A',
     status: 'stable',
     careTeam: {
-      primaryDoctor: 'Dr. Johnson',
+      primaryDoctor: 'Dr. Smith',
       primaryNurse: 'RN Sarah',
       specialists: []
     },
@@ -64,11 +65,11 @@ const patientData = [
   },
   {
     patientId: 'P002',
-    name: 'M.G.', // Only initials, not full name
+    name: 'E.R.', // Only initials, not full name
     room: '102B',
     status: 'needs-attention',
     careTeam: {
-      primaryDoctor: 'Dr. Johnson',
+      primaryDoctor: 'Dr. Smith',
       primaryNurse: 'RN Michael',
       specialists: []
     },
@@ -96,60 +97,160 @@ const patientData = [
         activity: 'Lunch',
         notes: '',
         completed: false
-      },
-      {
-        time: '2:00 PM',
-        activity: 'Family Visit',
-        notes: '',
-        completed: false
-      },
-      {
-        time: '4:00 PM',
-        activity: "Doctor's Rounds",
-        notes: 'With Dr. Johnson',
-        completed: false
-      },
-      {
-        time: '6:00 PM',
-        activity: 'Dinner',
-        notes: '',
-        completed: false
       }
     ],
-    feedback: [
-      {
-        id: uuidv4(),
-        patientId: 'P002',
-        patientIdentifier: 'P002', // Using ID instead of name
-        patientName: 'M.G.',
-        rating: 3,
-        ratings: {
-          overall: 3,
-          careQuality: 3,
-          staffResponsiveness: 3,
-          communication: 3,
-          cleanliness: 3,
-          mealQuality: 3
-        },
-        comment: 'Satisfactory service',
-        timestamp: new Date(),
-        room: '102B'
-      }
-    ],
+    feedback: [],
     consentStatus: {
       hasFeedbackConsent: true,
       lastUpdated: new Date()
     },
     lastUpdated: Date.now(),
-    accessLog: [{
-      userId: 'system',
-      action: 'Created patient record',
-      timestamp: new Date(),
-      ipAddress: '127.0.0.1'
-    }]
+    accessLog: []
   },
+
+  // Dr. Johnson's patients (rooms starting with 2)
   {
     patientId: 'P003',
+    name: 'D.T.', // Only initials, not full name
+    room: '201C',
+    status: 'stable',
+    careTeam: {
+      primaryDoctor: 'Dr. Johnson',
+      primaryNurse: 'RN Sarah',
+      specialists: []
+    },
+    preferences: {
+      dietary: ['Kosher'],
+      religious: 'Jewish',
+      language: 'English',
+      entertainmentPreferences: []
+    },
+    schedule: [
+      {
+        time: '8:00 AM',
+        activity: 'Breakfast',
+        notes: '',
+        completed: false
+      },
+      {
+        time: '10:00 AM',
+        activity: 'Doctor Visit',
+        notes: 'With Dr. Johnson',
+        completed: false
+      }
+    ],
+    feedback: [],
+    consentStatus: {
+      hasFeedbackConsent: true,
+      lastUpdated: new Date()
+    },
+    lastUpdated: Date.now(),
+    accessLog: []
+  },
+  {
+    patientId: 'P004',
+    name: 'A.P.', // Only initials, not full name
+    room: '202A',
+    status: 'critical',
+    careTeam: {
+      primaryDoctor: 'Dr. Johnson',
+      primaryNurse: 'RN Michael',
+      specialists: []
+    },
+    preferences: {
+      dietary: ['Gluten-free'],
+      religious: '',
+      language: 'English',
+      entertainmentPreferences: []
+    },
+    schedule: [
+      {
+        time: '8:00 AM',
+        activity: 'Morning Medication',
+        notes: 'Critical monitoring required',
+        completed: false
+      }
+    ],
+    feedback: [],
+    consentStatus: {
+      hasFeedbackConsent: true,
+      lastUpdated: new Date()
+    },
+    lastUpdated: Date.now(),
+    accessLog: []
+  },
+
+  // Dr. Williams's patients (rooms starting with 3)
+  {
+    patientId: 'P005',
+    name: 'M.K.', // Only initials, not full name
+    room: '301B',
+    status: 'stable',
+    careTeam: {
+      primaryDoctor: 'Dr. Williams',
+      primaryNurse: 'RN Taylor',
+      specialists: []
+    },
+    preferences: {
+      dietary: ['Diabetic'],
+      religious: 'Christian',
+      language: 'English',
+      entertainmentPreferences: []
+    },
+    schedule: [
+      {
+        time: '7:30 AM',
+        activity: 'Blood Sugar Check',
+        notes: '',
+        completed: false
+      }
+    ],
+    feedback: [],
+    consentStatus: {
+      hasFeedbackConsent: true,
+      lastUpdated: new Date()
+    },
+    lastUpdated: Date.now(),
+    accessLog: []
+  },
+
+  // Dr. Davis's patients (rooms starting with 4)
+  {
+    patientId: 'P006',
+    name: 'S.C.', // Only initials, not full name
+    room: '401A',
+    status: 'needs-attention',
+    careTeam: {
+      primaryDoctor: 'Dr. Davis',
+      primaryNurse: 'RN Jordan',
+      specialists: []
+    },
+    preferences: {
+      dietary: ['Halal'],
+      religious: 'Muslim',
+      language: 'Arabic',
+      entertainmentPreferences: []
+    },
+    schedule: [
+      {
+        time: '9:00 AM',
+        activity: 'Morning Assessment',
+        notes: '',
+        completed: false
+      }
+    ],
+    feedback: [],
+    consentStatus: {
+      hasFeedbackConsent: true,
+      lastUpdated: new Date()
+    },
+    lastUpdated: Date.now(),
+    accessLog: []
+  },
+
+  // Unassigned patient (all staff can see)
+  {
+    patientId: 'P007',
     name: 'N.C.', // Only initials, not full name
     room: 'Unassigned',
     status: 'critical',
@@ -165,37 +266,13 @@ const patientData = [
       entertainmentPreferences: []
     },
     schedule: [],
-    feedback: [
-      {
-        id: uuidv4(),
-        patientId: 'P003',
-        patientIdentifier: 'P003', // Using ID instead of name
-        patientName: 'N.C.',
-        rating: 4.2,
-        ratings: {
-          overall: 4.2,
-          careQuality: 5.0,
-          staffResponsiveness: 4.0,
-          communication: 4.0,
-          cleanliness: 4.0,
-          mealQuality: 4.0
-        },
-        comment: 'Good overall experience',
-        timestamp: new Date(),
-        room: 'Unassigned'
-      }
-    ],
+    feedback: [],
     consentStatus: {
       hasFeedbackConsent: true,
       lastUpdated: new Date()
     },
     lastUpdated: Date.now(),
-    accessLog: [{
-      userId: 'system',
-      action: 'Created patient record',
-      timestamp: new Date(),
-      ipAddress: '127.0.0.1'
-    }]
+    accessLog: []
   }
 ];
 

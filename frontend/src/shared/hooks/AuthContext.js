@@ -49,7 +49,12 @@ export const AuthProvider = ({ children }) => {
     return localStorage.getItem('mode') || 'patient';
   });
   
-  const [user, setUser] = useState(null);
+  // Initialize user state from localStorage if available
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem('userData');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+  
   const [lastActivity, setLastActivity] = useState(Date.now());
   const [timeoutId, setTimeoutId] = useState(null);
   const [patientWindow, setPatientWindow] = useState(null);
@@ -603,6 +608,15 @@ const updateNurseSelectedPatient = (patientId) => {
     localStorage.setItem('mode', mode);
   }, [mode]);
   
+  // Save user data to localStorage when it changes
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem('userData', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('userData');
+    }
+  }, [user]);
+  
   // Validate that the selected patient exists
   useEffect(() => {
     const validateSelectedPatient = async () => {
@@ -738,17 +752,20 @@ const updateNurseSelectedPatient = (patientId) => {
   // Function to switch to staff mode and redirect to patient info
   const loginStaff = (userData) => {
     console.log("Logging in staff:", userData);
+    
+    // Save user data in localStorage for persistence across refreshes
+    localStorage.setItem('userData', JSON.stringify(userData));
+    
+    // Update state
     setUser(userData);
     setMode('staff');
     setLastActivity(Date.now());
     
+    // Store in localStorage for persistence
+    localStorage.setItem('mode', 'staff');
+    
     // Redirect to patient info page
     navigate('/patient-info');
-    
-    // Auto-reload the page after login
-    setTimeout(() => {
-      window.location.reload();
-    }, 500);
   };
   
   // Function to log in as a patient
@@ -798,6 +815,10 @@ const updateNurseSelectedPatient = (patientId) => {
   // Function to log out and return to patient mode
   const logout = () => {
     console.log("Logging out, returning to patient mode");
+    
+    // Clear user data from localStorage
+    localStorage.removeItem('userData');
+    
     setUser(null);
     setMode('patient');
     if (timeoutId) {
@@ -830,6 +851,7 @@ const updateNurseSelectedPatient = (patientId) => {
     localStorage.removeItem('patientWindowOpened');
     localStorage.removeItem('patientChangeTimestamp');
     localStorage.removeItem('lastMessageTimestamp');
+    localStorage.removeItem('userData'); // Also clear user data
     
     // Reset state
     setModeState('patient');

@@ -99,6 +99,51 @@
   background-color: #bdc3c7;
 }
 
+/* Logged-in user display */
+.logged-in-user {
+  display: flex;
+  align-items: center;
+  background-color: #f1f8ff;
+  border: 1px solid #c8e1ff;
+  border-radius: 4px;
+  padding: 5px 12px;
+  margin-right: 10px;
+  font-size: 0.95rem;
+}
+
+.logged-in-label {
+  color: #586069;
+  margin-right: 6px;
+  font-size: 0.85rem;
+}
+
+.logged-in-name {
+  color: #0366d6;
+  font-weight: 600;
+}
+
+/* Responsive styles for logged-in user */
+@media (max-width: 768px) {
+  .logged-in-user {
+    padding: 4px 8px;
+  }
+  
+  .logged-in-label {
+    display: none;
+  }
+}
+
+@media (min-width: 2560px) {
+  .logged-in-user {
+    padding: 8px 16px;
+    font-size: 1.2rem;
+  }
+  
+  .logged-in-label {
+    font-size: 1.1rem;
+  }
+}
+
 /*notification stuff*/
 .notification-icon {
   background: none;
@@ -656,30 +701,30 @@
 }
 
 .status-indicator.status-stable {
-  background-color: #28a745;
-  box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+  background-color: #00c853; /* Brighter green */
+  box-shadow: 0 0 5px rgba(0, 200, 83, 0.7);
 }
 
 .status-indicator.status-needs-attention {
-  background-color: #ffc107;
-  box-shadow: 0 0 5px rgba(255, 193, 7, 0.5);
+  background-color: #ffa000; /* Brighter orange */
+  box-shadow: 0 0 5px rgba(255, 160, 0, 0.7);
 }
 
 .status-indicator.status-critical {
-  background-color: #dc3545;
-  box-shadow: 0 0 5px rgba(220, 53, 69, 0.5);
+  background-color: #ff1744; /* Brighter red */
+  box-shadow: 0 0 5px rgba(255, 23, 68, 0.7);
   animation: pulse-status 1.5s infinite;
 }
 
 @keyframes pulse-status {
   0% {
-    box-shadow: 0 0 5px rgba(220, 53, 69, 0.5);
+    box-shadow: 0 0 5px rgba(255, 23, 68, 0.7);
   }
   50% {
-    box-shadow: 0 0 10px rgba(220, 53, 69, 0.8);
+    box-shadow: 0 0 12px rgba(255, 23, 68, 0.9);
   }
   100% {
-    box-shadow: 0 0 5px rgba(220, 53, 69, 0.5);
+    box-shadow: 0 0 5px rgba(255, 23, 68, 0.7);
   }
 }
 
@@ -725,13 +770,20 @@
 }
 
 .patient-selector option[data-status="stable"] {
-  border-left-color: #27ae60;
+  border-left-color: #00c853; /* Brighter green */
+  background-color: rgba(0, 200, 83, 0.25); /* More vivid green background */
+  color: #006400; /* Darker text for better contrast */
 }
 
 .patient-selector option[data-status="needs-attention"] {
-  border-left-color: #f39c12;
+  border-left-color: #ffa000; /* Brighter orange */
+  background-color: rgba(255, 160, 0, 0.30); /* More vivid orange background */
+  color: #7a4f01; /* Darker text for better contrast */
 }
 
 .patient-selector option[data-status="critical"] {
-  border-left-color: #e74c3c;
+  border-left-color: #ff1744; /* Brighter red */
+  background-color: rgba(255, 23, 68, 0.25); /* More vivid red background */
+  color: #b0003a; /* Darker text for better contrast */
+  font-weight: bold;
 }

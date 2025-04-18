@@ -21,13 +21,40 @@ export const Header = ({
   mainNavFocusIndex,
   extraHeaderContent,
 }) => {
-  const { mode, isAuthenticated, isDualScreen, enableDualScreen } = useAuth();
+  const { mode, isAuthenticated, isDualScreen, enableDualScreen, user } = useAuth();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [showQRCode, setShowQRCode] = useState(false);
   const [showRegQRCode, setShowRegQRCode] = useState(false);
   const [showFeedbackQRCode, setShowFeedbackQRCode] = useState(false);
   const [isDualScreenLogin, setIsDualScreenLogin] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  // Local state to track UI updates
+  const [forceUpdate, setForceUpdate] = useState(0);
+  
+  // Check for user data in localStorage on component mount
+  useEffect(() => {
+    // This ensures the user display is correctly shown immediately after page load
+    const checkUserDataConsistency = () => {
+      const savedMode = localStorage.getItem('mode');
+      const savedUserData = localStorage.getItem('userData');
+      
+      if (savedMode === 'staff' && savedUserData) {
+        console.log('Header found user data in localStorage:', savedUserData);
+        // The auth context should already have loaded this data, 
+        // but we force a re-render to ensure UI is up-to-date
+        setForceUpdate(prev => prev + 1);
+      }
+    };
+    
+    checkUserDataConsistency();
+  }, []);
+  
+  // Force re-render when mode or user changes
+  useEffect(() => {
+    console.log("Header detected mode/user change:", { mode, user });
+    // Increment to force re-render
+    setForceUpdate(prev => prev + 1);
+  }, [mode, user, isAuthenticated]);
   
   // Create refs for our buttons
   const patientAccessBtnRef = useRef(null);
@@ -259,6 +286,14 @@ export const Header = ({
       )}
 
       <div className="header-actions">
+        {/* Logged-in Doctor/Staff Name Display */}
+        {mode === "staff" && user && (
+          <div className="logged-in-user">
+            <span className="logged-in-label">Logged in as:</span>
+            <span className="logged-in-name">{user.name}</span>
+          </div>
+        )}
+      
         {/* Dual Screen Mode Button */}
         {mode === "staff" && !isDualScreen && (
           <button
