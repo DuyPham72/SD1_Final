@@ -51,6 +51,8 @@ function MainDashboard() {
     patientSelector: null,
   });
   const sidebarButtonsRef = useRef([]);
+  const [statusNotification, setStatusNotification] = useState({ visible: false, message: '', type: 'success' });
+  const statusButtonRefs = useRef([]);
 
   // Listen for patient changes from staff screen in dual screen mode
   // In MainDashboard.js and similar components
@@ -137,15 +139,100 @@ useEffect(() => {
       }
     };
     
+    // Add specific handler for patient status changes
+    const handlePatientStatusChanged = (event) => {
+      console.log('Patient status changed event received:', event.detail);
+      
+      // Make sure we have a valid patient
+      if (patient) {
+        // Create a new patient object with the updated status
+        const updatedPatient = {
+          ...patient,
+          status: event.detail.status
+        };
+        
+        // Update patient data immediately without page reload
+        setPatient(updatedPatient);
+        console.log("Updated patient status in real-time to:", event.detail.status);
+        
+        // If this is a critical status, show a notification (only in staff mode)
+        if (event.detail.status === 'critical' && mode === 'staff') {
+          setStatusNotification({
+            visible: true,
+            message: `URGENT: Patient ${patient.name} needs immediate assistance!`,
+            type: 'urgent'
+          });
+          
+          // Hide notification after 8 seconds
+          setTimeout(() => {
+            setStatusNotification(prev => ({
+              ...prev,
+              visible: false
+            }));
+          }, 8000);
+        }
+      }
+    };
+    
     // Set up event listeners
     window.addEventListener('scheduleChanged', handleScheduleChanged);
     window.addEventListener('patientInfoChanged', handlePatientInfoChanged);
+    window.addEventListener('patientStatusChanged', handlePatientStatusChanged);
     
     return () => {
       window.removeEventListener('scheduleChanged', handleScheduleChanged);
       window.removeEventListener('patientInfoChanged', handlePatientInfoChanged);
+      window.removeEventListener('patientStatusChanged', handlePatientStatusChanged);
     };
-  }, [patient, setPatient, lastSyncTimestamp]);
+  }, [patient, setPatient, lastSyncTimestamp, mode]);
+
+  // Add polling mechanism to check status changes in localStorage
+  useEffect(() => {
+    // Only poll if we have a patient
+    if (!patient) return;
+    
+    const statusPollInterval = setInterval(() => {
+      const storedStatus = localStorage.getItem('patientStatus');
+      const statusTimestamp = localStorage.getItem('patientStatusTimestamp');
+      
+      // Check if there's a recent status change (< 30 seconds old)
+      if (storedStatus && 
+          patient.status !== storedStatus && 
+          statusTimestamp && 
+          (Date.now() - parseInt(statusTimestamp)) < 30000) {
+        
+        console.log('Status poll detected change:', storedStatus, 'Current:', patient.status);
+        
+        // Update the patient status immediately
+        const updatedPatient = {
+          ...patient,
+          status: storedStatus
+        };
+        setPatient(updatedPatient);
+        
+        console.log(`Patient status updated from localStorage: ${storedStatus}`);
+        
+        // If critical status, show notification in staff mode
+        if (storedStatus === 'critical' && mode === 'staff') {
+          setStatusNotification({
+            visible: true,
+            message: `URGENT: Patient ${patient.name} needs immediate assistance!`,
+            type: 'urgent'
+          });
+          
+          // Hide notification after 8 seconds
+          setTimeout(() => {
+            setStatusNotification(prev => ({
+              ...prev,
+              visible: false
+            }));
+          }, 8000);
+        }
+      }
+    }, 1000); // Check every second
+    
+    return () => clearInterval(statusPollInterval);
+  }, [patient, mode, setPatient]);
 
   // Setup a polling mechanism to check for patient changes
   useEffect(() => {
@@ -251,7 +338,6 @@ useEffect(() => {
   }
 }, [selectedPatientId, loading, mode]);
 
-  // Add this to both MainDashboard.js and PatientInfo.js
 // Add localStorage polling for updates
 // Consistent polling implementation for both components:
 useEffect(() => {
@@ -336,6 +422,23 @@ useEffect(() => {
   }
 }, [mode, isDualScreen, patient, setPatient, lastSyncTimestamp, selectedPatientId, handlePatientChange, invalidateCache]);
 
+  // Retrieve persisted status after reload
+  useEffect(() => {
+    const persistedStatus = localStorage.getItem('persistStatusThroughReload');
+    if (persistedStatus && patient) {
+      console.log('Restoring persisted status after reload:', persistedStatus);
+      
+      // Update the patient state with the persisted status
+      setPatient(prev => ({
+        ...prev,
+        status: persistedStatus
+      }));
+      
+      // Clear the persisted status so it doesn't affect future loads
+      localStorage.removeItem('persistStatusThroughReload');
+    }
+  }, [patient, setPatient]);
+
   // Hook up keyboard navigation
   useKeyboardNavigation({
     isNavOpen,
@@ -359,9 +462,28 @@ useEffect(() => {
             }, 10);
           }
         }
-      },
+      }
     },
   });
+  
+  // Simple status button key handler
+  const handleStatusKeyDown = (event, index) => {
+    // Only handle Enter or Space for button activation
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      
+      // Execute the appropriate action
+      if (index === 0) {
+        handleStatusUpdate('stable');
+      } else if (index === 1) {
+        handleStatusUpdate('needs-attention');
+      } else if (index === 2) {
+        handleStatusUpdate('critical');
+      } else if (index === 3) {
+        handleNurseCall();
+      }
+    }
+  };
 
   // Function to check if a schedule item is in the past
   const isTimeInPast = (scheduleTime) => {
@@ -399,6 +521,255 @@ useEffect(() => {
       window.location.reload();
     }, 50);
   };
+
+  // Add patient status update buttons to the MainDashboard component for patient mode
+  const handleStatusUpdate = (status) => {
+    console.log('Updating patient status to:', status);
+    
+    // Create a status mapping for UI display
+    const statusDisplay = {
+      'stable': 'I\'m feeling fine',
+      'needs-attention': 'I need assistance',
+      'critical': 'Urgent - Need help now'
+    };
+    
+    try {
+      // Update the local state immediately for responsive UI
+      if (patient) {
+        const updatedPatient = {
+          ...patient,
+          status: status
+        };
+        
+        // Update patient state with new status
+        setPatient(updatedPatient);
+        
+        // For demo purposes, store in localStorage to persist between page refreshes
+        // This also serves as a communication channel between windows
+        localStorage.setItem('patientStatus', status);
+        localStorage.setItem('patientStatusTimestamp', Date.now().toString());
+        
+        // Show success notification
+        setStatusNotification({
+          visible: true,
+          message: `Status updated: ${statusDisplay[status] || status}`,
+          type: status === 'critical' ? 'urgent' : 'success'
+        });
+        
+        // Dispatch an immediate event to notify all components of the status change
+        // This helps with real-time updates across components
+        window.dispatchEvent(new CustomEvent('patientStatusChanged', { 
+          detail: { 
+            patientId: patient.patientId,
+            status: status,
+            timestamp: Date.now()
+          }
+        }));
+        
+        // Ensure we update the backend if available
+        const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5001";
+        fetch(`${API_BASE_URL}/api/patients/${patient.patientId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedPatient),
+        }).then(response => {
+          if (!response.ok) {
+            throw new Error(`Server returned ${response.status}`);
+          }
+          return response.json();
+        }).then(data => {
+          console.log("Status update successful on server:", data);
+          // Refresh any cached data
+          if (invalidateCache && typeof invalidateCache === 'function') {
+            invalidateCache(patient.patientId);
+          }
+        }).catch(error => {
+          console.error("Backend update failed, but UI is updated:", error);
+        });
+        
+        // If in dual screen mode, handle communication differently depending on which side we're on
+        if (isDualScreen) {
+          if (mode === 'patient' && window.opener) {
+            // Patient side - we're in a child window, send message to parent (staff) window
+            try {
+              console.log('Sending status update to staff window:', status);
+              window.opener.postMessage({
+                type: 'patientInfoUpdate',
+                patientInfo: { status },
+                timestamp: Date.now()
+              }, window.location.origin);
+            } catch (error) {
+              console.error('Failed to communicate with staff window:', error);
+            }
+          } 
+          else if (mode === 'staff' && syncDataToPatientScreen) {
+            // Staff side - use the sync function to update patient screen
+            syncDataToPatientScreen('patientInfoUpdate', {
+              status: status
+            });
+          }
+        }
+        
+        // Hide notification after 3 seconds
+        setTimeout(() => {
+          setStatusNotification(prev => ({
+            ...prev,
+            visible: false
+          }));
+        }, 3000);
+      } else {
+        throw new Error('Patient data not available');
+      }
+    } catch (error) {
+      console.error('Error updating status:', error);
+      
+      // Show error notification
+      setStatusNotification({
+        visible: true,
+        message: 'Error updating status. Please try again.',
+        type: 'error'
+      });
+      
+      // Hide error notification after 5 seconds
+      setTimeout(() => {
+        setStatusNotification(prev => ({
+          ...prev,
+          visible: false
+        }));
+      }, 5000);
+    }
+  };
+
+  const handleNurseCall = () => {
+    console.log('Calling the nurse');
+    
+    // Show notification
+    setStatusNotification({
+      visible: true,
+      message: 'Nurse has been called! Someone will assist you shortly.',
+      type: 'urgent'
+    });
+    
+    // Also update status to critical
+    if (patient) {
+      const updatedPatient = {
+        ...patient,
+        status: 'critical'
+      };
+      
+      // Update state
+      setPatient(updatedPatient);
+      
+      // For demo purposes, store in localStorage for cross-window communication
+      localStorage.setItem('patientStatus', 'critical');
+      localStorage.setItem('patientStatusTimestamp', Date.now().toString());
+      localStorage.setItem('nurseCallTimestamp', Date.now().toString());
+      
+      // Dispatch an immediate event to notify all components of the status change
+      window.dispatchEvent(new CustomEvent('patientStatusChanged', { 
+        detail: { 
+          patientId: patient.patientId,
+          status: 'critical',
+          timestamp: Date.now()
+        }
+      }));
+      
+      // Update backend if available
+      const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5001";
+      fetch(`${API_BASE_URL}/api/patients/${patient.patientId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedPatient),
+      }).then(response => {
+        if (!response.ok) {
+          throw new Error(`Server returned ${response.status}`);
+        }
+        return response.json();
+      }).then(data => {
+        console.log("Nurse call status update successful on server:", data);
+        // Refresh any cached data
+        if (invalidateCache && typeof invalidateCache === 'function') {
+          invalidateCache(patient.patientId);
+        }
+      }).catch(error => {
+        console.error("Backend update failed for nurse call, but UI is updated:", error);
+      });
+      
+      // Dispatch nurse call event
+      window.dispatchEvent(new CustomEvent('nurseCallRequested', { 
+        detail: { 
+          patientId: patient.patientId,
+          timestamp: Date.now()
+        }
+      }));
+      
+      // If in dual screen mode, handle communication differently depending on which side we're on
+      if (isDualScreen) {
+        if (mode === 'patient' && window.opener) {
+          // Patient side - we're in a child window, send message to parent (staff) window
+          try {
+            console.log('Sending nurse call to staff window');
+            
+            // Send both status update and nurse call messages
+            window.opener.postMessage({
+              type: 'patientInfoUpdate',
+              patientInfo: { status: 'critical' },
+              timestamp: Date.now()
+            }, window.location.origin);
+            
+            // Also send a specific nurse call event
+            window.opener.postMessage({
+              type: 'nurseCall',
+              data: {
+                patientId: patient.patientId,
+                timestamp: Date.now()
+              }
+            }, window.location.origin);
+          } catch (error) {
+            console.error('Failed to communicate with staff window:', error);
+          }
+        } 
+        else if (mode === 'staff' && syncDataToPatientScreen) {
+          // Staff side - use the sync function to update patient screen
+          syncDataToPatientScreen('patientInfoUpdate', {
+            status: 'critical'
+          });
+          
+          // Then send a specific nurse call event
+          syncDataToPatientScreen('nurseCall', {
+            patientId: patient.patientId,
+            timestamp: Date.now()
+          });
+        }
+      }
+    }
+    
+    // Hide notification after 5 seconds
+    setTimeout(() => {
+      setStatusNotification(prev => ({
+        ...prev,
+        visible: false
+      }));
+    }, 5000);
+  };
+
+  // Add diagnostic logging for patient status
+  useEffect(() => {
+    if (patient && patient.status) {
+      console.log('PATIENT STATUS CHANGED TO:', patient.status);
+      console.log('Status change timestamp:', new Date().toLocaleTimeString());
+      
+      // Log to localStorage for debugging across components
+      localStorage.setItem('lastStatusChangeDebug', JSON.stringify({
+        status: patient.status,
+        timestamp: Date.now(),
+        formattedTime: new Date().toLocaleTimeString()
+      }));
+      
+      // Match the UI class that should be active
+      console.log('Active status class should be:', `status-${patient.status}`);
+    }
+  }, [patient?.status]);
 
   if (loading) {
     return (
@@ -475,6 +846,64 @@ useEffect(() => {
 
           {/* Patient Details Card */}
           <div className="info-card">
+            {/* Status Update Buttons - Only for Patient Mode */}
+            {mode === "patient" && (
+              <div className="status-update-container">
+                <h3>How are you feeling?</h3>
+                <div className="status-buttons" role="group" aria-label="Status options">
+                  <button 
+                    className={`status-button status-stable ${patient.status === 'stable' ? 'active' : ''}`}
+                    onClick={() => handleStatusUpdate('stable')}
+                    aria-label="I'm feeling fine"
+                    tabIndex={0}
+                    ref={el => statusButtonRefs.current[0] = el}
+                    onKeyDown={(e) => handleStatusKeyDown(e, 0)}
+                  >
+                    <span>I'm feeling fine</span>
+                  </button>
+                  <button 
+                    className={`status-button status-needs-attention ${patient.status === 'needs-attention' ? 'active' : ''}`}
+                    onClick={() => handleStatusUpdate('needs-attention')}
+                    aria-label="I need assistance"
+                    tabIndex={0}
+                    ref={el => statusButtonRefs.current[1] = el}
+                    onKeyDown={(e) => handleStatusKeyDown(e, 1)}
+                  >
+                    <span>I need assistance</span>
+                  </button>
+                  <button 
+                    className={`status-button status-critical ${patient.status === 'critical' ? 'active' : ''}`}
+                    onClick={() => handleStatusUpdate('critical')}
+                    aria-label="Urgent - Need help now"
+                    tabIndex={0}
+                    ref={el => statusButtonRefs.current[2] = el}
+                    onKeyDown={(e) => handleStatusKeyDown(e, 2)}
+                  >
+                    <span>Urgent - Need help now</span>
+                  </button>
+                </div>
+                
+                <div className="nurse-call-section">
+                  <h3>Need immediate assistance?</h3>
+                  <button 
+                    className="nurse-call-button"
+                    onClick={handleNurseCall}
+                    aria-label="Call Nurse Now"
+                    tabIndex={0}
+                    onKeyDown={(e) => handleStatusKeyDown(e, 3)}
+                    ref={el => statusButtonRefs.current[3] = el}
+                  >
+                    <span className="nurse-call-icon">🔔</span>
+                    <span>Call Nurse Now</span>
+                  </button>
+                </div>
+                
+                <div className="keyboard-hint">
+                  Use Tab key to navigate between buttons, Enter to select.
+                </div>
+              </div>
+            )}
+
             <div className="patient-detail-item">
               <span className="detail-icon">🏠</span>
               <span className="detail-content">Room: {patient.room}</span>
@@ -554,6 +983,20 @@ useEffect(() => {
               }
             }}>Test Sync</button>
           )}
+        </div>
+      )}
+      
+      {statusNotification.visible && (
+        <div className={`status-notification ${statusNotification.type}`}>
+          <div className="status-notification-content">
+            <span>{statusNotification.message}</span>
+            <button 
+              className="notification-close-btn"
+              onClick={() => setStatusNotification(prev => ({...prev, visible: false}))}
+            >
+              ×
+            </button>
+          </div>
         </div>
       )}
     </Layout>

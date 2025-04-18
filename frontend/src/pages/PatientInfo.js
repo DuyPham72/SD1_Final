@@ -892,6 +892,93 @@ const handleSave = useCallback(() => {
       : {},
   });
 
+  // Handler for patient status updates
+  const handleStatusUpdate = useCallback(async (newStatus) => {
+    if (!patient) return;
+    
+    console.log('Updating patient status to:', newStatus);
+    
+    try {
+      const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5001";
+      
+      // Create a copy of the patient with the updated status
+      const updatedPatient = { 
+        ...patient,
+        status: newStatus
+      };
+      
+      // Update in the database
+      const response = await fetch(
+        `${API_BASE_URL}/api/patients/${patient.patientId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedPatient),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(
+          errorData?.message || `Server returned ${response.status}`
+        );
+      }
+
+      const updatedData = await response.json();
+      setPatient(updatedData);
+      
+      // Sync with staff screen in dual mode
+      if (isDualScreen) {
+        // Update the status in local storage for the dual screen
+        localStorage.setItem('patientStatus', newStatus);
+        localStorage.setItem('patientStatusTimestamp', Date.now().toString());
+        
+        // Dispatch an event to notify other components
+        window.dispatchEvent(new CustomEvent('patientStatusChanged', { 
+          detail: { 
+            patientId: patient.patientId,
+            status: newStatus,
+            timestamp: Date.now()
+          }
+        }));
+      }
+      
+      // Show confirmation message
+      alert(`Your status has been updated to: ${
+        newStatus === 'stable' ? 'Feeling Fine' :
+        newStatus === 'needs-attention' ? 'Need Assistance' :
+        'Urgent - Need Help Now'
+      }`);
+      
+    } catch (error) {
+      console.error("Error updating status:", error);
+      alert("Sorry, there was a problem updating your status. Please try again or call for help.");
+    }
+  }, [patient, setPatient, isDualScreen]);
+
+  // Handler for nurse call button
+  const handleNurseCall = useCallback(() => {
+    if (!patient) return;
+    
+    console.log('Nurse call initiated for patient:', patient.patientId);
+    
+    // Update status to critical automatically
+    handleStatusUpdate('critical');
+    
+    // Show a confirmation dialog
+    alert('Nurse has been notified. Someone will be with you shortly.');
+    
+    // In a real implementation, this would trigger:
+    // 1. A nurse call system notification
+    // 2. An alert on the staff dashboard
+    // 3. Potentially a pager or mobile alert to the assigned nurse
+    
+    // For demo purposes, we're just updating the status and showing a confirmation
+    
+    // You could also implement a WebSocket connection to alert staff in real-time
+    
+  }, [patient, handleStatusUpdate]);
+
   if (loading) return <div className="loading">Loading...</div>;
   if (!patient) return <div className="error">No patient data available</div>;
 
@@ -1079,6 +1166,47 @@ const handleSave = useCallback(() => {
   const renderPatientInfo = () => {
     return (
       <div className="info-fields">
+        {/* Status Update Button - Only visible in patient mode */}
+        {mode === "patient" && !editing && (
+          <div className="status-update-container">
+            <h3>How are you feeling?</h3>
+            <div className="status-buttons">
+              <button 
+                className={`status-button status-stable ${patient.status === 'stable' ? 'active' : ''}`}
+                onClick={() => handleStatusUpdate('stable')}
+                aria-label="I'm feeling fine"
+              >
+                <span>I'm feeling fine</span>
+              </button>
+              <button 
+                className={`status-button status-needs-attention ${patient.status === 'needs-attention' ? 'active' : ''}`}
+                onClick={() => handleStatusUpdate('needs-attention')}
+                aria-label="I need assistance"
+              >
+                <span>I need assistance</span>
+              </button>
+              <button 
+                className={`status-button status-critical ${patient.status === 'critical' ? 'active' : ''}`}
+                onClick={() => handleStatusUpdate('critical')}
+                aria-label="Urgent - Need help now"
+              >
+                <span>Urgent - Need help now</span>
+              </button>
+            </div>
+            
+            <div className="nurse-call-section">
+              <h3>Need immediate assistance?</h3>
+              <button 
+                className="nurse-call-button"
+                onClick={handleNurseCall}
+                aria-label="Call Nurse Now"
+              >
+                <span className="nurse-call-icon">🔔</span>
+                <span>Call Nurse Now</span>
+              </button>
+            </div>
+          </div>
+        )}
         {visibleFields.map((field, index) => (
           <div key={field.label} className="info-field">
             <label>{field.label}:</label>
@@ -1109,7 +1237,7 @@ const handleSave = useCallback(() => {
                     navigationSection === "info" && focusedInputIndex === index
                       ? "focused"
                       : ""
-                  }`}
+                  } ${field.path.length === 1 && field.path[0] === 'status' ? 'status-select' : ''}`}
                   disabled={isSaving}
                 >
                   {field.options.map(option => (
@@ -1154,9 +1282,11 @@ const handleSave = useCallback(() => {
                 />
               )
             ) : (
-              <span>{field.type === "select" && field.options 
+              <span className={`status-text ${field.path.length === 2 && field.path[0] === 'status' ? `status-${getFieldValue(field)}` : ''}`}>
+                {field.type === "select" && field.options 
                 ? field.options.find(opt => opt.value === getFieldValue(field))?.label || getFieldValue(field)
-                : getFieldValue(field)}</span>
+                : getFieldValue(field)}
+              </span>
             )}
           </div>
         ))}

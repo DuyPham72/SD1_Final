@@ -6,6 +6,8 @@
   --secondary-dark: #219955;
   --danger-color: #e74c3c;
   --danger-dark: #c0392b;
+  --warning-color: #f39c12;
+  --warning-dark: #e67e22;
   --text-color: #2c3e50;
   --text-light: #7f8c8d;
   --bg-color: #fff;
@@ -13,6 +15,11 @@
   --border-radius: 8px;
   --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   --transition: all 0.2s ease;
+  
+  /* Status colors */
+  --status-stable: #27ae60;
+  --status-needs-attention: #f39c12;
+  --status-critical: #e74c3c;
 }
 
 /* Main Layout */
@@ -559,4 +566,243 @@
   cursor: not-allowed;
   transform: none !important;
   box-shadow: none !important;
+}
+
+/* Style for status update container */
+.status-update-container {
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+}
+
+.status-update-container h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 1.2rem;
+  color: #343a40;
+}
+
+.status-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.status-button {
+  padding: 12px 15px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  position: relative;
+  overflow: hidden;
+}
+
+.status-button:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  transition: width 0.2s ease;
+}
+
+.status-button:hover:before,
+.status-button.active:before {
+  width: 8px;
+}
+
+.status-button.status-stable {
+  background-color: #e6f7ee;
+  color: #1e7e34;
+}
+
+.status-button.status-stable:before {
+  background-color: #28a745;
+}
+
+.status-button.status-stable:hover,
+.status-button.status-stable.active {
+  background-color: #d4edda;
+}
+
+.status-button.status-needs-attention {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-button.status-needs-attention:before {
+  background-color: #ffc107;
+}
+
+.status-button.status-needs-attention:hover,
+.status-button.status-needs-attention.active {
+  background-color: #ffeeba;
+}
+
+.status-button.status-critical {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.status-button.status-critical:before {
+  background-color: #dc3545;
+}
+
+.status-button.status-critical:hover,
+.status-button.status-critical.active {
+  background-color: #f5c6cb;
+}
+
+/* Add animation for critical status */
+@keyframes pulse-border {
+  0% {
+    box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+  }
+}
+
+.status-button.status-critical.active {
+  animation: pulse-border 2s infinite;
+}
+
+/* Make buttons more accessible on touch devices */
+@media (max-width: 768px) {
+  .status-buttons {
+    gap: 15px;
+  }
+  
+  .status-button {
+    padding: 15px;
+    font-size: 1.1rem;
+  }
+}
+
+/* Nurse call section */
+.nurse-call-section {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #e9ecef;
+}
+
+.nurse-call-section h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+  color: #dc3545;
+}
+
+.nurse-call-button {
+  width: 100%;
+  padding: 15px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(220, 53, 69, 0.2);
+}
+
+.nurse-call-button:hover {
+  background-color: #c82333;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(220, 53, 69, 0.25);
+}
+
+.nurse-call-button:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
+}
+
+.nurse-call-icon {
+  font-size: 1.3rem;
+  margin-right: 10px;
+}
+
+/* Animation for the nurse call button */
+@keyframes pulse-button {
+  0% {
+    box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 15px rgba(220, 53, 69, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+  }
+}
+
+.nurse-call-button {
+  animation: pulse-button 2s infinite;
+}
+
+/* Status text styling */
+.status-text {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.status-text.status-stable {
+  background-color: #28a745;
+  color: white;
+}
+
+.status-text.status-needs-attention {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.status-text.status-critical {
+  background-color: #dc3545;
+  color: white;
+  animation: pulse-status 1.5s infinite;
+}
+
+@keyframes pulse-status {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Status styling for dropdown */
+select option[value="stable"] {
+  background-color: #28a745;
+  color: white;
+}
+
+select option[value="needs-attention"] {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+select option[value="critical"] {
+  background-color: #dc3545;
+  color: white;
 }

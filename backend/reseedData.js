@@ -121,6 +121,7 @@ const patientData = [
         id: uuidv4(),
         patientId: 'P002',
         patientIdentifier: 'P002', // Using ID instead of name
+        patientName: 'M.G.',
         rating: 3,
         ratings: {
           overall: 3,
@@ -169,6 +170,7 @@ const patientData = [
         id: uuidv4(),
         patientId: 'P003',
         patientIdentifier: 'P003', // Using ID instead of name
+        patientName: 'N.C.',
         rating: 4.2,
         ratings: {
           overall: 4.2,

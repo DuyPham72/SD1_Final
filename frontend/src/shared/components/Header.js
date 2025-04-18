@@ -231,13 +231,31 @@ export const Header = ({
       {mode === "patient" ? (
         <h1 className="patient-header-with-status">
           {patient?.status && (
-            <span className={`status-indicator status-${patient.status}`} 
-                 title={`Patient Status: ${patient.status.replace('-', ' ')}`}></span>
+            <span 
+              className={`status-indicator status-${patient.status}`} 
+              title={patient.status === 'stable' ? 'Feeling Fine' : 
+                    patient.status === 'needs-attention' ? 'Needs Assistance' : 
+                    'Urgent - Needs Help'}
+            ></span>
           )}
           Patient Name: {patient?.name}
         </h1>
       ) : (
-        <div className="patient-header-spacer"></div>
+        <div className="header-content">
+          {patient && (
+            <div className="current-patient-status">
+              <span 
+                className={`status-indicator status-${patient?.status || 'stable'}`} 
+                title={patient?.status === 'stable' ? 'Feeling Fine' : 
+                      patient?.status === 'needs-attention' ? 'Needs Assistance' : 
+                      'Urgent - Needs Help'}
+              ></span>
+              <span className="current-patient-name">
+                Current Patient: {patient?.name}
+              </span>
+            </div>
+          )}
+        </div>
       )}
 
       <div className="header-actions">

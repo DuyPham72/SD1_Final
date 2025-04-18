@@ -199,7 +199,7 @@ export const AuthProvider = ({ children }) => {
     
     // Try to send message to patient window
     if (patientWindow && !patientWindow.closed) {
-      console.log('Sending update via window reference');
+      console.log('Sending update via window reference:', updateType, data);
       try {
         // Different message types
         if (updateType === 'scheduleUpdate') {
@@ -209,17 +209,53 @@ export const AuthProvider = ({ children }) => {
             timestamp
           }, window.location.origin);
         } else if (updateType === 'patientInfoUpdate') {
+          // For status updates, make sure we properly format the message
           patientWindow.postMessage({
             type: 'patientInfoUpdate',
             patientInfo: data,
             timestamp
           }, window.location.origin);
           
-          // Force reload only for major patient info updates
+          // For status updates (from patient to staff), make sure to update local storage
+          // This ensures the status is reflected immediately in both windows
+          if (data && data.status) {
+            // Store updated status in localStorage for cross-window sync
+            localStorage.setItem('patientStatus', data.status);
+            localStorage.setItem('patientStatusTimestamp', timestamp.toString());
+            
+            // Dispatch a patientStatusChanged event for local components to react
+            window.dispatchEvent(new CustomEvent('patientStatusChanged', {
+              detail: {
+                status: data.status,
+                timestamp: timestamp
+              }
+            }));
+          }
+        } else if (updateType === 'forceReload') {
+          // Explicit force reload message
           patientWindow.postMessage({
             type: 'forceReload',
             timestamp
           }, window.location.origin);
+        } else if (updateType === 'nurseCall') {
+          // Handle nurse call separately
+          patientWindow.postMessage({
+            type: 'nurseCall',
+            data: data,
+            timestamp
+          }, window.location.origin);
+          
+          // Also update status to critical for nurse calls
+          localStorage.setItem('patientStatus', 'critical');
+          localStorage.setItem('patientStatusTimestamp', timestamp.toString());
+          
+          // Dispatch a patientStatusChanged event for local components
+          window.dispatchEvent(new CustomEvent('patientStatusChanged', {
+            detail: {
+              status: 'critical',
+              timestamp: timestamp
+            }
+          }));
         }
       } catch (error) {
         console.error('Error sending message to patient window:', error);
@@ -264,9 +300,57 @@ export const AuthProvider = ({ children }) => {
         detail: { schedule: data, timestamp }
       }));
     } else if (updateType === 'patientInfoUpdate') {
+      // Patient info update received
+      console.log('Received patient info update from window message:', data.patientInfo);
+      
+      // If this is a status update and we're in staff mode, capture it in localStorage too
+      if (mode === 'staff' && data.patientInfo && data.patientInfo.status) {
+        const timestamp = data.timestamp || Date.now();
+        const status = data.patientInfo.status;
+        
+        console.log('Updating status in localStorage from patient window:', status);
+        localStorage.setItem('patientStatus', status);
+        localStorage.setItem('patientStatusTimestamp', timestamp.toString());
+        
+        // Also dispatch a direct status changed event for immediate UI update
+        window.dispatchEvent(new CustomEvent('patientStatusChanged', {
+          detail: {
+            status: status,
+            timestamp: timestamp
+          }
+        }));
+      }
+      
+      // Dispatch event to update components
       window.dispatchEvent(new CustomEvent('patientInfoChanged', {
-        detail: { patientInfo: data, timestamp }
+        detail: {
+          patientInfo: data.patientInfo,
+          timestamp: data.timestamp || Date.now()
+        }
       }));
+    } else if (updateType === 'forceReload') {
+      // Force reload request received
+      console.log('Received force reload request at:', new Date().toLocaleTimeString());
+      
+      // Only reload if in patient mode
+      if (mode === 'patient') {
+        console.log('Processing force reload in patient mode');
+        
+        // Store current status to ensure it persists through reload
+        const currentStatus = localStorage.getItem('patientStatus');
+        if (currentStatus) {
+          console.log('Preserving patient status through reload:', currentStatus);
+          localStorage.setItem('persistStatusThroughReload', currentStatus);
+        }
+        
+        // Set a small delay before reloading to allow other state updates to complete
+        setTimeout(() => {
+          console.log('Executing patient window reload');
+          window.location.reload();
+        }, 100);
+      } else {
+        console.log('Ignoring force reload request in non-patient mode');
+      }
     }
   };
   
@@ -355,7 +439,25 @@ export const AuthProvider = ({ children }) => {
       }));
     } else if (event.data.type === 'patientInfoUpdate') {
       // Patient info update received
-      console.log('Received patient info update:', event.data.patientInfo);
+      console.log('Received patient info update from window message:', event.data.patientInfo);
+      
+      // If this is a status update and we're in staff mode, capture it in localStorage too
+      if (mode === 'staff' && event.data.patientInfo && event.data.patientInfo.status) {
+        const timestamp = event.data.timestamp || Date.now();
+        const status = event.data.patientInfo.status;
+        
+        console.log('Updating status in localStorage from patient window:', status);
+        localStorage.setItem('patientStatus', status);
+        localStorage.setItem('patientStatusTimestamp', timestamp.toString());
+        
+        // Also dispatch a direct status changed event for immediate UI update
+        window.dispatchEvent(new CustomEvent('patientStatusChanged', {
+          detail: {
+            status: status,
+            timestamp: timestamp
+          }
+        }));
+      }
       
       // Dispatch event to update components
       window.dispatchEvent(new CustomEvent('patientInfoChanged', {
@@ -364,20 +466,51 @@ export const AuthProvider = ({ children }) => {
           timestamp: event.data.timestamp || Date.now()
         }
       }));
+    } else if (event.data.type === 'nurseCall') {
+      // Handle nurse call separately
+      console.log('Received nurse call from patient window:', event.data.data);
+      
+      // If we're in staff mode, show an alert or notification
+      if (mode === 'staff') {
+        // Update status to critical
+        localStorage.setItem('patientStatus', 'critical');
+        localStorage.setItem('patientStatusTimestamp', Date.now().toString());
+        
+        // Dispatch a patientStatusChanged event
+        window.dispatchEvent(new CustomEvent('patientStatusChanged', {
+          detail: {
+            status: 'critical',
+            timestamp: Date.now()
+          }
+        }));
+        
+        // Also dispatch a specific nurse call event
+        window.dispatchEvent(new CustomEvent('nurseCallRequested', { 
+          detail: event.data.data || { timestamp: Date.now() }
+        }));
+      }
     } else if (event.data.type === 'forceReload') {
       // Force reload request received
       console.log('Received force reload request at:', new Date().toLocaleTimeString());
       
       // Only reload if in patient mode
       if (mode === 'patient') {
-        console.log('PATIENT SCREEN RELOADING');
+        console.log('Processing force reload in patient mode');
         
-        // Store a flag in localStorage so we know this was an explicit reload
-        localStorage.setItem('explicit_reload_requested', 'true');
-        localStorage.setItem('reload_timestamp', Date.now().toString());
+        // Store current status to ensure it persists through reload
+        const currentStatus = localStorage.getItem('patientStatus');
+        if (currentStatus) {
+          console.log('Preserving patient status through reload:', currentStatus);
+          localStorage.setItem('persistStatusThroughReload', currentStatus);
+        }
         
-        // Use a more direct reload approach
-        window.location.href = window.location.href.split('?')[0] + '?mode=patient&fromStaffScreen=true&dualScreen=true&reloaded=true&t=' + Date.now();
+        // Set a small delay before reloading to allow other state updates to complete
+        setTimeout(() => {
+          console.log('Executing patient window reload');
+          window.location.reload();
+        }, 100);
+      } else {
+        console.log('Ignoring force reload request in non-patient mode');
       }
     }
   };

@@ -145,7 +145,21 @@ export const useKeyboardNavigation = ({
     // Main navigation when sidebar is closed
     switch(e.key) {
       case 'ArrowRight':
+        e.preventDefault();
+        setMainNavFocusIndex(prev => {
+          const nextIndex = prev === null || prev >= mainNavElements.length - 1 ? 0 : prev + 1;
+          mainNavElements[nextIndex]?.focus();
+          return nextIndex;
+        });
+        break;
+
       case 'ArrowDown':
+        // First check if a custom handler wants to take control
+        if (customHandlers['ArrowDown'] && customHandlers['ArrowDown'](e) === true) {
+          // Custom handler has taken care of it
+          break;
+        }
+        
         e.preventDefault();
         setMainNavFocusIndex(prev => {
           const nextIndex = prev === null || prev >= mainNavElements.length - 1 ? 0 : prev + 1;
@@ -155,7 +169,21 @@ export const useKeyboardNavigation = ({
         break;
 
       case 'ArrowLeft':
+        e.preventDefault();
+        setMainNavFocusIndex(prev => {
+          const nextIndex = prev === null || prev <= 0 ? mainNavElements.length - 1 : prev - 1;
+          mainNavElements[nextIndex]?.focus();
+          return nextIndex;
+        });
+        break;
+        
       case 'ArrowUp':
+        // First check if a custom handler wants to take control
+        if (customHandlers['ArrowUp'] && customHandlers['ArrowUp'](e) === true) {
+          // Custom handler has taken care of it
+          break;
+        }
+        
         e.preventDefault();
         setMainNavFocusIndex(prev => {
           const nextIndex = prev === null || prev <= 0 ? mainNavElements.length - 1 : prev - 1;

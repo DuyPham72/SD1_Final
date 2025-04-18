@@ -36,7 +36,33 @@
   z-index: 15;
 }
 
-/* Large icons for entertainment links */
+/* Icon debug info panel */
+.icon-debug-info {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #f5f5f5;
+  border-radius: 5px;
+  font-size: 12px;
+  text-align: left;
+  color: #333;
+}
+
+.icon-debug-info ul {
+  margin: 5px 0 0;
+  padding-left: 20px;
+  list-style-type: disc;
+}
+
+/* Specific styles for Netflix and Twitch icons to ensure they work properly */
+[data-app-name="netflix"] .entertainment-icon,
+[data-app-name="twitch"] .entertainment-icon {
+  background-color: #fff;
+  padding: 10px;
+  object-position: center;
+  object-fit: contain;
+}
+
+/* Fix any issues with all icons */
 .entertainment-icon {
   width: 120px;
   height: 120px;
@@ -46,6 +72,26 @@
   padding: 10px;
   object-fit: contain;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px dashed transparent; /* Debug border */
+  /* Force hardware acceleration for smoother transitions */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-font-smoothing: subpixel-antialiased;
+}
+
+/* Ensure all icons are visible */
+img.entertainment-icon {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Fix hover effect - make it more specific to override any potential issues */
+.entertainment-link:hover .entertainment-icon,
+a.entertainment-link:hover img.entertainment-icon {
+  transform: scale(1.1);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  border-color: #3498db; /* Show border on hover for debugging */
 }
 
 /* Basic styles for entertainment links to support keyboard navigation */
@@ -59,12 +105,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-/* Hover effect */
-.entertainment-link:hover .entertainment-icon {
-  transform: scale(1.1);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
 }
 
 /* Focused state styles */
@@ -87,4 +128,43 @@
   color: #777;
   font-style: italic;
   font-size: 14px;
+}
+
+/* Fallback icon styling */
+.fallback-icon {
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+  font-size: 48px;
+  font-weight: bold;
+  color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+/* Hover effect for fallback icons */
+.entertainment-link:hover .fallback-icon {
+  transform: scale(1.1);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Focused state for fallback icons */
+.entertainment-link.app-focused .fallback-icon,
+.entertainment-link:focus-visible .fallback-icon {
+  transform: scale(1.1);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  outline: 3px solid #3498db;
+}
+
+/* Updated hover effect to ensure it works with all icon types */
+.entertainment-link:hover .entertainment-icon,
+.entertainment-link:hover .fallback-icon,
+a.entertainment-link:hover img.entertainment-icon,
+a.entertainment-link:hover .fallback-icon {
+  transform: scale(1.1);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  border-color: #3498db; /* Show border on hover for debugging */
 }
