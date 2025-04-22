@@ -787,3 +787,42 @@
   color: #b0003a; /* Darker text for better contrast */
   font-weight: bold;
 }
+
+/* Dual Screen button styling - similar to New Patient button */
+.dual-screen-button {
+  display: flex;
+  align-items: center;
+  background-color: #3498db; /* Blue color to differentiate */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin-right: 15px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.dual-screen-button:hover {
+  background-color: #2980b9; /* Darker blue on hover */
+}
+
+.dual-screen-button .dual-screen-icon {
+  font-size: 16px;
+  margin-right: 6px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .dual-screen-button .dual-screen-text {
+    display: none;
+  }
+
+  .dual-screen-button {
+    padding: 8px;
+    margin-right: 10px;
+  }
+  
+  .dual-screen-button .dual-screen-icon {
+    margin-right: 0;
+  }
+}
