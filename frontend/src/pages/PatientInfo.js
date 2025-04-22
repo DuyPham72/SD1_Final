@@ -12,6 +12,12 @@ import {
 import { useAuth } from "../shared/hooks/AuthContext";
 import PatientFeedbackTab from "../shared/components/PatientFeedbackTab";
 
+// Function to detect if the device is mobile
+const isMobileDevice = () => {
+  return window.innerWidth <= 768 || 
+         /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+};
+
 // Custom hook for form state management
 const usePatientForm = (patient, setPatient) => {
   const [editing, setEditing] = useState(false);
@@ -189,6 +195,9 @@ function PatientInfo() {
     setMainNavFocusIndex,
   } = useNavigationState();
 
+  // Add state to track if device is mobile
+  const [isMobile, setIsMobile] = useState(isMobileDevice());
+
   // Navigation section state
   const [navigationSection, setNavigationSection] = useState("main");
   const [focusedInputIndex, setFocusedInputIndex] = useState(null);
@@ -198,6 +207,19 @@ function PatientInfo() {
   // State for save button hover
   const [isSaveButtonHovered, setIsSaveButtonHovered] = useState(false);
   const [lastSyncTimestamp, setLastSyncTimestamp] = useState(0);
+
+  // Add event listener for window resize to update mobile detection
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(isMobileDevice());
+    };
+    
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   // Refs
   const mainNavElementsRef = useRef({
@@ -1166,8 +1188,8 @@ const handleSave = useCallback(() => {
   const renderPatientInfo = () => {
     return (
       <div className="info-fields">
-        {/* Status Update Button - Only visible in patient mode */}
-        {mode === "patient" && !editing && (
+        {/* Status Update Button - Only visible in patient mode and not on mobile */}
+        {mode === "patient" && !editing && !isMobile && (
           <div className="status-update-container">
             <h3>How are you feeling?</h3>
             <div className="status-buttons">

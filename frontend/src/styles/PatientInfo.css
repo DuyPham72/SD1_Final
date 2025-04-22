@@ -395,6 +395,16 @@
   .rating-categories-grid {
     grid-template-columns: 1fr;
   }
+  
+  /* Hide the status update container on mobile devices */
+  .status-update-container {
+    display: none;
+  }
+  
+  /* Hide the nurse call section on mobile devices */
+  .nurse-call-section {
+    display: none;
+  }
 }
 
 /* Fullscreen mode */

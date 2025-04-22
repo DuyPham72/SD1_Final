@@ -170,7 +170,7 @@ function Feedback() {
       const newFeedback = {
         id: Date.now().toString(),
         // Set old-style single rating for compatibility
-        patientIdentifier: patient.patientId || qrPatientData.patientId,
+        patientIdentifier: patient?.patientId || qrPatientData?.patientId,
         rating: Number(overallRating),
         // Detailed ratings with calculated overall
         ratings: {
@@ -194,22 +194,30 @@ function Feedback() {
           newFeedback.room = qrPatientData.room;
           
           // Submit to patient-specific endpoint
-          await fetch(`${API_BASE_URL}/api/patients/${qrPatientData.patientId}/feedback`, {
+          const response = await fetch(`${API_BASE_URL}/api/patients/${qrPatientData.patientId}/feedback`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify(newFeedback),
           });
+          
+          if (!response.ok) {
+            throw new Error('Failed to submit feedback');
+          }
         } else {
           // Anonymous feedback
-          await fetch(`${API_BASE_URL}/api/feedback/submit`, {
+          const response = await fetch(`${API_BASE_URL}/api/feedback/submit`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify(newFeedback),
           });
+          
+          if (!response.ok) {
+            throw new Error('Failed to submit feedback');
+          }
         }
       } else {
         // Regular in-app flow - use patient from context
@@ -227,11 +235,18 @@ function Feedback() {
         await updatePatientData(updatedPatient);
       }
       
-      setSubmitting(false);
+      // Scroll to top to ensure thank you message is visible
+      window.scrollTo(0, 0);
+      
+      // Important: Set submitted state after successful submission
       setSubmitted(true);
+      setSubmitting(false);
+      
+      console.log("Feedback submitted successfully, showing thank you message");
     } catch (error) {
       console.error("Error submitting feedback:", error);
       setSubmitting(false);
+      alert("There was a problem submitting your feedback. Please try again.");
     }
   };
 
@@ -316,19 +331,23 @@ function Feedback() {
 
         <div className="content-container">
           <div className="feedback-container">
-            <h2>Your Feedback Matters</h2>
-            
-            {currentPatient && (
-              <div className="patient-info-box">
-                <p><strong>Patient:</strong> {currentPatient.name}</p>
-                <p><strong>Room:</strong> {currentPatient.room}</p>
-              </div>
+            {!submitted && (
+              <>
+                <h2>Your Feedback Matters</h2>
+                
+                {currentPatient && (
+                  <div className="patient-info-box">
+                    <p><strong>Patient:</strong> {currentPatient.name}</p>
+                    <p><strong>Room:</strong> {currentPatient.room}</p>
+                  </div>
+                )}
+                
+                <p className="feedback-intro">
+                  Thank you for taking the time to provide feedback about your stay.
+                  Your input helps us improve our services.
+                </p>
+              </>
             )}
-            
-            <p className="feedback-intro">
-              Thank you for taking the time to provide feedback about your stay.
-              Your input helps us improve our services.
-            </p>
 
             {/* The rest of the form is the same for both modes */}
             {renderFeedbackForm()}
