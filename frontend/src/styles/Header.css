@@ -3,9 +3,8 @@
 .header-bar {
   display: flex;
   align-items: center;
-  background-color: #fff;
   padding: 12px 20px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  /* box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); */
   position: relative;
   z-index: 100;
   height: 70px;
@@ -19,14 +18,14 @@
   cursor: pointer;
   padding: 8px 12px;
   margin-right: 15px;
-  color: #555;
+  color: white;
   border-radius: 4px;
   transition: background-color 0.2s, color 0.2s;
 }
 
 .menu-button:hover {
-  background-color: #f1f2f3;
-  color: #333;
+  background-color: rgba(255, 255, 255, 0.329);
+  color: white;
 }
 
 .menu-button.focused {
@@ -61,7 +60,7 @@
 .patient-header {
   font-size: 1.2rem;
   font-weight: 600;
-  color: #2c3e50;
+  color: white;
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -153,13 +152,11 @@
 .current-time {
   white-space: nowrap;
   font-size: 14px;
-  color: #333;
+  color: white;
   min-width: 120px;
   text-align: left;
 }
 /* Fix for header time display */
-
-
 
 /* Override any conflicting styles */
 .header-bar {
@@ -167,8 +164,6 @@
   align-items: center;
   justify-content: space-between;
   padding: 10px;
-  background-color: #f8f8f8;
-  border-bottom: 1px solid #ddd;
   position: relative;
 }
 
@@ -339,7 +334,6 @@
   margin-left: 10px;
 }
 /* Add these styles to your index.css or Header.css file */
-
 
 /* Ensure the header has enough space for all elements */
 .header-bar {

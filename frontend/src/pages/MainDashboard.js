@@ -11,11 +11,12 @@ import {
   Header,
 } from "../shared";
 import { useAuth } from "../shared/hooks/AuthContext";
+import stethescopeIcon from "../assets/stethescope.png";
 
 function MainDashboard() {
   const navigate = useNavigate();
   const { mode, patientId, nurseSelectedPatientId, isDualScreen } = useAuth();
-  
+
   const {
     patient,
     allPatients,
@@ -24,7 +25,7 @@ function MainDashboard() {
     handlePatientChange,
     invalidateCache,
   } = usePatientData();
-  
+
   const currentTime = useTimeUpdate();
   const {
     isNavOpen,
@@ -44,96 +45,122 @@ function MainDashboard() {
   // Listen for patient changes from staff screen in dual screen mode
   useEffect(() => {
     const handlePatientChanged = (event) => {
-      console.log('Patient changed event received in MainDashboard:', event.detail);
-      
+      console.log(
+        "Patient changed event received in MainDashboard:",
+        event.detail
+      );
+
       // Force a refresh of patient data by invalidating cache first
       invalidateCache(event.detail.patientId);
-      
+
       // Update the patient
       handlePatientChange(event.detail.patientId);
-      
+
       // Force reload if necessary
       if (event.detail.forceRefresh) {
         // Give time for state updates to propagate
         setTimeout(() => {
-          console.log('Forcing page reload due to patient change');
+          console.log("Forcing page reload due to patient change");
           window.location.reload();
         }, 100);
       }
     };
-    
+
     // Set up event listener regardless of mode to catch all updates
-    console.log('Setting up patientChanged listener in MainDashboard');
-    window.addEventListener('patientChanged', handlePatientChanged);
-    
+    console.log("Setting up patientChanged listener in MainDashboard");
+    window.addEventListener("patientChanged", handlePatientChanged);
+
     return () => {
-      window.removeEventListener('patientChanged', handlePatientChanged);
+      window.removeEventListener("patientChanged", handlePatientChanged);
     };
   }, [handlePatientChange, invalidateCache]);
 
   // Setup a polling mechanism to check for patient changes
   useEffect(() => {
-    if (mode === 'patient' && isDualScreen) {
-      console.log('Setting up polling for patient changes');
-      
+    if (mode === "patient" && isDualScreen) {
+      console.log("Setting up polling for patient changes");
+
       const pollInterval = setInterval(() => {
-        const storedPatientId = localStorage.getItem('nurseSelectedPatientId');
-        const changeTimestamp = localStorage.getItem('patientChangeTimestamp');
-        
+        const storedPatientId = localStorage.getItem("nurseSelectedPatientId");
+        const changeTimestamp = localStorage.getItem("patientChangeTimestamp");
+
         // Check if there's been a change we haven't processed
         if (storedPatientId && storedPatientId !== selectedPatientId) {
-          console.log('Poll detected patient change:', storedPatientId);
-          
+          console.log("Poll detected patient change:", storedPatientId);
+
           // Force clear the cache
           invalidateCache(storedPatientId);
-          
+
           // Update patient
           handlePatientChange(storedPatientId);
-          
+
           // If the change is recent (last 10 seconds), force reload
-          if (changeTimestamp && (Date.now() - parseInt(changeTimestamp)) < 10000) {
+          if (
+            changeTimestamp &&
+            Date.now() - parseInt(changeTimestamp) < 10000
+          ) {
             setTimeout(() => window.location.reload(), 50);
           }
         }
       }, 1000); // Check every second
-      
+
       return () => clearInterval(pollInterval);
     }
-  }, [mode, isDualScreen, selectedPatientId, handlePatientChange, invalidateCache]);
+  }, [
+    mode,
+    isDualScreen,
+    selectedPatientId,
+    handlePatientChange,
+    invalidateCache,
+  ]);
 
   // When the selected patient changes in dual screen mode, refresh the data
   useEffect(() => {
     // In dual screen mode, prioritize nurseSelectedPatientId if in patient mode
-    if (isDualScreen && mode === 'patient' && nurseSelectedPatientId) {
-      console.log('MainDashboard: Using nurse-selected patient in dual screen mode:', nurseSelectedPatientId);
-      
+    if (isDualScreen && mode === "patient" && nurseSelectedPatientId) {
+      console.log(
+        "MainDashboard: Using nurse-selected patient in dual screen mode:",
+        nurseSelectedPatientId
+      );
+
       // Check if we need to update the selection
       if (selectedPatientId !== nurseSelectedPatientId) {
-        console.log('MainDashboard: Updating from nurse selection');
-        
+        console.log("MainDashboard: Updating from nurse selection");
+
         // Force clear the cache for this patient
         invalidateCache(nurseSelectedPatientId);
-        
+
         // Update selection
         handlePatientChange(nurseSelectedPatientId);
       }
     }
-  }, [isDualScreen, mode, nurseSelectedPatientId, selectedPatientId, handlePatientChange, invalidateCache]);
+  }, [
+    isDualScreen,
+    mode,
+    nurseSelectedPatientId,
+    selectedPatientId,
+    handlePatientChange,
+    invalidateCache,
+  ]);
 
   // Listen for storage events (when localStorage changes in other tabs/windows)
   useEffect(() => {
     const handleStorageChange = (e) => {
-      if (e.key === 'nurseSelectedPatientId' && e.newValue && e.newValue !== selectedPatientId) {
-        console.log('Storage event detected patient change:', e.newValue);
+      if (
+        e.key === "nurseSelectedPatientId" &&
+        e.newValue &&
+        e.newValue !== selectedPatientId
+      ) {
+        console.log("Storage event detected patient change:", e.newValue);
         invalidateCache(e.newValue);
         handlePatientChange(e.newValue);
       }
     };
-    
-    window.addEventListener('storage', handleStorageChange);
-    
+
+    window.addEventListener("storage", handleStorageChange);
+
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener("storage", handleStorageChange);
     };
   }, [selectedPatientId, handlePatientChange, invalidateCache]);
 
@@ -141,11 +168,11 @@ function MainDashboard() {
   useEffect(() => {
     // For safety, synchronize localStorage in case there's inconsistency
     if (selectedPatientId) {
-      localStorage.setItem('selectedPatientId', selectedPatientId);
-      
+      localStorage.setItem("selectedPatientId", selectedPatientId);
+
       // Also update nurseSelectedPatientId in localStorage in patient mode
-      if (mode === 'patient') {
-        localStorage.setItem('nurseSelectedPatientId', selectedPatientId);
+      if (mode === "patient") {
+        localStorage.setItem("nurseSelectedPatientId", selectedPatientId);
       }
     }
   }, [mode, selectedPatientId]);
@@ -211,28 +238,42 @@ function MainDashboard() {
       <div className="loading-container">
         <div className="loading">Loading patient data...</div>
         <div className="loading-details">
-          Patient ID: {selectedPatientId || "None"}<br />
-          Mode: {mode}<br />
-          Dual Screen: {isDualScreen ? "Yes" : "No"}<br />
-          Selected: {selectedPatientId}<br />
+          Patient ID: {selectedPatientId || "None"}
+          <br />
+          Mode: {mode}
+          <br />
+          Dual Screen: {isDualScreen ? "Yes" : "No"}
+          <br />
+          Selected: {selectedPatientId}
+          <br />
           Nurse Selected: {nurseSelectedPatientId}
         </div>
       </div>
     );
   }
-  
+
   if (!patient) {
     return (
       <div className="error-container">
         <div className="error">No patient data available</div>
         <div className="error-details">
-          Patient ID: {selectedPatientId || "None"}<br />
-          Mode: {mode}<br />
-          Dual Screen: {isDualScreen ? "Yes" : "No"}<br />
-          Selected: {selectedPatientId}<br />
-          Nurse Selected: {nurseSelectedPatientId}<br />
+          Patient ID: {selectedPatientId || "None"}
+          <br />
+          Mode: {mode}
+          <br />
+          Dual Screen: {isDualScreen ? "Yes" : "No"}
+          <br />
+          Selected: {selectedPatientId}
+          <br />
+          Nurse Selected: {nurseSelectedPatientId}
+          <br />
           <button onClick={() => window.location.reload()}>Reload Page</button>
-          <button onClick={() => { invalidateCache(); window.location.reload(); }}>
+          <button
+            onClick={() => {
+              invalidateCache();
+              window.location.reload();
+            }}
+          >
             Clear Cache and Reload
           </button>
         </div>
@@ -265,7 +306,11 @@ function MainDashboard() {
           {/* Staff Info Card */}
           <div className="info-card">
             <div className="staff-item">
-              <span className="staff-icon">👨‍⚕️</span>
+              <img
+                src={stethescopeIcon}
+                alt="Stethescope"
+                className="staff-icon"
+              />
               <span className="staff-label">
                 Physician: {patient.careTeam.primaryDoctor}
               </span>
@@ -331,8 +376,6 @@ function MainDashboard() {
           </div>
         </div>
       </div>
-      
-      
     </Layout>
   );
 }

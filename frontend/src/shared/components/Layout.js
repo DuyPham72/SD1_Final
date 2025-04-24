@@ -4,6 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/AuthContext";
 import "../../styles/Sidebar.css";
 
+import homeIcon from "../../assets/home.png";
+import feedbackIcon from "../../assets/feedback.png";
+import entertainmentIcon from "../../assets/entertainment.png";
+
 export const Layout = ({
   children,
   patient,
@@ -33,9 +37,45 @@ export const Layout = ({
     } else {
       // Patients can only access home, entertainment, and feedback
       return [
-        { icon: "🏠", text: "Home", path: "/" },
-        { icon: "🎮", text: "Entertainment", path: "/entertainment" },
-        { icon: "📝", text: "Patient Feedback", path: "/feedback" },
+        {
+          icon: (
+            <div className="nav-icon-wrapper">
+              <img
+                src={homeIcon}
+                alt="Home"
+                style={{ width: 24, height: 24 }}
+              />
+            </div>
+          ),
+          text: <div>Home</div>,
+          path: "/",
+        },
+        {
+          icon: (
+            <div className="nav-icon-wrapper">
+              <img
+                src={entertainmentIcon}
+                alt="Entertainment"
+                style={{ width: 24, height: 24 }}
+              />
+            </div>
+          ),
+          text: <div>Entertainment</div>,
+          path: "/entertainment",
+        },
+        {
+          icon: (
+            <div className="nav-icon-wrapper">
+              <img
+                src={feedbackIcon}
+                alt="Patient Feedback"
+                style={{ width: 24, height: 24 }}
+              />
+            </div>
+          ),
+          text: <div>Patient Feedback</div>,
+          path: "/feedback",
+        },
       ];
     }
   };
@@ -82,9 +122,6 @@ export const Layout = ({
       <div ref={sidebarRef} className={`sidebar ${isNavOpen ? "open" : ""}`}>
         <div className="sidebar-header">
           <div className="room-info">Room #{patient?.room}</div>
-          <button className="close-sidebar" onClick={onNavToggle}>
-            ×
-          </button>
         </div>
         <nav className="sidebar-nav">
           {finalNavItems.map((item, index) => (
@@ -96,8 +133,10 @@ export const Layout = ({
               tabIndex={isNavOpen ? 0 : -1}
               data-path={item.path}
             >
-              <span className="nav-icon">{item.icon}</span>
-              <span className="nav-text">{item.text}</span>
+              <div className="nav-item-inner">
+                <div className="nav-icon">{item.icon}</div>
+                <div className="nav-text">{item.text}</div>
+              </div>
             </button>
           ))}
         </nav>

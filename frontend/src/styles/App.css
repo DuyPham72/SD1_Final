@@ -1,0 +1,45 @@
+/* Base background style */
+.background-container {
+  background-image: url("../assets/hospitalBG1.png");
+  background-size: cover; /* fill the screen */
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: #002e4f;
+  min-height: 100vh;
+  width: 100vw;
+}
+
+/* Tablets (iPads and similar devices) */
+@media (max-width: 1024px) {
+  .background-container {
+    background-position: top center;
+  }
+}
+
+/* Laptops & small desktops */
+@media (min-width: 1025px) and (max-width: 1919px) {
+  .background-container {
+    background-position: center center;
+  }
+}
+
+/* Large screens & standard TVs (Full HD and up) */
+@media (min-width: 1920px) and (max-width: 2559px) {
+  .background-container {
+    background-position: center center;
+  }
+}
+
+/* Very large screens & 4K TVs */
+@media (min-width: 2560px) {
+  .background-container {
+    background-position: center center;
+  }
+}
+
+/* Optional overlay effect */
+.image-overlay {
+  backdrop-filter: brightness(0.9);
+  min-height: 100vh;
+  width: 100%;
+}
