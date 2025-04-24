@@ -15,31 +15,27 @@
   color: #e74c3c;
 }
 
+.dashboard-scroll-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  max-height: calc(100vh - 80px); /* adjust if header is taller */
+  width: 100%;
+}
+
 /* Content container layout */
 .content-container {
-  display: flex;
-  flex-direction: column !important;
-  align-items: center;
   padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 20px;
-  height: calc(100vh - 80px); /* Adjust based on header height */
 }
 
 /* Panel styling for patient info and schedule */
 .patient-info-panel,
 .schedule-panel {
-  /* display: flex;
-  flex-direction: column;
-  gap: 20px; */
   width: 50%;
   max-width: 800px;
-}
-
-.patient-info-panel {
-}
-
-.schedule-panel {
-  /* flex: 2; */
 }
 
 /* Info card styling */
@@ -213,7 +209,8 @@
   border-radius: 8px;
   font-size: 1.1rem;
   cursor: pointer;
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2s ease;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out,
+    background-color 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -226,7 +223,7 @@
 
 /* Remove number indicators */
 .status-button::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   top: 0;
@@ -363,12 +360,13 @@
   color: white;
   border: none;
   cursor: pointer;
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2s ease;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out,
+    background-color 0.2s ease;
 }
 
 /* Remove number from nurse call button */
 .nurse-call-button::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   top: 0;
@@ -542,7 +540,7 @@
 
 /* Status button indicators */
 .status-button::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   top: 0;

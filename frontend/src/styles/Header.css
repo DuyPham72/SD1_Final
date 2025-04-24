@@ -126,7 +126,7 @@
   .logged-in-user {
     padding: 4px 8px;
   }
-  
+
   .logged-in-label {
     display: none;
   }
@@ -137,7 +137,7 @@
     padding: 8px 16px;
     font-size: 1.2rem;
   }
-  
+
   .logged-in-label {
     font-size: 1.1rem;
   }
@@ -528,12 +528,12 @@
     height: auto !important;
     min-height: 60px !important;
   }
-  
+
   /* Menu button stays as is */
   body[data-mode="patient"] .menu-button {
     order: 0 !important;
   }
-  
+
   /* Patient name takes available space */
   body[data-mode="patient"] .patient-header {
     flex: 1 !important;
@@ -542,7 +542,7 @@
     margin: 0 !important;
     font-size: 1rem !important;
   }
-  
+
   /* Actions container (with bell) stays inline */
   body[data-mode="patient"] .header-actions {
     order: 0 !important;
@@ -550,19 +550,19 @@
     margin: 0 0 0 auto !important;
     justify-content: flex-end !important;
   }
-  
+
   /* Hide time display */
   body[data-mode="patient"] .current-time {
     display: none !important;
   }
-  
+
   /* Hide these buttons in mobile patient mode */
   body[data-mode="patient"] .feedback-qr-button,
   body[data-mode="patient"] .staff-login-button,
   body[data-mode="patient"] .mode-indicator {
     display: none !important;
   }
-  
+
   /* Make notification badge more visible */
   body[data-mode="patient"] .notification-badge {
     transform: scale(1.1) !important;
@@ -579,7 +579,6 @@
   min-height: 60px;
   padding: 8px 20px;
 }
-
 
 .mobile-patient-header .patient-header {
   margin: 0;
@@ -726,7 +725,7 @@
 .patient-header-with-status {
   font-size: 1.2rem;
   font-weight: 600;
-  color: #2c3e50;
+  color: #ffffff;
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -771,7 +770,7 @@
 
 .patient-selector option[data-status="needs-attention"] {
   border-left-color: #ffa000; /* Brighter orange */
-  background-color: rgba(255, 160, 0, 0.30); /* More vivid orange background */
+  background-color: rgba(255, 160, 0, 0.3); /* More vivid orange background */
   color: #7a4f01; /* Darker text for better contrast */
 }
 
@@ -815,7 +814,7 @@
     padding: 8px;
     margin-right: 10px;
   }
-  
+
   .dual-screen-button .dual-screen-icon {
     margin-right: 0;
   }
