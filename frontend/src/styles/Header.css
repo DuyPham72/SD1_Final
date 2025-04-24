@@ -68,6 +68,11 @@
   flex: 1;
 }
 
+/* Spacer for when patient name is hidden */
+.patient-header-spacer {
+  flex: 1;
+}
+
 /* Header actions area */
 .header-actions {
   display: flex;
@@ -91,6 +96,51 @@
 
 .staff-login-button:hover {
   background-color: #bdc3c7;
+}
+
+/* Logged-in user display */
+.logged-in-user {
+  display: flex;
+  align-items: center;
+  background-color: #f1f8ff;
+  border: 1px solid #c8e1ff;
+  border-radius: 4px;
+  padding: 5px 12px;
+  margin-right: 10px;
+  font-size: 0.95rem;
+}
+
+.logged-in-label {
+  color: #586069;
+  margin-right: 6px;
+  font-size: 0.85rem;
+}
+
+.logged-in-name {
+  color: #0366d6;
+  font-weight: 600;
+}
+
+/* Responsive styles for logged-in user */
+@media (max-width: 768px) {
+  .logged-in-user {
+    padding: 4px 8px;
+  }
+  
+  .logged-in-label {
+    display: none;
+  }
+}
+
+@media (min-width: 2560px) {
+  .logged-in-user {
+    padding: 8px 16px;
+    font-size: 1.2rem;
+  }
+  
+  .logged-in-label {
+    font-size: 1.1rem;
+  }
 }
 
 /*notification stuff*/
@@ -455,5 +505,318 @@
   .reg-qr-button {
     padding: 8px;
     margin-right: 10px;
+  }
+}
+
+/* Add to your Header.css */
+
+/* Mobile-specific styles */
+/* Mobile patient mode specific styles */
+/* Reset specific mobile patient mode styles */
+/* Add this to the end of your Header.css file */
+
+/* MOBILE PATIENT MODE FIX - overrides all other styles */
+@media (max-width: 768px) {
+  /* Target only patient mode */
+  body[data-mode="patient"] .header-bar {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 8px 12px !important;
+    height: auto !important;
+    min-height: 60px !important;
+  }
+  
+  /* Menu button stays as is */
+  body[data-mode="patient"] .menu-button {
+    order: 0 !important;
+  }
+  
+  /* Patient name takes available space */
+  body[data-mode="patient"] .patient-header {
+    flex: 1 !important;
+    width: auto !important;
+    order: 0 !important;
+    margin: 0 !important;
+    font-size: 1rem !important;
+  }
+  
+  /* Actions container (with bell) stays inline */
+  body[data-mode="patient"] .header-actions {
+    order: 0 !important;
+    width: auto !important;
+    margin: 0 0 0 auto !important;
+    justify-content: flex-end !important;
+  }
+  
+  /* Hide time display */
+  body[data-mode="patient"] .current-time {
+    display: none !important;
+  }
+  
+  /* Hide these buttons in mobile patient mode */
+  body[data-mode="patient"] .feedback-qr-button,
+  body[data-mode="patient"] .staff-login-button,
+  body[data-mode="patient"] .mode-indicator {
+    display: none !important;
+  }
+  
+  /* Make notification badge more visible */
+  body[data-mode="patient"] .notification-badge {
+    transform: scale(1.1) !important;
+  }
+}
+
+/* Add to Header.css */
+.mobile-patient-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 15px; /* Increased right padding to prevent bell cutoff */
+  height: auto;
+  min-height: 60px;
+  padding: 8px 20px;
+}
+
+
+.mobile-patient-header .patient-header {
+  margin: 0;
+  padding: 0;
+  font-size: 1rem;
+  line-height: 1.2;
+  width: 100%; /* Take full width of wrapper */
+  order: 0;
+}
+
+/* Styling for the mobile patient header */
+.mobile-patient-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 15px; /* Increased right padding to prevent bell cutoff */
+  height: auto;
+  min-height: 60px;
+}
+
+.mobile-time {
+  font-size: 0.8rem; /* Slightly larger for better visibility */
+  color: #666;
+  margin-top: 2px;
+  width: 100%; /* Take full width of wrapper */
+}
+
+.mobile-patient-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  height: auto;
+  min-height: 60px;
+}
+
+.mobile-patient-header .patient-header {
+  margin: 0;
+  padding: 0;
+  font-size: 1rem;
+  line-height: 1.2;
+  width: auto;
+  order: 0;
+}
+
+/* Make notification badge more visible */
+.mobile-patient-header .notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  padding: 1px 5px;
+  font-size: 0.7rem;
+}
+
+.mobile-patient-header .notification-icon {
+  position: relative;
+  font-size: 22px; /* Slightly smaller for mobile */
+  margin-right: 5px; /* Space on the right */
+}
+
+.feedback-qr-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #2ecc71;
+  color: white;
+  border: 1px solid #27ae60;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: 8px;
+}
+
+.feedback-qr-button:hover {
+  background-color: #27ae60; /* Slightly darker green on hover */
+  border-color: #219653;
+}
+
+.feedback-qr-button:focus {
+  outline: 3px solid #ffb700 !important;
+  box-shadow: 0 0 8px rgba(255, 183, 0, 0.6) !important;
+}
+
+.feedback-qr-button.focused {
+  outline: 3px solid #ffb700 !important;
+  box-shadow: 0 0 8px rgba(255, 183, 0, 0.6) !important;
+}
+
+.feedback-qr-button:active {
+  background-color: #e9ecef;
+  transform: translateY(1px);
+}
+
+.feedback-qr-button .qr-icon {
+  font-size: 16px;
+  margin-right: 8px;
+}
+
+.feedback-qr-button .qr-text {
+  white-space: nowrap;
+}
+
+/* Patient status indicators */
+.status-indicator {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 10px;
+  position: relative;
+}
+
+.status-indicator.status-stable {
+  background-color: #00c853; /* Brighter green */
+  box-shadow: 0 0 5px rgba(0, 200, 83, 0.7);
+}
+
+.status-indicator.status-needs-attention {
+  background-color: #ffa000; /* Brighter orange */
+  box-shadow: 0 0 5px rgba(255, 160, 0, 0.7);
+}
+
+.status-indicator.status-critical {
+  background-color: #ff1744; /* Brighter red */
+  box-shadow: 0 0 5px rgba(255, 23, 68, 0.7);
+  animation: pulse-status 1.5s infinite;
+}
+
+@keyframes pulse-status {
+  0% {
+    box-shadow: 0 0 5px rgba(255, 23, 68, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(255, 23, 68, 0.9);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(255, 23, 68, 0.7);
+  }
+}
+
+/* Patient header with status */
+.patient-header-with-status {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+/* Header content with patient status */
+.header-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.current-patient-status {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  font-size: 1.1rem;
+  color: #2c3e50;
+}
+
+.current-patient-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* For patient list item in dropdown */
+.patient-selector option {
+  padding: 8px;
+  border-left: 3px solid transparent;
+}
+
+.patient-selector option[data-status="stable"] {
+  border-left-color: #00c853; /* Brighter green */
+  background-color: rgba(0, 200, 83, 0.25); /* More vivid green background */
+  color: #006400; /* Darker text for better contrast */
+}
+
+.patient-selector option[data-status="needs-attention"] {
+  border-left-color: #ffa000; /* Brighter orange */
+  background-color: rgba(255, 160, 0, 0.30); /* More vivid orange background */
+  color: #7a4f01; /* Darker text for better contrast */
+}
+
+.patient-selector option[data-status="critical"] {
+  border-left-color: #ff1744; /* Brighter red */
+  background-color: rgba(255, 23, 68, 0.25); /* More vivid red background */
+  color: #b0003a; /* Darker text for better contrast */
+  font-weight: bold;
+}
+
+/* Dual Screen button styling - similar to New Patient button */
+.dual-screen-button {
+  display: flex;
+  align-items: center;
+  background-color: #3498db; /* Blue color to differentiate */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin-right: 15px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.dual-screen-button:hover {
+  background-color: #2980b9; /* Darker blue on hover */
+}
+
+.dual-screen-button .dual-screen-icon {
+  font-size: 16px;
+  margin-right: 6px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .dual-screen-button .dual-screen-text {
+    display: none;
+  }
+
+  .dual-screen-button {
+    padding: 8px;
+    margin-right: 10px;
+  }
+  
+  .dual-screen-button .dual-screen-icon {
+    margin-right: 0;
   }
 }

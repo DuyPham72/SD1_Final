@@ -191,10 +191,16 @@ textarea:focus {
   cursor: not-allowed;
 }
 
-/* Success message */
+/* Success message - improved for mobile */
 .feedback-success {
   text-align: center;
   padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin: 20px auto;
+  max-width: 500px;
+  width: 90%;
 }
 
 .success-icon {
@@ -218,6 +224,46 @@ textarea:focus {
 .feedback-success p {
   color: #7f8c8d;
   margin-bottom: 25px;
+}
+
+/* Mobile-specific improvements for success message */
+@media (max-width: 768px) {
+  .feedback-success {
+    width: 90%;
+    padding: 20px 15px;
+    margin: 10px auto;
+  }
+  
+  .success-icon {
+    font-size: 3rem;
+    width: 70px;
+    height: 70px;
+    line-height: 70px;
+    margin-bottom: 15px;
+  }
+  
+  .feedback-success h3 {
+    font-size: 1.4rem;
+    margin: 10px 0;
+  }
+  
+  .feedback-success p {
+    font-size: 1rem;
+    margin-bottom: 20px;
+  }
+  
+  .reset-button {
+    width: 100%;
+    max-width: 250px;
+    padding: 12px;
+  }
+}
+
+/* For standalone QR version - ensure success message is visible */
+.standalone-feedback-page .feedback-success {
+  margin-top: 30px;
+  position: relative;
+  z-index: 50;
 }
 
 /* Media queries for responsiveness */
@@ -598,11 +644,33 @@ textarea {
   margin: 0;
   padding: 0;
   background-color: #f5f5f5;
-  height: auto;
   min-height: 100vh;
-  overflow-y: auto; /* Enable vertical scrolling */
-  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  height: auto !important;
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
 }
+
+.standalone-feedback-page .content-container {
+  height: auto !important;
+  min-height: calc(100vh - 60px);
+  overflow-y: visible !important;
+  padding: 10px;
+  padding-bottom: 80px;
+}
+
+.standalone-feedback-page .feedback-container {
+  max-height: none !important;
+  overflow: visible !important;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin: 0 auto;
+  max-width: 800px;
+}
+
+/* Simple header - fixed at top */
 .simple-header {
   background-color: #ffffff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -612,7 +680,38 @@ textarea {
   align-items: center;
   position: sticky;
   top: 0;
-  z-index: 10;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  body, html {
+    height: auto;
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+  
+  .standalone-feedback-page {
+    position: static;
+  }
+  
+  .standalone-feedback-page .content-container {
+    padding: 10px;
+    padding-bottom: 60px;
+  }
+  
+  .simple-header {
+    padding: 10px 15px;
+  }
+  
+  /* Ensure form fits properly */
+  .feedback-form {
+    width: 100%;
+  }
 }
 
 .content-container {

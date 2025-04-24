@@ -1,3 +1,4 @@
+/* Fix the container alignment and scrolling */
 .patient-access-qr-container {
   position: fixed;
   top: 0;
@@ -5,10 +6,61 @@
   right: 0;
   bottom: 0;
   display: flex;
-  align-items: center;
+  align-items: flex-start; /* Change from center to flex-start */
   justify-content: center;
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 1000;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-top: 10px; /* Reduce from 20px */
+  padding-bottom: 10px; /* Reduce from 20px */
+}
+
+/* Adjust modal spacing */
+.qr-modal {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 420px;
+  margin: 10px auto; /* Reduce top/bottom margin */
+  overflow-y: auto;
+  position: relative;
+  height: auto;
+  max-height: none;
+}
+
+/* Reduce header padding */
+.qr-header {
+  padding: 10px 15px; /* Reduce from 15px 20px */
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Reduce content padding */
+.qr-content {
+  padding: 15px; /* Reduce from 20px */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 576px) {
+  .patient-access-qr-container {
+    padding-top: 5px; /* Further reduce padding on mobile */
+    padding-bottom: 5px;
+  }
+
+  .qr-modal {
+    width: 95%;
+    margin: 5px auto; /* Even smaller margin on mobile */
+  }
+
+  /* Keep other mobile styles intact */
 }
 
 .qr-modal {
@@ -17,10 +69,11 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   width: 90%;
   max-width: 420px;
-  max-height: 90vh;
+  margin: 20px auto; /* Add margin to ensure space at top and bottom */
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
+  position: relative; /* Change from fixed positioning */
+  height: auto; /* Allow height to adjust to content */
+  max-height: none; /* Remove max-height restriction */
 }
 
 .qr-header {
@@ -159,6 +212,11 @@
 @media (max-width: 576px) {
   .qr-modal {
     width: 95%;
+    margin: 10px auto;/* Reduce height slightly on mobile */
+  }
+  .patient-access-qr-container {
+    align-items: flex-start; /* Align to top instead of center */
+    padding: 20px 0; /* Add padding to top and bottom */
   }
 
   .qr-header h2 {

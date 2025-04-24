@@ -1,12 +1,31 @@
 import React, { useState, useRef, useEffect } from 'react';
 import '../../styles/NotificationBadge.css';
+import axios from 'axios';
 
-const NotificationBadge = ({ notifications }) => {
+function NotificationBadge() {
+  const [notifications, setNotifications] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const bellRef = useRef(null);
 
+  const fetchNotifications = async () => {
+    try {
+      const res = await axios.get('http://localhost:5001/api/notifications'); // Adjust URL for production
+      setNotifications(res.data.map((n) => `${n.message} at ${n.time}`));
+    } catch (err) {
+      console.error('Error fetching notifications:', err);
+    }
+  };
+
+  const markAllRead = async () => {
+    await axios.post('http://localhost:5001/api/notifications/read');
+    setNotifications([]);
+  };
+
   const togglePopup = () => {
     setShowPopup((prev) => !prev);
+    if (!showPopup) {
+      fetchNotifications();
+    }
   };
 
   const handleClickOutside = (e) => {
@@ -44,14 +63,16 @@ const NotificationBadge = ({ notifications }) => {
             ) : (
               notifications.map((note, index) => (
                 <li key={index}>{note}</li>
-              ))
+              ))       
             )}
+            <button onClick={markAllRead}>Mark All as Read</button>
           </ul>
           <button onClick={() => setShowPopup(false)}>Close</button>
         </div>
       )}
     </div>
   );
-};
+}
+
 
 export default NotificationBadge;

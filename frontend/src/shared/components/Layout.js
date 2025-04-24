@@ -29,10 +29,9 @@ export const Layout = ({
 
     // Otherwise, use role-based navigation
     if (mode === "staff") {
-      // Staff can only access patient info and settings
+      // Staff can only access patient info
       return [
         { icon: "📋", text: "Patient Info", path: "/patient-info" },
-        { icon: "⚙️", text: "Settings", path: "/settings" },
       ];
     } else {
       // Patients can only access home, entertainment, and feedback

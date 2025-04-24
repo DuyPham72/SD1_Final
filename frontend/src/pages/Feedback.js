@@ -1,6 +1,6 @@
-// src/pages/Feedback.js - Modified to handle both in-app and QR code access
+// src/pages/Feedback.js
 import React, { useState, useRef, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom"; // Add useParams for token
+import { useNavigate, useParams } from "react-router-dom";
 import "../styles/Feedback.css";
 import {
   usePatientData,
@@ -9,6 +9,7 @@ import {
   Layout,
   Header,
 } from "../shared";
+import axios from 'axios';
 
 // Rating category component
 const RatingCategory = ({ label, description, rating, onChange }) => {
@@ -94,15 +95,20 @@ function Feedback() {
         setQRLoading(true);
         const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5001";
         
-        console.log("Validating feedback token:", token);
+        console.log("Validating feedback token in Feedback component:", token);
+        console.log("Dual screen mode:", window.isDualScreen ? "Yes" : "No");
+        console.log("Current window mode:", localStorage.getItem('mode'));
+        
         const response = await fetch(`${API_BASE_URL}/api/feedback/validate/${token}`);
         const data = await response.json();
         
         console.log("Token validation response:", data);
         
         if (data.valid) {
+          console.log("Setting patient data from token:", data.patientData);
           setQRPatientData(data.patientData);
         } else {
+          console.error("Token validation failed:", data.message);
           setQRError("This feedback link is invalid or has expired.");
         }
       } catch (err) {
@@ -164,6 +170,7 @@ function Feedback() {
       const newFeedback = {
         id: Date.now().toString(),
         // Set old-style single rating for compatibility
+        patientIdentifier: patient?.patientId || qrPatientData?.patientId,
         rating: Number(overallRating),
         // Detailed ratings with calculated overall
         ratings: {
@@ -187,22 +194,30 @@ function Feedback() {
           newFeedback.room = qrPatientData.room;
           
           // Submit to patient-specific endpoint
-          await fetch(`${API_BASE_URL}/api/patients/${qrPatientData.patientId}/feedback`, {
+          const response = await fetch(`${API_BASE_URL}/api/patients/${qrPatientData.patientId}/feedback`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify(newFeedback),
           });
+          
+          if (!response.ok) {
+            throw new Error('Failed to submit feedback');
+          }
         } else {
           // Anonymous feedback
-          await fetch(`${API_BASE_URL}/api/feedback/submit`, {
+          const response = await fetch(`${API_BASE_URL}/api/feedback/submit`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify(newFeedback),
           });
+          
+          if (!response.ok) {
+            throw new Error('Failed to submit feedback');
+          }
         }
       } else {
         // Regular in-app flow - use patient from context
@@ -220,13 +235,39 @@ function Feedback() {
         await updatePatientData(updatedPatient);
       }
       
-      setSubmitting(false);
+      // Scroll to top to ensure thank you message is visible
+      window.scrollTo(0, 0);
+      
+      // Important: Set submitted state after successful submission
       setSubmitted(true);
+      setSubmitting(false);
+      
+      console.log("Feedback submitted successfully, showing thank you message");
     } catch (error) {
       console.error("Error submitting feedback:", error);
       setSubmitting(false);
+      alert("There was a problem submitting your feedback. Please try again.");
     }
   };
+
+  useEffect(() => {
+    if (submitted) {
+      // Request permission if not already granted
+      if (Notification.permission === "granted") {
+        new Notification("Feedback received", {
+          body: "A new feedback has been submitted.",
+        });
+      } else if (Notification.permission !== "denied") {
+        Notification.requestPermission().then((permission) => {
+          if (permission === "granted") {
+            new Notification("Feedback received", {
+              body: "A new feedback has been submitted.",
+            });
+          }
+        });
+      }
+    }
+  }, [submitted]);
 
   // Reset form to submit another feedback
   const handleReset = () => {
@@ -290,19 +331,23 @@ function Feedback() {
 
         <div className="content-container">
           <div className="feedback-container">
-            <h2>Your Feedback Matters</h2>
-            
-            {currentPatient && (
-              <div className="patient-info-box">
-                <p><strong>Patient:</strong> {currentPatient.name}</p>
-                <p><strong>Room:</strong> {currentPatient.room}</p>
-              </div>
+            {!submitted && (
+              <>
+                <h2>Your Feedback Matters</h2>
+                
+                {currentPatient && (
+                  <div className="patient-info-box">
+                    <p><strong>Patient:</strong> {currentPatient.name}</p>
+                    <p><strong>Room:</strong> {currentPatient.room}</p>
+                  </div>
+                )}
+                
+                <p className="feedback-intro">
+                  Thank you for taking the time to provide feedback about your stay.
+                  Your input helps us improve our services.
+                </p>
+              </>
             )}
-            
-            <p className="feedback-intro">
-              Thank you for taking the time to provide feedback about your stay.
-              Your input helps us improve our services.
-            </p>
 
             {/* The rest of the form is the same for both modes */}
             {renderFeedbackForm()}

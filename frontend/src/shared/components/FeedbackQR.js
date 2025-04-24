@@ -1,18 +1,40 @@
 // src/shared/components/FeedbackQR.js
-// This component displays a QR code for patients to access the feedback form
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "../../styles/PatientAccessQR.css"; // Reuse existing styles
 
-function FeedbackQR({ patient, onClose }) {
+function FeedbackQR({ patient, onClose, autoFocus }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [qrData, setQrData] = useState(null);
   const [copied, setCopied] = useState(false);
+  
+  // Add ref for back button
+  const backButtonRef = useRef(null);
 
   // Generate the QR code when component mounts
   useEffect(() => {
     generateFeedbackQR();
   }, []);
+  
+  // Handle escape/backspace key for closing the modal
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' || e.key === 'Backspace') {
+        onClose();
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    
+    // Auto-focus back button if requested
+    if (autoFocus && backButtonRef.current) {
+      backButtonRef.current.focus();
+    }
+    
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onClose, autoFocus]);
 
   // Function to generate the feedback QR code that patients can scan with their own devices
   const generateFeedbackQR = async () => {
@@ -29,6 +51,10 @@ function FeedbackQR({ patient, onClose }) {
         room: patient.room
       } : {};
 
+      console.log("Generating feedback QR with payload:", payload);
+      console.log("Dual screen mode:", window.isDualScreen ? "Yes" : "No");
+      console.log("Current window mode:", localStorage.getItem('mode'));
+
       const response = await fetch(`${API_BASE_URL}/api/feedback/create-qr`, {
         method: "POST",
         headers: {
@@ -43,6 +69,7 @@ function FeedbackQR({ patient, onClose }) {
       }
 
       const data = await response.json();
+      console.log("Successfully generated QR code with token in URL:", data.feedbackUrl);
       setQrData(data);
     } catch (err) {
       console.error("Error generating feedback QR code:", err);
@@ -131,6 +158,15 @@ function FeedbackQR({ patient, onClose }) {
                   </div>
                 )}
               </div>
+              
+              {/* Add Back button */}
+              <button 
+                ref={backButtonRef}
+                className="back-button"
+                onClick={onClose}
+              >
+                Back
+              </button>
             </>
           ) : (
             <p className="loading-message">Initializing...</p>

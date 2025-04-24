@@ -37,6 +37,16 @@ const LoginModal = ({ isOpen, onClose, isDualScreenLogin = false, onDualScreenEn
     };
   }, [isOpen, onClose]);
 
+  // Reset form when modal is closed
+  useEffect(() => {
+    if (!isOpen) {
+      setUsername("");
+      setPassword("");
+      setError("");
+      setLoading(false);
+    }
+  }, [isOpen]);
+
   // Handle submission
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -50,30 +60,40 @@ const LoginModal = ({ isOpen, onClose, isDualScreenLogin = false, onDualScreenEn
 
     setLoading(true);
 
-    // For demonstration purposes, we'll use hardcoded credentials
-    // In a real application, this would make an API call to validate
-    setTimeout(() => {
-      if (username === "staff" && password === "password") {
-        // Log in the staff user
-        loginStaff({
-          id: 1,
-          username: "staff",
-          name: "Staff Member",
-          role: "nurse",
-        });
-        
-        // If this is a dual screen login, also enable dual screen mode
-        if (isDualScreenLogin && typeof onDualScreenEnable === 'function') {
-          console.log("Enabling dual screen mode after successful login");
-          onDualScreenEnable();
-        }
-        
-        onClose();
-      } else {
-        setError("Invalid username or password");
+    // Define doctor accounts
+    const doctors = [
+      {id: 1, username: "doctor1", name: "Dr. Smith", role: "doctor"},
+      {id: 2, username: "doctor2", name: "Dr. Johnson", role: "doctor"},
+      {id: 3, username: "doctor3", name: "Dr. Williams", role: "doctor"},
+      {id: 4, username: "doctor4", name: "Dr. Davis", role: "doctor"},
+      {id: 5, username: "nurse1", name: "Nurse Thompson", role: "nurse"},
+      {id: 6, username: "staff", name: "Staff Member", role: "staff"}
+    ];
+    
+    // Find the doctor with matching username
+    const user = doctors.find(doc => doc.username === username);
+    
+    if (user && password === "password") {
+      // Close modal immediately to update UI
+      onClose();
+      
+      // Log in the user
+      loginStaff({
+        id: user.id,
+        username: user.username,
+        name: user.name,
+        role: user.role,
+      });
+      
+      // If this is a dual screen login, also enable dual screen mode
+      if (isDualScreenLogin && typeof onDualScreenEnable === 'function') {
+        console.log("Enabling dual screen mode after successful login");
+        onDualScreenEnable();
       }
+    } else {
+      setError("Invalid username or password");
       setLoading(false);
-    }, 1000);
+    }
   };
 
   // Handle keydown events for accessibility
@@ -113,6 +133,7 @@ const LoginModal = ({ isOpen, onClose, isDualScreenLogin = false, onDualScreenEn
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               disabled={loading}
+              placeholder="doctor1, doctor2, etc."
             />
           </div>
 
@@ -124,6 +145,7 @@ const LoginModal = ({ isOpen, onClose, isDualScreenLogin = false, onDualScreenEn
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={loading}
+              placeholder="password"
             />
           </div>
 

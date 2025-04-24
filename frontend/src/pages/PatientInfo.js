@@ -12,6 +12,12 @@ import {
 import { useAuth } from "../shared/hooks/AuthContext";
 import PatientFeedbackTab from "../shared/components/PatientFeedbackTab";
 
+// Function to detect if the device is mobile
+const isMobileDevice = () => {
+  return window.innerWidth <= 768 || 
+         /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+};
+
 // Custom hook for form state management
 const usePatientForm = (patient, setPatient) => {
   const [editing, setEditing] = useState(false);
@@ -79,7 +85,7 @@ const usePatientForm = (patient, setPatient) => {
         setPatient(updatedData);
         setEditing(false);
 
-        if (onSuccess) onSuccess();
+        if (onSuccess) onSuccess(updatedData);
       } catch (error) {
         console.error("Error saving:", error);
         setSaveError(error.message || "Failed to save changes");
@@ -160,8 +166,14 @@ function PatientInfo() {
   const navigate = useNavigate();
 
   // Get auth context for mode and nurse selected patient
-  const { mode, nurseSelectedPatientId, updateNurseSelectedPatient } =
-    useAuth();
+  const { 
+    mode, 
+    nurseSelectedPatientId, 
+    updateNurseSelectedPatient, 
+    isDualScreen,
+    syncDataToPatientScreen,
+    forceReloadPatientScreen 
+  } = useAuth();
 
   const {
     patient,
@@ -170,6 +182,7 @@ function PatientInfo() {
     selectedPatientId,
     loading,
     handlePatientChange,
+    invalidateCache,
   } = usePatientData();
 
   const currentTime = useTimeUpdate();
@@ -182,6 +195,9 @@ function PatientInfo() {
     setMainNavFocusIndex,
   } = useNavigationState();
 
+  // Add state to track if device is mobile
+  const [isMobile, setIsMobile] = useState(isMobileDevice());
+
   // Navigation section state
   const [navigationSection, setNavigationSection] = useState("main");
   const [focusedInputIndex, setFocusedInputIndex] = useState(null);
@@ -190,6 +206,20 @@ function PatientInfo() {
 
   // State for save button hover
   const [isSaveButtonHovered, setIsSaveButtonHovered] = useState(false);
+  const [lastSyncTimestamp, setLastSyncTimestamp] = useState(0);
+
+  // Add event listener for window resize to update mobile detection
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(isMobileDevice());
+    };
+    
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   // Refs
   const mainNavElementsRef = useRef({
@@ -241,6 +271,64 @@ function PatientInfo() {
     });
   }, []);
 
+  // Listen for schedule and patient info changes from other screens
+  useEffect(() => {
+    const handleScheduleChanged = (event) => {
+      console.log('Schedule changed event received:', event.detail);
+      
+      // Prevent duplicate updates
+      if (event.detail.timestamp <= lastSyncTimestamp) {
+        console.log('Ignoring outdated schedule update');
+        return;
+      }
+      
+      setLastSyncTimestamp(event.detail.timestamp);
+      
+      if (patient && event.detail.schedule) {
+        // Create a new patient object with updated schedule
+        const updatedPatient = {
+          ...patient,
+          schedule: event.detail.schedule
+        };
+        
+        // Update patient data without page reload
+        setPatient(updatedPatient);
+      }
+    };
+    
+    const handlePatientInfoChanged = (event) => {
+      console.log('Patient info changed event received:', event.detail);
+      
+      // Prevent duplicate updates
+      if (event.detail.timestamp <= lastSyncTimestamp) {
+        console.log('Ignoring outdated patient info update');
+        return;
+      }
+      
+      setLastSyncTimestamp(event.detail.timestamp);
+      
+      if (patient && event.detail.patientInfo) {
+        // Create a new patient object with updated info
+        const updatedPatient = {
+          ...patient,
+          ...event.detail.patientInfo
+        };
+        
+        // Update patient data without page reload
+        setPatient(updatedPatient);
+      }
+    };
+    
+    // Set up event listeners
+    window.addEventListener('scheduleChanged', handleScheduleChanged);
+    window.addEventListener('patientInfoChanged', handlePatientInfoChanged);
+    
+    return () => {
+      window.removeEventListener('scheduleChanged', handleScheduleChanged);
+      window.removeEventListener('patientInfoChanged', handlePatientInfoChanged);
+    };
+  }, [patient, setPatient, lastSyncTimestamp]);
+
   // Use the nurse-selected patient ONLY in staff mode
   useEffect(() => {
     // Only apply nurse selection in staff mode
@@ -271,22 +359,125 @@ function PatientInfo() {
     handlePatientChange,
   ]);
 
+  // Add this to both MainDashboard.js and PatientInfo.js
+// Add localStorage polling for updates
+// Consistent polling implementation for both components:
+useEffect(() => {
+  if (mode === 'patient' && isDualScreen) {
+    const checkLocalStorageUpdates = () => {
+      try {
+        // Check for schedule updates
+        const scheduleUpdateStr = localStorage.getItem('sync_scheduleUpdate');
+        if (scheduleUpdateStr) {
+          try {
+            const scheduleUpdate = JSON.parse(scheduleUpdateStr);
+            if (scheduleUpdate && scheduleUpdate.timestamp > lastSyncTimestamp) {
+              console.log('Found schedule update in localStorage:', scheduleUpdate);
+              setLastSyncTimestamp(scheduleUpdate.timestamp);
+              
+              if (patient && scheduleUpdate.data) {
+                setPatient({
+                  ...patient,
+                  schedule: scheduleUpdate.data
+                });
+              }
+            }
+          } catch (e) {
+            console.error('Error parsing scheduleUpdate:', e);
+          }
+        }
+        
+        // Check for patient info updates
+        const patientInfoUpdateStr = localStorage.getItem('sync_patientInfoUpdate');
+        if (patientInfoUpdateStr) {
+          try {
+            const patientInfoUpdate = JSON.parse(patientInfoUpdateStr);
+            if (patientInfoUpdate && patientInfoUpdate.timestamp > lastSyncTimestamp) {
+              console.log('Found patient info update in localStorage:', patientInfoUpdate);
+              setLastSyncTimestamp(patientInfoUpdate.timestamp);
+              
+              if (patient && patientInfoUpdate.data) {
+                setPatient({
+                  ...patient,
+                  ...patientInfoUpdate.data
+                });
+                
+                // Important: Also invalidate the cache to ensure fresh data on next load
+                if (invalidateCache && typeof invalidateCache === 'function') {
+                  invalidateCache(patient.patientId);
+                }
+              }
+            }
+          } catch (e) {
+            console.error('Error parsing patientInfoUpdate:', e);
+          }
+        }
+        
+        // Check for patient selection changes
+        const nurseSelectedId = localStorage.getItem('nurseSelectedPatientId');
+        if (nurseSelectedId && nurseSelectedId !== selectedPatientId) {
+          console.log('Patient selection changed in localStorage:', nurseSelectedId);
+          
+          // Force clear the cache
+          if (invalidateCache) invalidateCache(nurseSelectedId);
+          
+          // Update patient
+          if (handlePatientChange) handlePatientChange(nurseSelectedId);
+          
+          // Check if change is recent
+          const changeTimestamp = localStorage.getItem('patientChangeTimestamp');
+          if (changeTimestamp && (Date.now() - parseInt(changeTimestamp)) < 5000) {
+            setTimeout(() => window.location.reload(), 50);
+          }
+        }
+      } catch (error) {
+        console.error('Error checking localStorage updates:', error);
+      }
+    };
+    
+    // Check immediately
+    checkLocalStorageUpdates();
+    
+    // Then set up interval with a shorter polling time
+    const interval = setInterval(checkLocalStorageUpdates, 500); // Check every 500ms instead of 1000ms
+    return () => clearInterval(interval);
+  }
+}, [mode, isDualScreen, patient, setPatient, lastSyncTimestamp, selectedPatientId, handlePatientChange, invalidateCache]);
+
   // Create a wrapped version of handlePatientChange that also updates the persisted ID
   const handlePatientChangeWithModeAwareness = (patientId) => {
-    console.log(
-      "PatientInfo: Patient changed in mode:",
-      mode,
-      "to:",
-      patientId
-    );
-
+    console.log("PatientInfo: Patient changed in mode:", mode, "to:", patientId);
+    
+    // Check if invalidateCache exists and is a function before calling it
+    if (invalidateCache && typeof invalidateCache === 'function') {
+      invalidateCache(patientId);
+    } else {
+      console.warn('invalidateCache is not available or not a function');
+    }
+    
     // In staff mode, update the nurse-selected patient
     if (mode === "staff") {
       updateNurseSelectedPatient(patientId);
     }
-
+  
     // Always update the current selection
     handlePatientChange(patientId);
+  
+    // Update localStorage values for persistence
+    localStorage.setItem('selectedPatientId', patientId);
+    localStorage.setItem('nurseSelectedPatientId', patientId);
+    
+    // Add a timestamp to indicate a fresh change
+    localStorage.setItem('patientChangeTimestamp', Date.now().toString());
+    
+    // Dispatch an event to notify other components about the change
+    window.dispatchEvent(new CustomEvent('patientChanged', { 
+      detail: { 
+        patientId: patientId,
+        timestamp: Date.now(),
+        forceRefresh: false
+      }
+    }));
   };
 
   // Handle edit button click
@@ -301,38 +492,82 @@ function PatientInfo() {
     });
   }, [initializeForm]);
 
-  // Handle save button click - UPDATED to sort only when saving
-  const handleSave = useCallback(() => {
-    if (editedData && editedData.schedule) {
-      // Sort schedule before saving
-      setEditedData(prev => ({
-        ...prev,
-        schedule: sortScheduleByTime(prev.schedule)
-      }));
+  // Handle save button click - UPDATED to include real-time sync
+// In PatientInfo.js - enhance the handleSave function
+const handleSave = useCallback(() => {
+  if (!editedData) return;
+  
+  console.log('Starting save with sync...', editedData);
+  
+  // Sort schedule if needed
+  if (editedData.schedule) {
+    const sortedSchedule = sortScheduleByTime(editedData.schedule);
+    setEditedData(prev => ({
+      ...prev,
+      schedule: sortedSchedule
+    }));
+    
+    // Try to sync schedule changes immediately
+    if (isDualScreen && mode === 'staff') {
+      console.log('Syncing schedule changes immediately');
+      syncDataToPatientScreen('scheduleUpdate', sortedSchedule);
     }
+  }
 
-    // Wait a brief moment to ensure the sorting is applied before saving
-    setTimeout(() => {
-      saveForm(editingScheduleItem, setEditingScheduleItem, () => {
-        // Reset navigation on successful save
-        setFocusedInputIndex(null);
-        setFocusedScheduleIndex(null);
-        setNavigationSection("main");
-        setMainNavFocusIndex(2);
+  // Try to sync patient info changes immediately
+  if (isDualScreen && mode === 'staff') {
+    console.log('Syncing patient info changes immediately');
+    const patientInfo = {
+      name: editedData.name,
+      room: editedData.room,
+      careTeam: editedData.careTeam,
+      preferences: editedData.preferences
+    };
+    syncDataToPatientScreen('patientInfoUpdate', patientInfo);
+  }
 
-        // Focus edit button after save
-        requestAnimationFrame(() => {
-          mainNavElementsRef.current.editButton?.focus();
-        });
+  // Proceed with API save
+  setTimeout(() => {
+    saveForm(editingScheduleItem, setEditingScheduleItem, (updatedData) => {
+      // Reset navigation on successful save
+      setFocusedInputIndex(null);
+      setFocusedScheduleIndex(null);
+      setNavigationSection("main");
+      setMainNavFocusIndex(2);
+
+      // Sync changes again after API save
+      if (isDualScreen && mode === 'staff' && updatedData) {
+        console.log('Syncing updates after API save');
+        
+        // Sync schedule changes
+        syncDataToPatientScreen('scheduleUpdate', updatedData.schedule || []);
+        
+        // Sync patient info changes
+        const patientInfo = {
+          name: updatedData.name,
+          room: updatedData.room,
+          careTeam: updatedData.careTeam,
+          preferences: updatedData.preferences
+        };
+        syncDataToPatientScreen('patientInfoUpdate', patientInfo);
+      }
+
+      // Focus edit button after save
+      requestAnimationFrame(() => {
+        mainNavElementsRef.current.editButton?.focus();
       });
-    }, 50);
-  }, [
+    });
+  }, 50);
+}, [
     saveForm,
     editingScheduleItem,
     setEditingScheduleItem,
     setMainNavFocusIndex,
     editedData,
     sortScheduleByTime,
+    isDualScreen,
+    mode,
+    syncDataToPatientScreen
   ]);
 
   // Schedule item editing functions
@@ -344,7 +579,7 @@ function PatientInfo() {
     });
   }, []);
 
-  // UPDATED to not sort when updating fields
+  // UPDATED to sync changes with patient screen
   const handleItemUpdate = useCallback(
     (index, field, value) => {
       setEditedData((prev) => {
@@ -352,14 +587,29 @@ function PatientInfo() {
           i === index ? { ...item, [field]: value } : item
         );
         
-        // Do NOT sort when updating fields
+        // Sync with patient screen in dual screen mode
+        // Only sync on significant changes to avoid constant refreshing
+        if (isDualScreen && mode === 'staff' && (field === 'activity' || field === 'time')) {
+          console.log('Syncing schedule changes after updating item field:', field);
+          // Sync the schedule update to the patient screen
+          syncDataToPatientScreen('scheduleUpdate', updatedSchedule);
+          
+          // Force a reload of the patient screen, but only on completed edits
+          // We'll define completed edits as changes to the activity field
+          if (field === 'activity' && value.length > 0) {
+            setTimeout(() => {
+              forceReloadPatientScreen();
+            }, 100);
+          }
+        }
+        
         return {
           ...prev,
           schedule: updatedSchedule,
         };
       });
     },
-    [setEditedData]
+    [setEditedData, isDualScreen, mode, syncDataToPatientScreen, forceReloadPatientScreen]
   );
 
   // UPDATED to not sort when adding new items
@@ -375,10 +625,26 @@ function PatientInfo() {
     };
 
     // Add to schedule array WITHOUT sorting
-    setEditedData((prev) => ({
-      ...prev,
-      schedule: [...prev.schedule, newItem],
-    }));
+    setEditedData((prev) => {
+      const updatedSchedule = [...prev.schedule, newItem];
+      
+      // Sync with patient screen in dual screen mode
+      if (isDualScreen && mode === 'staff') {
+        console.log('Syncing schedule changes after adding new item');
+        // Sync the schedule update to the patient screen
+        syncDataToPatientScreen('scheduleUpdate', updatedSchedule);
+        
+        // Force a reload of the patient screen
+        setTimeout(() => {
+          forceReloadPatientScreen();
+        }, 100);
+      }
+      
+      return {
+        ...prev,
+        schedule: updatedSchedule,
+      };
+    });
 
     // Set focus to the new item (it will be the last one)
     const newIndex = editedData.schedule.length;
@@ -389,7 +655,7 @@ function PatientInfo() {
         scheduleInputRefs.current[newIndex]?.timeInput?.focus();
       });
     }, 50);
-  }, [editing, editedData, setEditedData]);
+  }, [editing, editedData, setEditedData, isDualScreen, mode, syncDataToPatientScreen, forceReloadPatientScreen]);
 
   // Delete schedule item
   const handleDeleteScheduleItem = useCallback(
@@ -397,16 +663,32 @@ function PatientInfo() {
       if (!editing || !editedData) return;
 
       // Remove the item at the specified index
-      setEditedData((prev) => ({
-        ...prev,
-        schedule: prev.schedule.filter((_, i) => i !== index),
-      }));
+      setEditedData((prev) => {
+        const updatedSchedule = prev.schedule.filter((_, i) => i !== index);
+        
+        // Sync with patient screen in dual screen mode
+        if (isDualScreen && mode === 'staff') {
+          console.log('Syncing schedule changes after deleting item');
+          // Sync the schedule update to the patient screen
+          syncDataToPatientScreen('scheduleUpdate', updatedSchedule);
+          
+          // Force a reload of the patient screen
+          setTimeout(() => {
+            forceReloadPatientScreen();
+          }, 100);
+        }
+        
+        return {
+          ...prev,
+          schedule: updatedSchedule,
+        };
+      });
 
       // Reset focus
       setEditingScheduleItem(null);
       setFocusedScheduleIndex(null);
     },
-    [editing, editedData, setEditedData]
+    [editing, editedData, setEditedData, isDualScreen, mode, syncDataToPatientScreen, forceReloadPatientScreen]
   );
 
   const handleKeyDown = useCallback(
@@ -632,6 +914,93 @@ function PatientInfo() {
       : {},
   });
 
+  // Handler for patient status updates
+  const handleStatusUpdate = useCallback(async (newStatus) => {
+    if (!patient) return;
+    
+    console.log('Updating patient status to:', newStatus);
+    
+    try {
+      const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5001";
+      
+      // Create a copy of the patient with the updated status
+      const updatedPatient = { 
+        ...patient,
+        status: newStatus
+      };
+      
+      // Update in the database
+      const response = await fetch(
+        `${API_BASE_URL}/api/patients/${patient.patientId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedPatient),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(
+          errorData?.message || `Server returned ${response.status}`
+        );
+      }
+
+      const updatedData = await response.json();
+      setPatient(updatedData);
+      
+      // Sync with staff screen in dual mode
+      if (isDualScreen) {
+        // Update the status in local storage for the dual screen
+        localStorage.setItem('patientStatus', newStatus);
+        localStorage.setItem('patientStatusTimestamp', Date.now().toString());
+        
+        // Dispatch an event to notify other components
+        window.dispatchEvent(new CustomEvent('patientStatusChanged', { 
+          detail: { 
+            patientId: patient.patientId,
+            status: newStatus,
+            timestamp: Date.now()
+          }
+        }));
+      }
+      
+      // Show confirmation message
+      alert(`Your status has been updated to: ${
+        newStatus === 'stable' ? 'Feeling Fine' :
+        newStatus === 'needs-attention' ? 'Need Assistance' :
+        'Urgent - Need Help Now'
+      }`);
+      
+    } catch (error) {
+      console.error("Error updating status:", error);
+      alert("Sorry, there was a problem updating your status. Please try again or call for help.");
+    }
+  }, [patient, setPatient, isDualScreen]);
+
+  // Handler for nurse call button
+  const handleNurseCall = useCallback(() => {
+    if (!patient) return;
+    
+    console.log('Nurse call initiated for patient:', patient.patientId);
+    
+    // Update status to critical automatically
+    handleStatusUpdate('critical');
+    
+    // Show a confirmation dialog
+    alert('Nurse has been notified. Someone will be with you shortly.');
+    
+    // In a real implementation, this would trigger:
+    // 1. A nurse call system notification
+    // 2. An alert on the staff dashboard
+    // 3. Potentially a pager or mobile alert to the assigned nurse
+    
+    // For demo purposes, we're just updating the status and showing a confirmation
+    
+    // You could also implement a WebSocket connection to alert staff in real-time
+    
+  }, [patient, handleStatusUpdate]);
+
   if (loading) return <div className="loading">Loading...</div>;
   if (!patient) return <div className="error">No patient data available</div>;
 
@@ -640,6 +1009,11 @@ function PatientInfo() {
     { label: "Physician", path: ["careTeam", "primaryDoctor"] },
     { label: "Nurse", path: ["careTeam", "primaryNurse"] },
     { label: "Room", path: ["room"] },
+    { label: "Status", path: ["status"], type: "select", options: [
+      { value: "stable", label: "Stable" },
+      { value: "needs-attention", label: "Needs Attention" },
+      { value: "critical", label: "Critical" }
+    ] },
     { label: "Dietary", path: ["preferences", "dietary"], isArray: true },
     { label: "Language", path: ["preferences", "language"] },
     { label: "Religious", path: ["preferences", "religious"] },
@@ -655,6 +1029,22 @@ function PatientInfo() {
     }
     return patient[field.path[0]] !== undefined;
   });
+  
+  // Debug logs to check fields
+  console.log('Patient fields:', patientFields);
+  console.log('Patient data:', patient);
+  console.log('Visible fields:', visibleFields);
+
+  // Define the fields for the form
+  const personalInfoFields = [
+    { label: "Primary Doctor", path: ["careTeam", "primaryDoctor"] },
+    { label: "Primary Nurse", path: ["careTeam", "primaryNurse"] },
+    { label: "Status", path: ["status"], type: "select", options: [
+      { value: "stable", label: "Stable" },
+      { value: "needs-attention", label: "Needs Attention" },
+      { value: "critical", label: "Critical" }
+    ] }
+  ];
 
   // Render schedule section
   const renderSchedule = () => {
@@ -798,45 +1188,127 @@ function PatientInfo() {
   const renderPatientInfo = () => {
     return (
       <div className="info-fields">
+        {/* Status Update Button - Only visible in patient mode and not on mobile */}
+        {mode === "patient" && !editing && !isMobile && (
+          <div className="status-update-container">
+            <h3>How are you feeling?</h3>
+            <div className="status-buttons">
+              <button 
+                className={`status-button status-stable ${patient.status === 'stable' ? 'active' : ''}`}
+                onClick={() => handleStatusUpdate('stable')}
+                aria-label="I'm feeling fine"
+              >
+                <span>I'm feeling fine</span>
+              </button>
+              <button 
+                className={`status-button status-needs-attention ${patient.status === 'needs-attention' ? 'active' : ''}`}
+                onClick={() => handleStatusUpdate('needs-attention')}
+                aria-label="I need assistance"
+              >
+                <span>I need assistance</span>
+              </button>
+              <button 
+                className={`status-button status-critical ${patient.status === 'critical' ? 'active' : ''}`}
+                onClick={() => handleStatusUpdate('critical')}
+                aria-label="Urgent - Need help now"
+              >
+                <span>Urgent - Need help now</span>
+              </button>
+            </div>
+            
+            <div className="nurse-call-section">
+              <h3>Need immediate assistance?</h3>
+              <button 
+                className="nurse-call-button"
+                onClick={handleNurseCall}
+                aria-label="Call Nurse Now"
+              >
+                <span className="nurse-call-icon">🔔</span>
+                <span>Call Nurse Now</span>
+              </button>
+            </div>
+          </div>
+        )}
         {visibleFields.map((field, index) => (
           <div key={field.label} className="info-field">
             <label>{field.label}:</label>
             {editing ? (
-              <input
-                ref={(el) => (inputRefs.current[index] = el)}
-                type="text"
-                value={
-                  field.isArray
-                    ? editedData[field.path[0]][field.path[1]].join(", ")
-                    : field.path.length === 2
-                    ? editedData[field.path[0]][field.path[1]]
-                    : editedData[field.path[0]]
-                }
-                onChange={(e) => updateField(field, e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    handleSave();
-                  } else if (e.key === "Escape") {
-                    e.preventDefault();
-                    handleKeyNavigation(e);
+              field.type === "select" ? (
+                <select
+                  ref={(el) => (inputRefs.current[index] = el)}
+                  value={field.path.length === 2 
+                    ? editedData[field.path[0]][field.path[1]] 
+                    : editedData[field.path[0]]}
+                  onChange={(e) => updateField(field, e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleSave();
+                    } else if (e.key === "Escape") {
+                      e.preventDefault();
+                      handleKeyNavigation(e);
+                    }
+                  }}
+                  onFocus={() => {
+                    setNavigationSection("info");
+                    setFocusedInputIndex(index);
+                    setFocusedScheduleIndex(null);
+                    setMainNavFocusIndex(null);
+                  }}
+                  className={`editable-input ${
+                    navigationSection === "info" && focusedInputIndex === index
+                      ? "focused"
+                      : ""
+                  } ${field.path.length === 1 && field.path[0] === 'status' ? 'status-select' : ''}`}
+                  disabled={isSaving}
+                >
+                  {field.options.map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  ref={(el) => (inputRefs.current[index] = el)}
+                  type="text"
+                  value={
+                    field.isArray
+                      ? editedData[field.path[0]][field.path[1]].join(", ")
+                      : field.path.length === 2
+                      ? editedData[field.path[0]][field.path[1]]
+                      : editedData[field.path[0]]
                   }
-                }}
-                onFocus={() => {
-                  setNavigationSection("info");
-                  setFocusedInputIndex(index);
-                  setFocusedScheduleIndex(null);
-                  setMainNavFocusIndex(null);
-                }}
-                className={`editable-input ${
-                  navigationSection === "info" && focusedInputIndex === index
-                    ? "focused"
-                    : ""
-                }`}
-                disabled={isSaving}
-              />
+                  onChange={(e) => updateField(field, e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleSave();
+                    } else if (e.key === "Escape") {
+                      e.preventDefault();
+                      handleKeyNavigation(e);
+                    }
+                  }}
+                  onFocus={() => {
+                    setNavigationSection("info");
+                    setFocusedInputIndex(index);
+                    setFocusedScheduleIndex(null);
+                    setMainNavFocusIndex(null);
+                  }}
+                  className={`editable-input ${
+                    navigationSection === "info" && focusedInputIndex === index
+                      ? "focused"
+                      : ""
+                  }`}
+                  disabled={isSaving}
+                />
+              )
             ) : (
-              <span>{getFieldValue(field)}</span>
+              <span className={`status-text ${field.path.length === 2 && field.path[0] === 'status' ? `status-${getFieldValue(field)}` : ''}`}>
+                {field.type === "select" && field.options 
+                ? field.options.find(opt => opt.value === getFieldValue(field))?.label || getFieldValue(field)
+                : getFieldValue(field)}
+              </span>
             )}
           </div>
         ))}
@@ -905,32 +1377,57 @@ function PatientInfo() {
         extraHeaderContent={extraHeaderContent}
       />
 
-      {/* Updated layout structure with left and right columns */}
-      <div className="content-container">
-        {/* Left Column - Contains Personal Info and Schedule stacked vertically */}
-        <div className="left-column">
-          {/* Patient Information Card */}
-          <div className="info-card personal-info">
-            <h2>Personal Information</h2>
-            {renderPatientInfo()}
-          </div>
-
-          {/* Schedule Card */}
-          <div className="info-card schedule">
-            <h2>Today's Schedule</h2>
-            {renderSchedule()}
+      {/* Check for no patients condition */}
+      {mode === "staff" && (!allPatients || allPatients.length === 0) ? (
+        <div className="info-container">
+          <div className="no-patients-message">
+            <h2>No Patients Assigned</h2>
+            <p>You don't currently have any patients assigned to you.</p>
+            <p>If you believe this is a mistake, please contact the system administrator.</p>
           </div>
         </div>
+      ) : (
+        /* The original content container */
+        <div className="content-container">
+          {/* Left Column - Contains Personal Info and Schedule stacked vertically */}
+          <div className="left-column">
+            {/* Patient Information Card */}
+            <div className="info-card personal-info">
+              <h2>Personal Information</h2>
+              {renderPatientInfo()}
+            </div>
 
-        {/* Right Column - Contains Patient Feedback */}
-        <div className="right-column">
-          <div className="info-card">
-            <div className="feedback-container">
-              <PatientFeedbackTab patient={patient} />
+            {/* Schedule Card */}
+            <div className="info-card schedule">
+              <h2>Today's Schedule</h2>
+              {renderSchedule()}
+            </div>
+          </div>
+
+          {/* Right Column - Contains Patient Feedback */}
+          <div className="right-column">
+            <div className="info-card">
+              <div className="feedback-container">
+                <PatientFeedbackTab patient={patient} />
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
+      
+      {/* Debug panel - only visible during development */}
+      {process.env.NODE_ENV !== 'production' && (
+        <div className="debug-panel">
+          <h4>Debug Info</h4>
+          <div>Mode: {mode}</div>
+          <div>Is Dual Screen: {isDualScreen ? 'Yes' : 'No'}</div>
+          <div>Selected ID: {selectedPatientId}</div>
+          <div>Nurse Selected ID: {nurseSelectedPatientId}</div>
+          <div>Patient name: {patient?.name}</div>
+          <div>Last Sync: {new Date(lastSyncTimestamp).toLocaleTimeString()}</div>
+          <button onClick={() => window.location.reload()}>Force Reload</button>
+        </div>
+      )}
     </Layout>
   );
 }
