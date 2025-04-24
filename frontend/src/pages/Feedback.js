@@ -9,7 +9,7 @@ import {
   Layout,
   Header,
 } from "../shared";
-import axios from 'axios';
+import axios from "axios";
 
 // Rating category component
 const RatingCategory = ({ label, description, rating, onChange }) => {
@@ -38,15 +38,15 @@ const RatingCategory = ({ label, description, rating, onChange }) => {
 function Feedback() {
   const navigate = useNavigate();
   const { token } = useParams(); // Get token from URL if present
-  
+
   // Determine if this is QR code access or normal in-app access
   const isQRCodeAccess = !!token;
-  
+
   // State for QR code specific functionality
   const [qrLoading, setQRLoading] = useState(isQRCodeAccess);
   const [qrError, setQRError] = useState(null);
   const [qrPatientData, setQRPatientData] = useState(null);
-  
+
   const {
     patient,
     allPatients,
@@ -55,7 +55,7 @@ function Feedback() {
     handlePatientChange,
     updatePatientData,
   } = usePatientData();
-  
+
   const currentTime = useTimeUpdate();
   const {
     isNavOpen,
@@ -89,21 +89,24 @@ function Feedback() {
   // If accessed via QR code, validate the token and get patient data
   useEffect(() => {
     if (!isQRCodeAccess) return;
-    
+
     async function validateToken() {
       try {
         setQRLoading(true);
-        const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5001";
-        
+        const API_BASE_URL =
+          process.env.REACT_APP_API_URL || "http://localhost:5001";
+
         console.log("Validating feedback token in Feedback component:", token);
         console.log("Dual screen mode:", window.isDualScreen ? "Yes" : "No");
-        console.log("Current window mode:", localStorage.getItem('mode'));
-        
-        const response = await fetch(`${API_BASE_URL}/api/feedback/validate/${token}`);
+        console.log("Current window mode:", localStorage.getItem("mode"));
+
+        const response = await fetch(
+          `${API_BASE_URL}/api/feedback/validate/${token}`
+        );
         const data = await response.json();
-        
+
         console.log("Token validation response:", data);
-        
+
         if (data.valid) {
           console.log("Setting patient data from token:", data.patientData);
           setQRPatientData(data.patientData);
@@ -118,7 +121,7 @@ function Feedback() {
         setQRLoading(false);
       }
     }
-    
+
     validateToken();
   }, [token, isQRCodeAccess]);
 
@@ -164,8 +167,9 @@ function Feedback() {
     setSubmitting(true);
 
     try {
-      const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5001";
-      
+      const API_BASE_URL =
+        process.env.REACT_APP_API_URL || "http://localhost:5001";
+
       // Create feedback object with timestamp and patient info
       const newFeedback = {
         id: Date.now().toString(),
@@ -192,31 +196,34 @@ function Feedback() {
           newFeedback.patientId = qrPatientData.patientId;
           newFeedback.patientName = qrPatientData.name;
           newFeedback.room = qrPatientData.room;
-          
+
           // Submit to patient-specific endpoint
-          const response = await fetch(`${API_BASE_URL}/api/patients/${qrPatientData.patientId}/feedback`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(newFeedback),
-          });
-          
+          const response = await fetch(
+            `${API_BASE_URL}/api/patients/${qrPatientData.patientId}/feedback`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(newFeedback),
+            }
+          );
+
           if (!response.ok) {
-            throw new Error('Failed to submit feedback');
+            throw new Error("Failed to submit feedback");
           }
         } else {
           // Anonymous feedback
           const response = await fetch(`${API_BASE_URL}/api/feedback/submit`, {
-            method: 'POST',
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
             },
             body: JSON.stringify(newFeedback),
           });
-          
+
           if (!response.ok) {
-            throw new Error('Failed to submit feedback');
+            throw new Error("Failed to submit feedback");
           }
         }
       } else {
@@ -234,14 +241,14 @@ function Feedback() {
         // Save to backend
         await updatePatientData(updatedPatient);
       }
-      
+
       // Scroll to top to ensure thank you message is visible
       window.scrollTo(0, 0);
-      
+
       // Important: Set submitted state after successful submission
       setSubmitted(true);
       setSubmitting(false);
-      
+
       console.log("Feedback submitted successfully, showing thank you message");
     } catch (error) {
       console.error("Error submitting feedback:", error);
@@ -297,7 +304,7 @@ function Feedback() {
       </div>
     );
   }
-  
+
   // Error states
   if (isQRCodeAccess && qrError) {
     return (
@@ -306,11 +313,11 @@ function Feedback() {
       </div>
     );
   }
-  
+
   if (!isQRCodeAccess && patientLoading) {
     return <div className="loading">Loading...</div>;
   }
-  
+
   if (!isQRCodeAccess && !patient) {
     return <div className="error">No patient data available</div>;
   }
@@ -334,17 +341,21 @@ function Feedback() {
             {!submitted && (
               <>
                 <h2>Your Feedback Matters</h2>
-                
+
                 {currentPatient && (
                   <div className="patient-info-box">
-                    <p><strong>Patient:</strong> {currentPatient.name}</p>
-                    <p><strong>Room:</strong> {currentPatient.room}</p>
+                    <p>
+                      <strong>Patient:</strong> {currentPatient.name}
+                    </p>
+                    <p>
+                      <strong>Room:</strong> {currentPatient.room}
+                    </p>
                   </div>
                 )}
-                
+
                 <p className="feedback-intro">
-                  Thank you for taking the time to provide feedback about your stay.
-                  Your input helps us improve our services.
+                  Thank you for taking the time to provide feedback about your
+                  stay. Your input helps us improve our services.
                 </p>
               </>
             )}
@@ -380,8 +391,7 @@ function Feedback() {
         <div className="feedback-container">
           <h2>Your Feedback Matters</h2>
           <p className="feedback-intro">
-            Thank you for taking the time to provide feedback about your stay.
-            Your input helps us improve our services.
+            Thanks for sharing your feedback—it helps us improve!
           </p>
 
           {/* The rest of the form is the same for both modes */}
@@ -398,8 +408,8 @@ function Feedback() {
         <div className="success-icon">✓</div>
         <h3>Thank You For Your Feedback</h3>
         <p>
-          Your feedback has been submitted successfully and will help us
-          improve our services.
+          Your feedback has been submitted successfully and will help us improve
+          our services.
         </p>
         <button onClick={handleReset} className="reset-button">
           Submit Another Feedback
@@ -439,9 +449,7 @@ function Feedback() {
             label="Staff Responsiveness"
             description="How quickly staff responded to your needs"
             rating={categoryRatings.staffResponsiveness}
-            onChange={(value) =>
-              updateRating("staffResponsiveness", value)
-            }
+            onChange={(value) => updateRating("staffResponsiveness", value)}
           />
 
           <RatingCategory
@@ -478,11 +486,7 @@ function Feedback() {
         </div>
 
         <div className="form-actions">
-          <button
-            type="submit"
-            className="submit-button"
-            disabled={submitting}
-          >
+          <button type="submit" className="submit-button" disabled={submitting}>
             {submitting ? "Submitting..." : "Submit Feedback"}
           </button>
         </div>
