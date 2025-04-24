@@ -726,7 +726,7 @@
 .patient-header-with-status {
   font-size: 1.2rem;
   font-weight: 600;
-  color: #2c3e50;
+  color: #ffffff; /* Changed to white */
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -748,13 +748,14 @@
   align-items: center;
   font-weight: 500;
   font-size: 1.1rem;
-  color: #2c3e50;
+  color: #ffffff; /* White text color */
 }
 
 .current-patient-name {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: #ffffff; /* White text color */
 }
 
 /* For patient list item in dropdown */

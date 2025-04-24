@@ -36,15 +36,16 @@
 .left-column {
   flex: 1;
   min-width: 45%;
-  max-width: 60%;
+  max-width: 50%;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  gap: 20px;
 }
 
 .right-column {
   flex: 1;
-  min-width: 35%;
+  min-width: 45%;
   overflow-y: auto;
   overflow-x: hidden;
   display: flex;
@@ -57,7 +58,7 @@
   border-radius: var(--border-radius);
   box-shadow: var(--box-shadow);
   padding: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -86,8 +87,9 @@
 
 /* Personal Information */
 .info-card.personal-info {
-  flex: 1;
-  max-height: 250px;
+  flex: 0 0 auto;
+  min-height: 180px;
+  max-height: 200px;
   overflow: auto;
 }
 
@@ -106,10 +108,8 @@
 
 /* Schedule Section */
 .info-card.schedule {
-  flex: 3;
-  max-height: 450px;
-  display: flex;
-  flex-direction: column;
+  flex: 1;
+  min-height: 300px;
   overflow: auto;
 }
 
@@ -843,4 +843,10 @@ select option[value="critical"] {
   color: #6c757d;
   line-height: 1.5;
   margin-bottom: 0.5rem;
+}
+
+/* Right column card takes full height */
+.right-column .info-card {
+  flex: 1;
+  height: 100%;
 }

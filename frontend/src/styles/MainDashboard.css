@@ -18,8 +18,9 @@
 /* Content container layout */
 .content-container {
   display: flex;
-  flex-direction: column !important;
-  align-items: center;
+  flex-direction: row !important;
+  justify-content: space-between;
+  align-items: flex-start;
   padding: 20px;
   gap: 20px;
   height: calc(100vh - 80px); /* Adjust based on header height */
@@ -28,10 +29,7 @@
 /* Panel styling for patient info and schedule */
 .patient-info-panel,
 .schedule-panel {
-  /* display: flex;
-  flex-direction: column;
-  gap: 20px; */
-  width: 50%;
+  width: 48%; /* Use percentage for responsive layout */
   max-width: 800px;
 }
 
@@ -143,10 +141,12 @@
 /* Responsive styles */
 @media (max-width: 768px) {
   .content-container {
-    flex-direction: column;
+    flex-direction: column !important;
   }
 
-  .patient-info-panel {
+  .patient-info-panel,
+  .schedule-panel {
+    width: 100%;
     max-width: none;
   }
 
