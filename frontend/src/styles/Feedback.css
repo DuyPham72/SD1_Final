@@ -27,6 +27,7 @@
   margin: 0 auto; /* this centers the container */
   width: 100%;
   padding: 20px;
+  background-color: #002e4f;
 }
 
 .feedback-container h2 {

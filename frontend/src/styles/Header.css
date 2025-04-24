@@ -87,9 +87,9 @@
   background-color: #ecf0f1;
   border: none;
   color: #34495e;
-  padding: 8px 15px;
-  border-radius: 4px;
-  font-size: 0.9rem;
+  padding: 8px 8px !important;
+  border-radius: 6px;
+  font-size: 15px !important;
   cursor: pointer;
   transition: background-color 0.2s;
 }

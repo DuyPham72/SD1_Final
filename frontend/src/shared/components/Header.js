@@ -6,7 +6,7 @@ import LoginModal from "./LoginModal";
 import "../../styles/Header.css";
 import PatientAccessQR from "./PatientAccessQR";
 import RegistrationQRGenerator from "./RegistrationQRGenerator";
-import NotificationBadge from './NotificationBadge';
+import NotificationBadge from "./NotificationBadge";
 import FeedbackQR from "./FeedbackQR";
 
 export const Header = ({
@@ -21,7 +21,8 @@ export const Header = ({
   mainNavFocusIndex,
   extraHeaderContent,
 }) => {
-  const { mode, isAuthenticated, isDualScreen, enableDualScreen, user } = useAuth();
+  const { mode, isAuthenticated, isDualScreen, enableDualScreen, user } =
+    useAuth();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [showQRCode, setShowQRCode] = useState(false);
   const [showRegQRCode, setShowRegQRCode] = useState(false);
@@ -30,46 +31,46 @@ export const Header = ({
   const [showNotifications, setShowNotifications] = useState(false);
   // Local state to track UI updates
   const [forceUpdate, setForceUpdate] = useState(0);
-  
+
   // Check for user data in localStorage on component mount
   useEffect(() => {
     // This ensures the user display is correctly shown immediately after page load
     const checkUserDataConsistency = () => {
-      const savedMode = localStorage.getItem('mode');
-      const savedUserData = localStorage.getItem('userData');
-      
-      if (savedMode === 'staff' && savedUserData) {
-        console.log('Header found user data in localStorage:', savedUserData);
-        // The auth context should already have loaded this data, 
+      const savedMode = localStorage.getItem("mode");
+      const savedUserData = localStorage.getItem("userData");
+
+      if (savedMode === "staff" && savedUserData) {
+        console.log("Header found user data in localStorage:", savedUserData);
+        // The auth context should already have loaded this data,
         // but we force a re-render to ensure UI is up-to-date
-        setForceUpdate(prev => prev + 1);
+        setForceUpdate((prev) => prev + 1);
       }
     };
-    
+
     checkUserDataConsistency();
   }, []);
-  
+
   // Force re-render when mode or user changes
   useEffect(() => {
     console.log("Header detected mode/user change:", { mode, user });
     // Increment to force re-render
-    setForceUpdate(prev => prev + 1);
+    setForceUpdate((prev) => prev + 1);
   }, [mode, user, isAuthenticated]);
-  
+
   // Create refs for our buttons
   const patientAccessBtnRef = useRef(null);
   const feedbackQRBtnRef = useRef(null);
-  
+
   // Determine if we're in mobile view
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  
+
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);
     };
-    
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   // Register the button refs when the component mounts
@@ -78,7 +79,7 @@ export const Header = ({
     if (patientAccessBtnRef.current && mode === "patient" && patient) {
       mainNavElementsRef.current.patientAccessBtn = patientAccessBtnRef.current;
     }
-    
+
     // Add feedback QR button to mainNavElementsRef if it exists
     if (feedbackQRBtnRef.current && mode === "patient") {
       mainNavElementsRef.current.feedbackQRBtn = feedbackQRBtnRef.current;
@@ -88,7 +89,7 @@ export const Header = ({
   // Handle escape key for modals
   useEffect(() => {
     const handleEscapeKey = (e) => {
-      if (e.key === 'Escape' || e.key === 'Backspace') {
+      if (e.key === "Escape" || e.key === "Backspace") {
         // Close the appropriate modal if it's open
         if (showQRCode) {
           setShowQRCode(false);
@@ -101,9 +102,9 @@ export const Header = ({
         }
       }
     };
-    
-    window.addEventListener('keydown', handleEscapeKey);
-    return () => window.removeEventListener('keydown', handleEscapeKey);
+
+    window.addEventListener("keydown", handleEscapeKey);
+    return () => window.removeEventListener("keydown", handleEscapeKey);
   }, [showQRCode, showFeedbackQRCode, showRegQRCode]);
 
   // Handle functions
@@ -125,12 +126,11 @@ export const Header = ({
     setShowNotifications((prev) => !prev);
   };
 
-
   const handleRegQRClick = (e) => {
     e.preventDefault();
     setShowRegQRCode(true);
   };
-  
+
   const handleFeedbackQRClick = (e) => {
     e.preventDefault();
     setShowFeedbackQRCode(true);
@@ -139,8 +139,8 @@ export const Header = ({
   const handleEnableDualScreen = (e) => {
     e.preventDefault();
     console.log("Dual screen button clicked");
-    
-    if (typeof enableDualScreen === 'function') {
+
+    if (typeof enableDualScreen === "function") {
       enableDualScreen();
     } else {
       console.error("enableDualScreen is not a function");
@@ -148,14 +148,18 @@ export const Header = ({
   };
 
   // Check if we're in patient mode on mobile
-  const isPatientMobile = mode === 'patient' && isMobile;
+  const isPatientMobile = mode === "patient" && isMobile;
 
   // Different rendering for mobile patient view vs normal view
   if (isPatientMobile) {
     // Get formatted time
-    const formattedTime = currentTime ? 
-      currentTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
-    
+    const formattedTime = currentTime
+      ? currentTime.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      : "";
+
     return (
       <div className="header-bar mobile-patient-header">
         <button
@@ -171,8 +175,10 @@ export const Header = ({
         <div className="patient-info-wrapper">
           <h1 className="patient-header-with-status">
             {patient?.status && (
-              <span className={`status-indicator status-${patient.status}`} 
-                   title={`Patient Status: ${patient.status.replace('-', ' ')}`}></span>
+              <span
+                className={`status-indicator status-${patient.status}`}
+                title={`Patient Status: ${patient.status.replace("-", " ")}`}
+              ></span>
             )}
             Patient Name: {patient?.name}
           </h1>
@@ -180,7 +186,9 @@ export const Header = ({
         </div>
 
         {/* Notification badge on the right */}
-        <NotificationBadge notifications={["Patient here", "Patient", "John"]} />
+        <NotificationBadge
+          notifications={["Patient here", "Patient", "John"]}
+        />
 
         {/* Modals still needed */}
         <LoginModal
@@ -202,12 +210,12 @@ export const Header = ({
         )}
 
         {showRegQRCode && (
-          <RegistrationQRGenerator 
+          <RegistrationQRGenerator
             onClose={() => setShowRegQRCode(false)}
             autoFocus={true}
           />
         )}
-        
+
         {showFeedbackQRCode && (
           <FeedbackQR
             patient={patient}
@@ -242,11 +250,11 @@ export const Header = ({
           onChange={(e) => onPatientChange(e.target.value)}
         >
           {allPatients.map((p) => (
-            <option 
-              key={p.patientId} 
-              value={p.patientId} 
-              data-status={p.status || 'stable'}
-              className={`patient-option status-${p.status || 'stable'}`}
+            <option
+              key={p.patientId}
+              value={p.patientId}
+              data-status={p.status || "stable"}
+              className={`patient-option status-${p.status || "stable"}`}
             >
               {p.name} - Room {p.room}
             </option>
@@ -258,11 +266,15 @@ export const Header = ({
       {mode === "patient" ? (
         <h1 className="patient-header-with-status">
           {patient?.status && (
-            <span 
-              className={`status-indicator status-${patient.status}`} 
-              title={patient.status === 'stable' ? 'Feeling Fine' : 
-                    patient.status === 'needs-attention' ? 'Needs Assistance' : 
-                    'Urgent - Needs Help'}
+            <span
+              className={`status-indicator status-${patient.status}`}
+              title={
+                patient.status === "stable"
+                  ? "Feeling Fine"
+                  : patient.status === "needs-attention"
+                  ? "Needs Assistance"
+                  : "Urgent - Needs Help"
+              }
             ></span>
           )}
           Patient Name: {patient?.name}
@@ -271,11 +283,17 @@ export const Header = ({
         <div className="header-content">
           {patient && (
             <div className="current-patient-status">
-              <span 
-                className={`status-indicator status-${patient?.status || 'stable'}`} 
-                title={patient?.status === 'stable' ? 'Feeling Fine' : 
-                      patient?.status === 'needs-attention' ? 'Needs Assistance' : 
-                      'Urgent - Needs Help'}
+              <span
+                className={`status-indicator status-${
+                  patient?.status || "stable"
+                }`}
+                title={
+                  patient?.status === "stable"
+                    ? "Feeling Fine"
+                    : patient?.status === "needs-attention"
+                    ? "Needs Assistance"
+                    : "Urgent - Needs Help"
+                }
               ></span>
               <span className="current-patient-name">
                 Current Patient: {patient?.name}
@@ -293,7 +311,7 @@ export const Header = ({
             <span className="logged-in-name">{user.name}</span>
           </div>
         )}
-      
+
         {/* Dual Screen Mode Button */}
         {mode === "staff" && !isDualScreen && (
           <button
@@ -305,29 +323,31 @@ export const Header = ({
             <span className="dual-screen-text">Dual Screen</span>
           </button>
         )}
-        
+
         {/* Patient Access QR - only visible in patient mode */}
         {mode === "patient" && patient && (
           <button
             ref={patientAccessBtnRef}
-            className={`qr-code-button ${mainNavFocusIndex === 2 ? "focused" : ""}`}
+            className={`staff-login-button ${
+              mainNavFocusIndex === 2 ? "focused" : ""
+            }`}
             onClick={handleQRCodeClick}
             title="Generate patient access QR code"
           >
-            <span className="qr-icon">🔗</span>
             <span className="qr-text">Patient Access</span>
           </button>
         )}
-        
+
         {/* Feedback QR Button - only visible in patient mode */}
         {mode === "patient" && (
           <button
             ref={feedbackQRBtnRef}
-            className={`feedback-qr-button ${mainNavFocusIndex === 3 ? "focused" : ""}`}
+            className={`staff-login-button ${
+              mainNavFocusIndex === 3 ? "focused" : ""
+            }`}
             onClick={handleFeedbackQRClick}
             title="Generate QR code for patients to submit feedback on their own device"
           >
-            <span className="qr-icon">📱</span>
             <span className="qr-text">Feedback QR</span>
           </button>
         )}
@@ -396,12 +416,12 @@ export const Header = ({
       )}
 
       {showRegQRCode && (
-        <RegistrationQRGenerator 
+        <RegistrationQRGenerator
           onClose={() => setShowRegQRCode(false)}
           autoFocus={true}
         />
       )}
-      
+
       {showFeedbackQRCode && (
         <FeedbackQR
           patient={patient}
