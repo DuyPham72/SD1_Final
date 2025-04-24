@@ -31,13 +31,6 @@
   gap: 20px;
 }
 
-/* Panel styling for patient info and schedule */
-.patient-info-panel,
-.schedule-panel {
-  width: 50%;
-  max-width: 800px;
-}
-
 /* Info card styling */
 .info-card {
   background-color: #fff;

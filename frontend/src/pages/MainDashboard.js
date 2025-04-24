@@ -1056,35 +1056,33 @@ function MainDashboard() {
                 </span>
               </div>
             </div>
-          </div>
-
-          {/* Right panel with schedule */}
-          <div className="schedule-panel">
-            <div className="info-card schedule-card">
-              <h2>Today's Schedule:</h2>
-              <div className="schedule-list">
-                {patient.schedule && patient.schedule.length > 0 ? (
-                  patient.schedule.map((item, index) => (
-                    <div
-                      key={index}
-                      className={`schedule-item ${
-                        isTimeInPast(item.time) ? "past-activity" : ""
-                      }`}
-                    >
-                      <div className="time">{item.time}</div>
-                      <div className="activity">
-                        {item.activity}
-                        {item.notes && (
-                          <div className="notes">{item.notes}</div>
-                        )}
+            <div className="schedule-panel">
+              <div className="info-card schedule-card">
+                <h2>Today's Schedule:</h2>
+                <div className="schedule-list">
+                  {patient.schedule && patient.schedule.length > 0 ? (
+                    patient.schedule.map((item, index) => (
+                      <div
+                        key={index}
+                        className={`schedule-item ${
+                          isTimeInPast(item.time) ? "past-activity" : ""
+                        }`}
+                      >
+                        <div className="time">{item.time}</div>
+                        <div className="activity">
+                          {item.activity}
+                          {item.notes && (
+                            <div className="notes">{item.notes}</div>
+                          )}
+                        </div>
                       </div>
+                    ))
+                  ) : (
+                    <div className="no-schedule">
+                      No scheduled activities for today
                     </div>
-                  ))
-                ) : (
-                  <div className="no-schedule">
-                    No scheduled activities for today
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             </div>
           </div>
