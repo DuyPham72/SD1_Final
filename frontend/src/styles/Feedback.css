@@ -18,15 +18,15 @@
 .content-container {
   height: calc(100vh - 80px);
   overflow: hidden;
-  padding: 10px 20px; /* Reduced padding */
+  padding: 10px 20px;
 }
 
 /* Feedback container */
 .feedback-container {
-  max-height: 100%;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
+  max-width: 800px; /* or try 600px if you want it even smaller */
+  margin: 0 auto; /* this centers the container */
+  width: 100%;
+  padding: 20px;
 }
 
 .feedback-container h2 {
@@ -233,7 +233,7 @@ textarea:focus {
     padding: 20px 15px;
     margin: 10px auto;
   }
-  
+
   .success-icon {
     font-size: 3rem;
     width: 70px;
@@ -241,17 +241,17 @@ textarea:focus {
     line-height: 70px;
     margin-bottom: 15px;
   }
-  
+
   .feedback-success h3 {
     font-size: 1.4rem;
     margin: 10px 0;
   }
-  
+
   .feedback-success p {
     font-size: 1rem;
     margin-bottom: 20px;
   }
-  
+
   .reset-button {
     width: 100%;
     max-width: 250px;
@@ -639,7 +639,7 @@ textarea {
 /* Add these styles to your existing Feedback.css file */
 
 .standalone-feedback-page {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   max-width: 100%;
   margin: 0;
   padding: 0;
@@ -688,26 +688,27 @@ textarea {
 }
 
 @media (max-width: 768px) {
-  body, html {
+  body,
+  html {
     height: auto;
     position: relative;
     overflow-x: hidden;
     overflow-y: auto;
   }
-  
+
   .standalone-feedback-page {
     position: static;
   }
-  
+
   .standalone-feedback-page .content-container {
     padding: 10px;
     padding-bottom: 60px;
   }
-  
+
   .simple-header {
     padding: 10px 15px;
   }
-  
+
   /* Ensure form fits properly */
   .feedback-form {
     width: 100%;
@@ -718,7 +719,10 @@ textarea {
   overflow-y: auto;
   padding-bottom: 120px; /* Add bottom padding for iOS scrolling */
 }
-textarea, input, select, button {
+textarea,
+input,
+select,
+button {
   max-width: 100%;
   box-sizing: border-box;
 }
@@ -735,7 +739,6 @@ body {
   overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
-
 .patient-info-box {
   background-color: #e9f7fc;
   border: 1px solid #c5e8f3;
@@ -749,7 +752,7 @@ body {
   font-size: 16px;
 }
 
-.loading-container, 
+.loading-container,
 .error-container {
   display: flex;
   justify-content: center;
@@ -760,12 +763,12 @@ body {
   text-align: center;
 }
 
-.loading, 
+.loading,
 .error {
   background-color: white;
   padding: 20px 30px;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   max-width: 400px;
   width: 100%;
 }
@@ -780,46 +783,46 @@ body {
   .feedback-container {
     padding: 15px;
   }
-  
+
   .rating-category {
     padding: 12px;
   }
-  
+
   .rating-button {
     font-size: 1.8rem;
     width: 40px;
     height: 40px;
     margin: 0 2px;
   }
-  
+
   .overall-stars .star {
     font-size: 1.8rem;
     margin: 0 2px;
   }
-  
+
   .submit-button {
     width: 100%;
     padding: 12px;
   }
-  
+
   .feedback-form {
     padding-bottom: 50px;
   }
-  
+
   .simple-header {
     padding: 10px;
     flex-direction: column;
     text-align: center;
   }
-  
+
   .simple-header h1 {
     margin-bottom: 8px;
   }
-  
+
   .overall-rating-display h3 {
     font-size: 1.3rem;
   }
-  
+
   textarea {
     min-height: 100px;
   }
@@ -833,19 +836,19 @@ body {
     height: 36px;
     margin: 0 1px;
   }
-  
+
   .overall-stars .star {
     font-size: 1.6rem;
   }
-  
+
   .rating-category-header label {
     font-size: 1rem;
   }
-  
+
   .rating-description {
     font-size: 0.8rem;
   }
-  
+
   .feedback-intro {
     font-size: 0.9rem;
   }
@@ -899,19 +902,19 @@ body {
     align-items: center !important;
     justify-content: center !important;
   }
-  
+
   /* Force vertical layout for categories */
   .rating-category {
     flex-direction: column !important;
     align-items: flex-start !important;
     padding: 12px !important;
   }
-  
+
   .rating-stars {
     margin: 10px 0 0 !important;
     align-self: center !important;
   }
-  
+
   /* Make sure the submit button is visible */
   .form-actions {
     margin-top: 20px !important;
@@ -930,7 +933,8 @@ body {
 }
 
 /* Remove any hidden overflow from parents */
-#root, [id="root"] {
+#root,
+[id="root"] {
   overflow: visible !important;
   height: auto !important;
   min-height: 100vh !important;
@@ -943,7 +947,8 @@ body {
 
 /* Critical Mobile Scrolling Fixes */
 
-html, body {
+html,
+body {
   height: 100%;
   margin: 0;
   padding: 0;
@@ -1010,19 +1015,19 @@ button {
 /* Ensure full viewport height on mobile */
 @media (max-width: 768px) {
   .standalone-feedback-page {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      min-height: 100vh;
-      overflow-y: scroll;
-      -webkit-overflow-scrolling: touch;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    min-height: 100vh;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
   }
 
   .content-container {
-      padding: 10px;
-      overflow-y: scroll !important;
-      -webkit-overflow-scrolling: touch;
+    padding: 10px;
+    overflow-y: scroll !important;
+    -webkit-overflow-scrolling: touch;
   }
 }
 

@@ -357,19 +357,11 @@ function Feedback() {
     );
   }
 
-  // For regular in-app access, use the Layout and Header
-  const navItems = [
-    { icon: "🏠", text: "Home", path: "/" },
-    { icon: "🎮", text: "Entertainment", path: "/entertainment" },
-    { icon: "📝", text: "Patient Feedback", path: "/feedback" },
-  ];
-
   return (
     <Layout
       patient={patient}
       isNavOpen={isNavOpen}
       onNavToggle={() => setIsNavOpen(!isNavOpen)}
-      navItems={navItems}
       sidebarButtonsRef={sidebarButtonsRef}
     >
       <Header
