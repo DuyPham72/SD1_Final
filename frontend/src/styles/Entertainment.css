@@ -13,8 +13,7 @@
 .entertainment-card {
   background: white;
   padding: 30px;
-  width: 60%;
-  max-width: 700px;
+  max-width: 717px;
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   position: relative;
@@ -31,7 +30,7 @@
 .entertainment-icons {
   display: flex;
   justify-content: center;
-  gap: 30px;
+  gap: 10px;
   position: relative;
   z-index: 15;
 }
@@ -81,7 +80,7 @@
 
 /* Ensure all icons are visible */
 img.entertainment-icon {
-  max-width: 100%;
+  max-width: 117px;
   height: auto;
   display: block;
 }

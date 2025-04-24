@@ -1,5 +1,6 @@
 /* src/styles/PatientRegistrationPage.css */
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   height: 100%;
@@ -51,7 +52,7 @@ html, body {
 
 .form-group label {
   font-weight: 500;
-  color: #34495e;
+  color: white;
 }
 
 .form-group input,

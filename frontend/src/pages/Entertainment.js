@@ -1,46 +1,52 @@
-import React, { useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import '../styles/Entertainment.css';
+import React, { useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import "../styles/Entertainment.css";
 import {
   usePatientData,
   useTimeUpdate,
   useNavigationState,
   useKeyboardNavigation,
   Layout,
-  Header
-} from '../shared';
-import youtubeIcon from '../assets/youtube.png';
-import spotifyIcon from '../assets/spotify.png';
-import netflixIcon from '../assets/netflix.png';
-import twitchIcon from '../assets/twitch.png';
+  Header,
+} from "../shared";
+import youtubeIcon from "../assets/youtube.png";
+import spotifyIcon from "../assets/spotify.png";
+import netflixIcon from "../assets/netflix.png";
+import twitchIcon from "../assets/twitch.png";
 
 function Entertainment() {
   const navigate = useNavigate();
-  const { patient, allPatients, selectedPatientId, loading, handlePatientChange } = usePatientData();
+  const {
+    patient,
+    allPatients,
+    selectedPatientId,
+    loading,
+    handlePatientChange,
+  } = usePatientData();
   const currentTime = useTimeUpdate();
-  const { 
-    isNavOpen, 
-    setIsNavOpen, 
-    sidebarFocusIndex, 
+  const {
+    isNavOpen,
+    setIsNavOpen,
+    sidebarFocusIndex,
     setSidebarFocusIndex,
-    mainNavFocusIndex, 
-    setMainNavFocusIndex 
+    mainNavFocusIndex,
+    setMainNavFocusIndex,
   } = useNavigationState();
 
   // References for keyboard navigation
   const appRefs = useRef([]);
   const mainNavElementsRef = useRef({
     menuButton: null,
-    entertainmentButton: null
+    entertainmentButton: null,
   });
   const sidebarButtonsRef = useRef([]);
 
   // Entertainment options
   const entertainmentOptions = [
-    { name: 'YouTube', icon: youtubeIcon, url: 'https://www.youtube.com' },
-    { name: 'Spotify', icon: spotifyIcon, url: 'https://www.spotify.com' },
-    { name: 'Netflix', icon: netflixIcon, url: 'https://www.netflix.com' },
-    { name: 'Twitch', icon: twitchIcon, url: 'https://www.twitch.tv' }
+    { name: "YouTube", icon: youtubeIcon, url: "https://www.youtube.com" },
+    { name: "Spotify", icon: spotifyIcon, url: "https://www.spotify.com" },
+    { name: "Netflix", icon: netflixIcon, url: "https://www.netflix.com" },
+    { name: "Twitch", icon: twitchIcon, url: "https://www.twitch.tv" },
   ];
 
   // Use the enhanced keyboard navigation with entertainment support
@@ -48,7 +54,7 @@ function Entertainment() {
     focusedAppIndex,
     isEntertainmentMode,
     handleIconFocus,
-    handleIconKeyDown
+    handleIconKeyDown,
   } = useKeyboardNavigation({
     isNavOpen,
     setIsNavOpen,
@@ -62,7 +68,7 @@ function Entertainment() {
     // Entertainment-specific params
     isEntertainmentPage: true,
     appRefs,
-    entertainmentOptions
+    entertainmentOptions,
   });
 
   if (loading) return <div className="loading">Loading...</div>;
@@ -91,24 +97,32 @@ function Entertainment() {
         {/* Centered Entertainment Section */}
         <div className="entertainment-card">
           <h2 id="entertainment-heading">More Entertainment</h2>
-          <div className="entertainment-icons" role="navigation" aria-labelledby="entertainment-heading">
+          <div
+            className="entertainment-icons"
+            role="navigation"
+            aria-labelledby="entertainment-heading"
+          >
             {entertainmentOptions.map((option, index) => (
-              <a 
+              <a
                 key={option.name}
-                href={option.url} 
-                target="_blank" 
-                rel="noopener noreferrer" 
+                href={option.url}
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label={`${option.name} (use arrow keys to navigate)`}
-                tabIndex={isEntertainmentMode || index === focusedAppIndex ? 0 : -1}
-                ref={el => appRefs.current[index] = el}
+                tabIndex={
+                  isEntertainmentMode || index === focusedAppIndex ? 0 : -1
+                }
+                ref={(el) => (appRefs.current[index] = el)}
                 onKeyDown={(e) => handleIconKeyDown(e, index, option.url)}
-                className={`entertainment-link ${focusedAppIndex === index ? 'app-focused' : ''}`}
+                className={`entertainment-link ${
+                  focusedAppIndex === index ? "app-focused" : ""
+                }`}
                 onFocus={() => handleIconFocus(index)}
                 onMouseOver={() => handleIconFocus(index)}
               >
-                <img 
-                  src={option.icon} 
-                  alt={option.name} 
+                <img
+                  src={option.icon}
+                  alt={option.name}
                   className="entertainment-icon"
                 />
               </a>
